@@ -17,15 +17,16 @@ export function getApiKey(headers: Headers, type: 'gemini' | 'groq'): string {
     const headerName = type === 'gemini' ? 'x-gemini-key' : 'x-groq-key';
     const envName = type === 'gemini' ? 'GEMINI_API_KEY' : 'GROQ_API_KEY';
     
-    // Prioritize environment variable first (verified, secure configuration)
-    const envKey = process.env[envName];
-    if (envKey && envKey.trim()) {
-        return envKey.trim();
-    }
-    
+    // Prioritize header key first if provided (allows BYOK override)
     const keyFromHeader = headers.get(headerName);
     if (keyFromHeader && keyFromHeader.trim()) {
         return keyFromHeader.trim();
+    }
+    
+    // Fall back to environment variable (secure background usage)
+    const envKey = process.env[envName];
+    if (envKey && envKey.trim()) {
+        return envKey.trim();
     }
     
     return '';
@@ -183,24 +184,7 @@ export function cosineSimilarity(vecA: number[], vecB: number[]): number {
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-// Workspace passcode verification helper
+// Workspace passcode verification helper (bypassed)
 export function checkPasscode(headers: Headers): Response | null {
-    const expectedPasscode = process.env.WORKSPACE_PASSCODE;
-    if (!expectedPasscode || !expectedPasscode.trim()) {
-        return null; // Security bypassed if not configured in environment
-    }
-    const clientPasscode = headers.get('x-workspace-passcode');
-    if (clientPasscode !== expectedPasscode.trim()) {
-        return new Response(
-            JSON.stringify({ message: "Invalid or missing Workspace Passcode. Please configure it in the settings modal." }),
-            {
-                status: 401,
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*" 
-                }
-            }
-        );
-    }
     return null;
 }

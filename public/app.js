@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gemini: storedGeminiKey,
             groq: localStorage.getItem('groq_key') || ''
         },
-        workspacePasscode: localStorage.getItem('workspace_passcode') || '',
+        geminiKeyMode: localStorage.getItem('gemini_key_mode') || 'background', // 'background' or 'byok'
         activeModel: localStorage.getItem('active_model') || 'gemini-3.1-flash-lite',
         searchResults: [],
         selectedPaperId: null,
@@ -39,14 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const navSettingsLink     = $('nav-settings-link');
 
     // Settings Modal elements
-    const settingsBtn       = $('settings-btn');
-    const settingsModal     = $('settings-modal');
-    const settingsCloseBtn  = $('settings-close-btn');
-    const saveSettingsBtn   = $('save-settings-btn');
-    const geminiKeyInput    = $('gemini-key-input');
-    const passcodeInput    = $('passcode-input');
-    const groqKeyInput      = $('groq-key-input');
-    const modelSelect       = $('model-select');
+    const settingsBtn             = $('settings-btn');
+    const settingsModal             = $('settings-modal');
+    const settingsCloseBtn          = $('settings-close-btn');
+    const saveSettingsBtn           = $('save-settings-btn');
+    const geminiKeyModeBackground   = $('gemini-key-mode-background');
+    const geminiKeyModeByok         = $('gemini-key-mode-byok');
+    const geminiKeyInputContainer   = $('gemini-key-input-container');
+    const geminiKeyInput            = $('gemini-key-input');
+    const groqKeyInput              = $('groq-key-input');
+    const modelSelect               = $('model-select');
 
     // Search and Core Workspace elements
     const landingSearchForm   = $('landing-search-form');
@@ -88,10 +90,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedFormulaDesc = $('selected-formula-desc');
 
     // ─── Initialize settings fields ───
+    if (state.geminiKeyMode === 'byok') {
+        if (geminiKeyModeByok) geminiKeyModeByok.checked = true;
+        if (geminiKeyInputContainer) geminiKeyInputContainer.classList.remove('hidden');
+    } else {
+        if (geminiKeyModeBackground) geminiKeyModeBackground.checked = true;
+        if (geminiKeyInputContainer) geminiKeyInputContainer.classList.add('hidden');
+    }
+
     if (geminiKeyInput) geminiKeyInput.value = state.apiKeys.gemini;
-    if (passcodeInput) passcodeInput.value = state.workspacePasscode;
     if (groqKeyInput) groqKeyInput.value = state.apiKeys.groq;
     if (modelSelect) modelSelect.value = state.activeModel;
+
+    // Toggle custom key visibility based on mode selection
+    const updateGeminiKeyModeUI = () => {
+        if (geminiKeyModeByok && geminiKeyModeByok.checked) {
+            geminiKeyInputContainer.classList.remove('hidden');
+        } else {
+            geminiKeyInputContainer.classList.add('hidden');
+        }
+    };
+    if (geminiKeyModeBackground) geminiKeyModeBackground.addEventListener('change', updateGeminiKeyModeUI);
+    if (geminiKeyModeByok) geminiKeyModeByok.addEventListener('change', updateGeminiKeyModeUI);
 
     // ─── View Transition Helpers ───
     function switchToWorkspace() {
@@ -141,20 +161,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === settingsModal) settingsModal.classList.add('hidden');
     });
 
-        // Save Settings
+    // Save Settings
     if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener('click', () => {
-            state.apiKeys.gemini = geminiKeyInput.value.trim();
-            state.workspacePasscode = passcodeInput.value.trim();
+            const isByok = geminiKeyModeByok && geminiKeyModeByok.checked;
+            state.geminiKeyMode = isByok ? 'byok' : 'background';
+            state.apiKeys.gemini = isByok ? geminiKeyInput.value.trim() : '';
             state.apiKeys.groq   = groqKeyInput.value.trim();
             state.activeModel    = modelSelect.value;
 
-            localStorage.setItem('gemini_key', state.apiKeys.gemini);
-            localStorage.setItem('workspace_passcode', state.workspacePasscode);
+            localStorage.setItem('gemini_key_mode', state.geminiKeyMode);
+            if (isByok) {
+                localStorage.setItem('gemini_key', state.apiKeys.gemini);
+            } else {
+                localStorage.removeItem('gemini_key');
+            }
             localStorage.setItem('groq_key', state.apiKeys.groq);
             localStorage.setItem('active_model', state.activeModel);
 
-            appendChat('System', `Settings saved. Active model: <strong>${state.activeModel}</strong>. API key configured: ${state.apiKeys.gemini ? '✅' : '❌'}`);
+            appendChat('System', `Settings saved. Active model: <strong>${state.activeModel}</strong>. Key mode: <strong>${state.geminiKeyMode === 'byok' ? 'BYOK (Custom Key)' : 'System Background Key'}</strong>`);
             settingsModal.classList.add('hidden');
         });
     }
@@ -162,9 +187,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── Utility: Build request headers ───
     function getHeaders() {
         const headers = { 'Content-Type': 'application/json' };
-        if (state.apiKeys.gemini) headers['X-Gemini-Key'] = state.apiKeys.gemini;
-        if (state.apiKeys.groq)   headers['X-Groq-Key']   = state.apiKeys.groq;
-        if (state.workspacePasscode) headers['X-Workspace-Passcode'] = state.workspacePasscode;
+        if (state.geminiKeyMode === 'byok' && state.apiKeys.gemini) {
+            headers['X-Gemini-Key'] = state.apiKeys.gemini;
+        }
+        if (state.apiKeys.groq) {
+            headers['X-Groq-Key'] = state.apiKeys.groq;
+        }
         return headers;
     }
 
@@ -581,9 +609,6 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('pdf', file);
 
         const headers = {};
-        if (state.workspacePasscode) {
-            headers['X-Workspace-Passcode'] = state.workspacePasscode;
-        }
 
         try {
             const res = await fetch('/api/pdf-upload', {

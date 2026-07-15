@@ -498,20 +498,38 @@
                 <button id="settings-close-btn" class="close-btn">&times;</button>
             </div>
             <div class="modal-body space-y-6 py-6">
+                <!-- Gemini Key Mode Selector -->
                 <div class="form-group space-y-2">
-                    <label for="gemini-key-input">Gemini API Key</label>
-                    <input type="password" id="gemini-key-input" placeholder="AQ.Ab8RN6...">
-                    <p class="help-text">Your API key is prioritized from your local .env configuration but can be overridden here.</p>
+                    <label class="block font-mono text-[10px] uppercase tracking-wider text-secondary">Gemini API Key Configuration</label>
+                    <div class="space-y-3 pt-1">
+                        <label class="flex items-start gap-2.5 cursor-pointer text-sm">
+                            <input type="radio" name="gemini-key-mode" value="background" id="gemini-key-mode-background" class="mt-1 h-4 w-4 border-outline text-primary focus:ring-primary">
+                            <div class="space-y-0.5">
+                                <span class="font-medium text-[#1A1A1A]">Use built-in key (Secure Background)</span>
+                                <p class="text-xs text-secondary/70">Runs with the system's pre-configured Gemini credentials securely in the background.</p>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-2.5 cursor-pointer text-sm">
+                            <input type="radio" name="gemini-key-mode" value="byok" id="gemini-key-mode-byok" class="mt-1 h-4 w-4 border-outline text-primary focus:ring-primary">
+                            <div class="space-y-0.5">
+                                <span class="font-medium text-[#1A1A1A]">Bring Your Own Key (BYOK)</span>
+                                <p class="text-xs text-secondary/70">Enter your custom Google Gemini API key to run queries on your own account.</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-                <div class="form-group space-y-2">
-                    <label for="passcode-input">Workspace Passcode</label>
-                    <input type="password" id="passcode-input" placeholder="Enter passcode...">
-                    <p class="help-text">Required only if WORKSPACE_PASSCODE is active on the server.</p>
+
+                <!-- Gemini API Key Input (conditional) -->
+                <div id="gemini-key-input-container" class="form-group space-y-2 hidden">
+                    <label for="gemini-key-input">Custom Gemini API Key</label>
+                    <input type="password" id="gemini-key-input" placeholder="Paste your API key here (AQ.Ab8RN6... or AIza...)">
                 </div>
+
                 <div class="form-group space-y-2">
                     <label for="groq-key-input">Groq API Key (Optional)</label>
                     <input type="password" id="groq-key-input" placeholder="gsk_...">
                 </div>
+
                 <div class="form-group space-y-2">
                     <label for="model-select">Active Synthesis Model</label>
                     <select id="model-select">
@@ -520,6 +538,7 @@
                         <option value="ollama-local">Ollama Local (Fallback)</option>
                     </select>
                 </div>
+
                 <div class="modal-actions pt-4">
                     <button id="save-settings-btn" class="oxford-btn w-full py-3 font-mono text-xs uppercase tracking-widest">Save Settings</button>
                 </div>
