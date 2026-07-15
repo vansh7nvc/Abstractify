@@ -1,0 +1,9 @@
+node_modules/
+.netlify/
+.env
+dist/
+paper_embeddings.npy
+paper_faiss.index
+notebook_outline.txt
+check_env.py
+read_notebook*.py

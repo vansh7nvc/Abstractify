@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>AbstractiFy | Academic AI Synthesis</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+    <!-- Vis-Network for Draggable Graphs -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        try {
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        "colors": {
+                            "primary": "#002147", /* Oxford Blue */
+                            "background": "#FDFAF6", /* Ivory */
+                            "surface": "#FDFAF6",
+                            "on-surface": "#1A1A1A", /* Charcoal Ink */
+                            "on-background": "#1A1A1A",
+                            "outline": "#D1CDC7", /* Elegant Rule Color */
+                            "secondary": "#4A4A4A",
+                            "accent-supporting": "#E8F0F2",
+                            "accent-mixed": "#F2E8F0",
+                            "accent-contradicts": "#F2E8E8"
+                        },
+                        "fontFamily": {
+                            "serif": ["Playfair Display", "serif"],
+                            "sans": ["Inter", "sans-serif"],
+                            "mono": ["JetBrains Mono", "monospace"]
+                        }
+                    }
+                }
+            }
+        } catch(_e){}
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="font-sans antialiased paper-texture min-h-screen show-landing" style="font-family: 'Times New Roman', Times, serif;">
+
+    <!-- ========================================== -->
+    <!--          LANDING PAGE VIEW                 -->
+    <!-- ========================================== -->
+    <div id="landing-view" class="w-full">
+        <!-- Global Top Nav -->
+        <header class="fixed top-0 w-full h-20 z-50 flex justify-between items-center px-10 bg-background/90 backdrop-blur-md border-b editorial-rule">
+            <div class="flex items-center gap-2">
+                <span class="cursive-logo text-2xl font-bold text-primary tracking-tight">AbstractiFy</span>
+            </div>
+            <nav class="hidden md:flex items-center gap-10 font-mono text-[11px] uppercase tracking-[0.2em]" style="font-family: 'Times New Roman', Times, serif;">
+                <a class="text-primary border-b border-primary pb-1" href="#">Journal</a>
+                <a class="text-secondary hover:text-primary transition-colors" href="#">Methodology</a>
+                <a class="text-secondary hover:text-primary transition-colors" href="#">Archives</a>
+            </nav>
+            <div class="flex items-center gap-8">
+                <button class="access-workspace-btn font-mono text-[11px] uppercase tracking-widest text-primary border border-primary px-4 py-2 hover:bg-primary hover:text-background transition-all" style="font-family: 'Times New Roman', Times, serif;">
+                    Access Workspace
+                </button>
+                <div class="w-8 h-8 rounded-full overflow-hidden border border-primary/20 grayscale">
+                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmImB6T-JF7b9sIuG34hwQjaE3-IbPn--jt3O5EPOqGI9vpQoEj2LBlS0YNv4pqjJTXpTO_DVpcq5EiKPjh2nyjoNwFhfjyYgzIiKFUbuJdVEgwUIIbcgp309IzRiSwWM3GEnb_BIhNthnYMy5_1dKkrF3G50L59wwiK5WXj73Rm_LHb2DSR6Ysitcy3hGhJ50raVanvL5FO4AffPNW-HL68rxNHGfmjfbFLuJXq1l53VuW7jekHe-etic-Yk8RL0T4Vky1rTZT60"/>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-24 px-8 text-center border-b editorial-rule">
+            <div class="max-w-4xl mx-auto space-y-12">
+                <div class="font-mono text-[12px] uppercase tracking-[0.3em] text-secondary border-y editorial-rule py-3 inline-block px-12" style="font-family: 'Times New Roman', Times, serif;">
+                    Volume IV • Issue II • MMXXIV
+                </div>
+                <h1 class="cursive-logo text-7xl md:text-9xl text-primary leading-none py-4">
+                    AbstractiFy
+                </h1>
+                <div class="space-y-6">
+                    <h2 class="serif-heading text-4xl md:text-6xl text-on-surface tracking-tight leading-tight italic" style="font-family: 'Times New Roman', Times, serif;">
+                        A New Standard for Scholarly Synthesis
+                    </h2>
+                    <p class="font-sans text-xl text-secondary max-w-2xl mx-auto leading-relaxed italic opacity-80">
+                        Bridging the gap between exhaustive data and profound insight. Experience the evolution of academic rigor through neural synthesis.
+                    </p>
+                </div>
+                <!-- Landing Quick Search Form -->
+                <div class="max-w-xl mx-auto pt-4">
+                    <form id="landing-search-form" class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-lg">search</span>
+                        <input id="landing-search-input" class="w-full bg-transparent border-b-2 border-primary/20 focus:border-primary focus:ring-0 text-sm font-mono uppercase tracking-widest pl-10 pr-24 py-3 transition-all" placeholder="Enter Thesis or Query..." type="text" style="font-family: 'Times New Roman', Times, serif;">
+                        <button type="submit" class="absolute right-0 top-1/2 -translate-y-1/2 oxford-btn px-6 py-2.5 font-mono text-[10px] uppercase tracking-widest">
+                            Analyze
+                        </button>
+                    </form>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-8 pt-4">
+                    <button class="access-workspace-btn oxford-btn px-10 py-4 font-mono text-xs uppercase tracking-widest" style="font-family: 'Times New Roman', Times, serif;">
+                        Access Workspace
+                    </button>
+                    <button id="landing-settings-btn" class="px-10 py-4 border border-primary text-primary font-mono text-xs uppercase tracking-widest hover:bg-primary/5 transition-all" style="font-family: 'Times New Roman', Times, serif;">
+                        Configure Credentials
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Editorial Grid (Problem/Solution) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 border-b editorial-rule">
+            <div class="p-16 lg:p-24 space-y-8 flex flex-col justify-center">
+                <span class="font-mono text-[10px] uppercase tracking-[0.4em] text-secondary" style="font-family: 'Times New Roman', Times, serif;">The Scholarly Crisis</span>
+                <h3 class="serif-heading text-4xl lg:text-5xl italic leading-tight" style="font-family: 'Times New Roman', Times, serif;">The burden of fragmented knowledge.</h3>
+                <p class="text-secondary text-lg max-w-md leading-relaxed">
+                    The modern researcher is besieged by a deluge of publications. Information overload has become the primary barrier to genuine discovery, forcing scholars into silos of hyper-specialization.
+                </p>
+                <div class="pt-8 border-t editorial-rule font-serif italic text-xl text-primary/60" style="font-family: 'Times New Roman', Times, serif;">
+                    "We are drowning in information, while starving for wisdom."
+                </div>
+            </div>
+            <div class="p-16 lg:p-24 space-y-8 bg-primary text-background flex flex-col justify-center vertical-rule">
+                <span class="font-mono text-[10px] uppercase tracking-[0.4em] opacity-60" style="font-family: 'Times New Roman', Times, serif;">The Synthesis Engine</span>
+                <h3 class="serif-heading text-4xl lg:text-5xl italic leading-tight" style="font-family: 'Times New Roman', Times, serif;">Clarity through neural mapping.</h3>
+                <p class="opacity-80 text-lg max-w-md leading-relaxed">
+                    AbstractiFy employs advanced semantic architectures to distill complex literature into coherent narratives. Our system identifies consensus and highlights anomalies with surgical precision.
+                </p>
+                <div class="pt-12 grid grid-cols-2 gap-8 border-t border-background/20">
+                    <div>
+                        <p class="font-mono text-[24px]">4.2s</p>
+                        <p class="font-mono text-[10px] uppercase tracking-widest opacity-60" style="font-family: 'Times New Roman', Times, serif;">Avg. Synthesis Time</p>
+                    </div>
+                    <div>
+                        <p class="font-mono text-[24px]">99.8%</p>
+                        <p class="font-mono text-[10px] uppercase tracking-widest opacity-60" style="font-family: 'Times New Roman', Times, serif;">Citation Accuracy</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Artistic Synthesis Representation -->
+        <section class="py-24 px-10 bg-[#f4f1ec] border-b editorial-rule">
+            <div class="max-w-7xl mx-auto text-center mb-16">
+                <h2 class="serif-heading text-5xl italic mb-4" style="font-family: 'Times New Roman', Times, serif;">The Art of Connection</h2>
+                <div class="w-24 h-[1px] bg-primary mx-auto mb-6"></div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-secondary" style="font-family: 'Times New Roman', Times, serif;">Visualizing the Neural Fabric of Research</p>
+            </div>
+            <div class="max-w-5xl mx-auto relative group">
+                <!-- Abstract Artistic Representation -->
+                <div class="aspect-[16/9] bg-white border editorial-rule shadow-sm overflow-hidden flex items-center justify-center relative">
+                    <div class="absolute inset-0 opacity-10 paper-texture"></div>
+                    <div class="relative z-10 w-full h-full p-12 flex items-center justify-center">
+                        <img alt="Abstract Synthesis Collage" class="w-full h-full object-cover grayscale sepia-[.2] contrast-125 mix-blend-multiply opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxfGozllTS2JKSbu9eQvXIlVn0IfJuYdwTDGb5rSaGDxxMQc0EcaB2SS0wz84P-0rph-Yekhk3PwebsGx7UwD2JbX9Zl7s6KRwmBrOLFSIK3JmGjI-dS2Xivuh2pqD_QUtVMRS98Gw38-wGqD2PVb-BhPnj3BOCPM0e8yP1TUR6LKY5TMtHz_CLorP_a1YnkuyynwWsMsD0Zu6Wg5JHBbOdwQaw7LsyrtfDbA4j-hbtXqiEBNqNbeq_uw-X5d8EoUNLlM8kF-txPU"/>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-1/2 h-1/2 border-[0.5px] border-primary/20 rotate-45 animate-pulse"></div>
+                            <div class="absolute text-primary/40 font-mono text-[8px] uppercase tracking-tighter p-4 border border-primary/10 backdrop-blur-sm bg-white/50" style="font-family: 'Times New Roman', Times, serif;">
+                                Synthesizing Correlated Networks...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-4 right-4 bg-background px-4 py-2 border editorial-rule font-mono text-[9px] uppercase tracking-widest text-secondary" style="font-family: 'Times New Roman', Times, serif;">
+                        Fig 1.1: Semantic Convergence Mapping
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Multi-Column Editorial Features -->
+        <section class="py-24 px-10 border-b editorial-rule">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l editorial-rule">
+                <!-- Feature 1 -->
+                <div class="p-12 border-r border-b editorial-rule space-y-6">
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary" style="font-family: 'Times New Roman', Times, serif;">01 / Topology</span>
+                    <h4 class="serif-heading text-2xl font-bold" style="font-family: 'Times New Roman', Times, serif;">Citation Genealogy</h4>
+                    <p class="text-secondary text-sm leading-relaxed">
+                        Trace the historical progression of scientific thought. Our temporal mapping reveals the foundations upon which modern discoveries are built.
+                    </p>
+                    <ul class="space-y-3 font-mono text-[10px] uppercase tracking-widest text-primary/70" style="font-family: 'Times New Roman', Times, serif;">
+                        <li>• Temporal Flow Analysis</li>
+                        <li>• Influence Weighting</li>
+                    </ul>
+                </div>
+                <!-- Feature 2 -->
+                <div class="p-12 border-r border-b editorial-rule space-y-6">
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary" style="font-family: 'Times New Roman', Times, serif;">02 / Analysis</span>
+                    <h4 class="serif-heading text-2xl font-bold" style="font-family: 'Times New Roman', Times, serif;">Consensus Matrix</h4>
+                    <p class="text-secondary text-sm leading-relaxed">
+                        An objective grid comparing methodologies and conclusions. Neutralize bias by viewing the entire landscape of data in a single frame.
+                    </p>
+                    <ul class="space-y-3 font-mono text-[10px] uppercase tracking-widest text-primary/70" style="font-family: 'Times New Roman', Times, serif;">
+                        <li>• Methodology Alignment</li>
+                        <li>• Conflict Detection</li>
+                    </ul>
+                </div>
+                <!-- Feature 3 -->
+                <div class="p-12 border-r border-b editorial-rule space-y-6">
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary" style="font-family: 'Times New Roman', Times, serif;">03 / Synthesis</span>
+                    <h4 class="serif-heading text-2xl font-bold" style="font-family: 'Times New Roman', Times, serif;">RAG Reasoning</h4>
+                    <p class="text-secondary text-sm leading-relaxed">
+                        Engage in a sophisticated dialogue with your library. Extract specific answers with verified citations directly from the source text.
+                    </p>
+                    <ul class="space-y-3 font-mono text-[10px] uppercase tracking-widest text-primary/70" style="font-family: 'Times New Roman', Times, serif;">
+                        <li>• Document Reasoning</li>
+                        <li>• Verifiable Citations</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Section -->
+        <section class="py-32 px-10 text-center border-b editorial-rule">
+            <div class="max-w-4xl mx-auto space-y-10">
+                <h2 class="serif-heading text-5xl md:text-6xl italic leading-tight" style="font-family: 'Times New Roman', Times, serif;">A prestigious future for <br/>scientific inquiry.</h2>
+                <p class="text-secondary text-lg max-w-xl mx-auto font-sans leading-relaxed">
+                    Join a community of 50,000+ academics who have elevated their workflow with AbstractiFy.
+                </p>
+                <div class="flex flex-col items-center gap-6 pt-6">
+                    <button class="access-workspace-btn oxford-btn px-16 py-5 font-mono text-xs uppercase tracking-[0.3em]" style="font-family: 'Times New Roman', Times, serif;">
+                        Initialize Workspace
+                    </button>
+                    <p class="font-mono text-[10px] uppercase tracking-widest text-secondary opacity-60" style="font-family: 'Times New Roman', Times, serif;">
+                        Early Access • Academic Credentials Required
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Landing Footer -->
+        <footer class="py-20 px-10">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div class="col-span-1 md:col-span-2 space-y-6">
+                    <span class="cursive-logo text-3xl font-bold text-primary">AbstractiFy</span>
+                    <p class="text-secondary text-sm max-w-xs italic opacity-80 leading-relaxed">
+                        Defining the intelligent infrastructure for the next century of scientific discovery and human understanding.
+                    </p>
+                </div>
+                <div class="space-y-6">
+                    <h5 class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary" style="font-family: 'Times New Roman', Times, serif;">Journal</h5>
+                    <ul class="space-y-3 text-[12px] text-secondary font-sans">
+                        <li><a class="hover:text-primary transition-colors" href="#">Publications</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Ethics Statement</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Institutional Licensing</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-6">
+                    <h5 class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary" style="font-family: 'Times New Roman', Times, serif;">Correspondence</h5>
+                    <div class="flex gap-6">
+                        <a class="text-secondary hover:text-primary transition-all" href="#">
+                            <span class="material-symbols-outlined text-[20px]">alternate_email</span>
+                        </a>
+                        <a class="text-secondary hover:text-primary transition-all" href="#">
+                            <span class="material-symbols-outlined text-[20px]">rss_feed</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto pt-16 mt-16 border-t editorial-rule flex flex-col md:flex-row justify-between text-[10px] font-mono uppercase tracking-[0.2em] text-secondary/60" style="font-family: 'Times New Roman', Times, serif;">
+                <p>© MMXXIV AbstractiFy AI. All Rights Reserved.</p>
+                <div class="flex gap-8 mt-4 md:mt-0">
+                    <a class="hover:text-primary" href="#">Privacy Codex</a>
+                    <a class="hover:text-primary" href="#">Terms of Engagement</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!--          WORKSPACE DASHBOARD VIEW          -->
+    <!-- ========================================== -->
+    <div id="app-view" class="w-full hidden">
+        <!-- Top Navigation -->
+        <header class="sticky top-0 w-full h-24 z-50 flex justify-between items-center px-10 bg-background/95 backdrop-blur-md border-b editorial-rule">
+            <div class="flex items-center gap-10">
+                <span id="nav-brand-btn" class="cursive-logo text-3xl font-bold text-primary tracking-tight cursor-pointer">AbstractiFy</span>
+                <nav class="hidden md:flex items-center gap-8 font-mono text-[11px] uppercase tracking-[0.2em]" style="font-family: 'Times New Roman', Times, serif;">
+                    <a class="text-primary border-b border-primary pb-1" href="#">Workspace</a>
+                    <a id="nav-landing-link" class="text-secondary hover:text-primary transition-colors cursor-pointer">Home</a>
+                    <a id="nav-settings-link" class="text-secondary hover:text-primary transition-colors cursor-pointer">Credentials</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-6">
+                <!-- Search Input Form inside Header -->
+                <div class="relative hidden sm:block">
+                    <form id="search-form">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+                        <input id="search-input" class="bg-transparent border-b editorial-rule focus:border-primary focus:ring-0 text-xs font-mono uppercase tracking-widest pl-9 pr-4 py-2 w-64 transition-all" placeholder="Search Synthesis..." type="text" style="font-family: 'Times New Roman', Times, serif;">
+                    </form>
+                </div>
+                <!-- PDF Upload Action Button -->
+                <button id="upload-pdf-btn" class="font-mono text-[11px] uppercase tracking-widest text-primary border border-primary px-5 py-2.5 hover:bg-primary hover:text-background transition-all" style="font-family: 'Times New Roman', Times, serif;">
+                    Upload Folio
+                </button>
+                <input type="file" id="pdf-file-input" accept="application/pdf" class="hidden">
+                
+                <!-- Settings Gear Icon -->
+                <button id="settings-btn" class="icon-btn text-primary hover:opacity-80">
+                    <span class="material-symbols-outlined text-[20px] block">settings</span>
+                </button>
+                
+                <div class="w-10 h-10 rounded-full overflow-hidden border border-primary/20 grayscale">
+                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1uNA1lYtMg4H9aIeiCAlGTMoTA_tkwCeWEH5k2VHGqOUw7GPdC9Ytn7r9x3aDM52ogsuiYP3uoTcI7ompBNanZ7HeSXvQ80hKWCfppjOdOFw0W-1RCzcjcypsIFmQT-qLu5ugllJwX6WMuwBkjODU9Bz699hnHwmN6mlvCzfNgTa1gq3NMn58C0lK7zg3KWXEL5Xw24jhERJ8syVWDfQ6hKA9vWEgl-l3fJEhiB6Byth1pqNrDAwkojXWhvy71DdQNVpxCOSeS_E" alt="User Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Workspace -->
+        <main class="max-w-[1400px] mx-auto px-10 py-16">
+            <!-- Main Content Header -->
+            <div class="text-center mb-20 space-y-4">
+                <div class="font-mono text-[10px] uppercase tracking-[0.4em] text-secondary small-caps" style="font-family: 'Times New Roman', Times, serif;">Published Workspace Analysis</div>
+                <h1 id="workspace-title" class="serif-heading text-5xl md:text-7xl italic text-primary leading-tight" style="font-family: 'Times New Roman', Times, serif;">Scholarly Exploration</h1>
+                <div class="flex items-center justify-center gap-4 text-secondary font-mono text-[11px] uppercase tracking-widest mt-6" style="font-family: 'Times New Roman', Times, serif;">
+                    <span>Volume IV</span>
+                    <span class="w-1 h-1 bg-primary rounded-full"></span>
+                    <span>Issue II</span>
+                    <span class="w-1 h-1 bg-primary rounded-full"></span>
+                    <span>MMXXIV</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-12 gap-16">
+                <!-- Center Content: Synthesis & Matrix & Network Graph -->
+                <div class="col-span-12 lg:col-span-8 space-y-16">
+                    <!-- Core Synthesis Card -->
+                    <article class="space-y-10">
+                        <div class="border-y editorial-rule py-8 flex justify-between items-end">
+                            <div class="space-y-2">
+                                <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary/60 small-caps" style="font-family: 'Times New Roman', Times, serif;">Core Synthesis</span>
+                                <h2 class="serif-heading text-4xl italic text-on-surface" style="font-family: 'Times New Roman', Times, serif;">Synthesis Outcome</h2>
+                            </div>
+                            <div class="text-right">
+                                <span id="papers-sampled-badge" class="font-mono text-[11px] uppercase tracking-widest text-secondary border border-primary/20 px-3 py-1" style="font-family: 'Times New Roman', Times, serif;">0 Papers Sampled</span>
+                            </div>
+                        </div>
+
+                        <!-- Consensus Progress bar -->
+                        <div id="consensus-progress-box" class="space-y-6 hidden">
+                            <div class="flex justify-between items-center text-[10px] font-mono uppercase tracking-widest text-secondary mb-2" style="font-family: 'Times New Roman', Times, serif;">
+                                <span>Consensus Meter</span>
+                                <div class="flex gap-4">
+                                    <span class="flex items-center gap-1"><span class="w-2 h-2 solid-texture-fill"></span> <span id="stat-supports">Supports</span></span>
+                                    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#ce5dff]"></span> <span id="stat-neutral">Mixed</span></span>
+                                    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#93000a]"></span> <span id="stat-contradicts">Opposes</span></span>
+                                </div>
+                            </div>
+                            <!-- Bar fill elements dynamically sized in JS -->
+                            <div class="w-full h-4 bg-accent-supporting/50 border editorial-rule overflow-hidden flex">
+                                <div id="consensus-bar-supports" class="h-full solid-texture-fill" style="width: 0%;"></div>
+                                <div id="consensus-bar-neutral" class="h-full bg-[#ce5dff]/60" style="width: 0%;"></div>
+                                <div id="consensus-bar-contradicts" class="h-full bg-[#93000a]/60" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Welcome & Summary Text boxes -->
+                        <div id="welcome-message" class="serif-heading text-2xl leading-relaxed text-on-surface italic" style="font-family: 'Times New Roman', Times, serif;">
+                            "Enter a query to search and re-rank global literature, analyze scientific consensus, and view paper metadata."
+                        </div>
+                        <div id="loader" class="loader-container hidden py-8 text-center font-mono text-xs uppercase tracking-widest text-secondary" style="font-family: 'Times New Roman', Times, serif;">
+                            <span class="animate-pulse">Analyzing academic publications...</span>
+                        </div>
+                        <p id="consensus-summary-text" class="serif-heading text-2xl leading-relaxed text-on-surface italic hidden" style="font-family: 'Times New Roman', Times, serif;">
+                            <!-- Populated dynamically -->
+                        </p>
+
+                        <!-- Key Metrics cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+                            <div class="folio-card p-6 space-y-4">
+                                <div class="flex justify-between items-start">
+                                    <span class="font-mono text-[9px] uppercase tracking-widest border border-primary/20 px-2 py-0.5" style="font-family: 'Times New Roman', Times, serif;">Key Insight</span>
+                                    <span class="material-symbols-outlined text-primary text-sm">energy_savings_leaf</span>
+                                </div>
+                                <h4 class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary small-caps" style="font-family: 'Times New Roman', Times, serif;">Methodological Alignment</h4>
+                                <p class="text-sm leading-relaxed text-secondary italic">Extract and map methodological pathways across multiple publications instantly.</p>
+                            </div>
+                            <div class="folio-card p-6 space-y-4">
+                                <div class="flex justify-between items-start">
+                                    <span class="font-mono text-[9px] uppercase tracking-widest border border-primary/20 px-2 py-0.5">Focus State</span>
+                                    <span class="material-symbols-outlined text-primary text-sm">timer</span>
+                                </div>
+                                <h4 class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary small-caps" style="font-family: 'Times New Roman', Times, serif;">Parameter Extraction</h4>
+                                <p class="text-sm leading-relaxed text-secondary italic">Distill dataset sizes, experimental boundaries, and performance metrics automatically.</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Comparison Matrix -->
+                    <section class="space-y-8 pt-8">
+                        <div class="flex justify-between items-center border-b editorial-rule pb-4">
+                            <h3 class="serif-heading text-2xl italic" style="font-family: 'Times New Roman', Times, serif;">Comparison Matrix</h3>
+                            <button id="export-csv-btn" class="font-mono text-[9px] uppercase tracking-widest text-secondary hover:text-primary cursor-pointer border-0 bg-transparent" style="font-family: 'Times New Roman', Times, serif;">Export CSV Folio</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left font-sans">
+                                <thead>
+                                    <tr class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary/60 border-b editorial-rule" style="font-family: 'Times New Roman', Times, serif;">
+                                        <th class="py-4 font-normal">Publication</th>
+                                        <th class="py-4 font-normal">Dataset Size</th>
+                                        <th class="py-4 font-normal">Methodology</th>
+                                        <th class="py-4 font-normal">Outcomes</th>
+                                        <th class="py-4 font-normal">Limitations</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="matrix-body" class="text-sm">
+                                    <tr class="border-b editorial-rule">
+                                        <td colspan="5" class="py-8 text-center text-secondary italic">No data available. Perform a search or upload a PDF to extract parameters.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Interactive Network Graph -->
+                    <section class="space-y-8 pt-8">
+                        <div class="border-b editorial-rule pb-4">
+                            <h3 class="serif-heading text-2xl italic" style="font-family: 'Times New Roman', Times, serif;">Citation Lineage & Network Graph</h3>
+                        </div>
+                        <div id="network-container" class="w-full h-[450px] border border-[#D1CDC7] bg-white relative">
+                            <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-[10px] uppercase tracking-widest text-secondary bg-[#FDFAF6]/90 z-10 pointer-events-none">
+                                Search results citation network will display here. Interactive nodes represent papers, sized by citations and colored by year.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Sidebar: Cited Publications & Assistant & Equation Box -->
+                <aside class="col-span-12 lg:col-span-4 space-y-12 border-l editorial-rule pl-12">
+                    <!-- Related Publications list -->
+                    <div class="space-y-8">
+                        <h4 class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary small-caps border-b editorial-rule pb-2" style="font-family: 'Times New Roman', Times, serif;">Cited Publications</h4>
+                        <div id="results-list" class="space-y-6 max-h-[550px] overflow-y-auto pr-2">
+                            <!-- Paper cards populated in JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- AI Assistant Section -->
+                    <div class="bg-primary p-8 text-background space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-background/80">ink_pen</span>
+                            <h4 class="font-mono text-[10px] uppercase tracking-[0.3em] small-caps" style="font-family: 'Times New Roman', Times, serif;">Research Assistant</h4>
+                        </div>
+                        <div id="chat-messages" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+                            <p class="text-xs italic leading-relaxed opacity-90 border-l border-background/30 pl-4">
+                                Hello! I am your agentic research companion. Ask me anything about the search results, compare specific papers, or query your uploaded PDF.
+                            </p>
+                        </div>
+                        <div class="relative pt-4 border-t border-background/20">
+                            <form id="chat-form">
+                                <input id="chat-input" type="text" class="w-full bg-transparent border border-background/30 focus:border-background/80 focus:ring-0 text-xs py-3 pl-4 pr-12 font-mono uppercase tracking-widest placeholder:text-background/40" placeholder="Address Assistant..." style="font-family: 'Times New Roman', Times, serif;" required>
+                                <button type="submit" class="absolute right-3 top-[calc(50%+8px)] -translate-y-1/2 bg-transparent border-0 text-background">
+                                    <span class="material-symbols-outlined text-sm">arrow_forward_ios</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Equation Box -->
+                    <div class="border editorial-rule p-8 space-y-6">
+                        <div class="flex items-center gap-3 border-b editorial-rule pb-4">
+                            <span class="material-symbols-outlined text-primary text-lg">functions</span>
+                            <h4 class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary small-caps" style="font-family: 'Times New Roman', Times, serif;">Mathematical Foundation</h4>
+                        </div>
+                        <div id="formula-explanation-container">
+                            <div id="formula-list" class="flex flex-wrap gap-2 mb-4">
+                                <span class="text-[11px] text-secondary italic">Upload a PDF to extract math formulas automatically</span>
+                            </div>
+                            <div id="formula-explanation" class="hidden space-y-4">
+                                <div id="selected-formula-text" class="py-8 text-center text-primary font-mono italic text-xl border-y border-primary/5 bg-primary/[0.01]" style="font-family: 'Times New Roman', Times, serif;">
+                                    <!-- Selected Formula Math -->
+                                </div>
+                                <p id="selected-formula-desc" class="text-[11px] leading-relaxed text-secondary italic">
+                                    <!-- Explanation text -->
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <!-- Workspace Footer -->
+        <footer class="mt-20 py-12 px-10 border-t border-[#D1CDC7] text-center">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <span class="cursive-logo text-2xl font-bold text-primary">AbstractiFy</span>
+                <div class="flex justify-center gap-10 font-mono text-[10px] uppercase tracking-[0.3em] text-secondary/60" style="font-family: 'Times New Roman', Times, serif;">
+                    <a href="#" class="hover:text-primary transition-colors">Privacy Codex</a>
+                    <a class="hover:text-primary transition-colors" href="#">Terms of Engagement</a>
+                    <a class="hover:text-primary transition-colors" href="#">Correspondence</a>
+                </div>
+                <p class="font-mono text-[9px] uppercase tracking-[0.2em] text-secondary/40" style="font-family: 'Times New Roman', Times, serif;">© MMXXIV AbstractiFy AI. All Rights Reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Credentials & Settings Drawer Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content border border-[#D1CDC7]">
+            <div class="modal-header border-b border-[#D1CDC7]">
+                <h3>Settings & Credentials</h3>
+                <button id="settings-close-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body space-y-6 py-6">
+                <div class="form-group space-y-2">
+                    <label for="gemini-key-input">Gemini API Key</label>
+                    <input type="password" id="gemini-key-input" placeholder="AQ.Ab8RN6...">
+                    <p class="help-text">Your API key is prioritized from your local .env configuration but can be overridden here.</p>
+                </div>
+                <div class="form-group space-y-2">
+                    <label for="passcode-input">Workspace Passcode</label>
+                    <input type="password" id="passcode-input" placeholder="Enter passcode...">
+                    <p class="help-text">Required only if WORKSPACE_PASSCODE is active on the server.</p>
+                </div>
+                <div class="form-group space-y-2">
+                    <label for="groq-key-input">Groq API Key (Optional)</label>
+                    <input type="password" id="groq-key-input" placeholder="gsk_...">
+                </div>
+                <div class="form-group space-y-2">
+                    <label for="model-select">Active Synthesis Model</label>
+                    <select id="model-select">
+                        <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Recommended)</option>
+                        <option value="llama-3.1-8b">Groq Llama 3.1 8B</option>
+                        <option value="ollama-local">Ollama Local (Fallback)</option>
+                    </select>
+                </div>
+                <div class="modal-actions pt-4">
+                    <button id="save-settings-btn" class="oxford-btn w-full py-3 font-mono text-xs uppercase tracking-widest">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

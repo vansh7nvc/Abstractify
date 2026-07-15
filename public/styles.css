@@ -1,0 +1,276 @@
+/* AbstractiFy Academic Editorial CSS stylesheet */
+
+:root {
+    --primary: #002147;          /* Oxford Blue */
+    --background: #FDFAF6;       /* Ivory Paper */
+    --surface: #FDFAF6;
+    --on-surface: #1A1A1A;       /* Charcoal Ink */
+    --outline: #D1CDC7;          /* Elegant rule color */
+    --secondary: #4A4A4A;        /* Muted Gray */
+    --success: #E8F0F2;
+    --error: #F2E8E8;
+    
+    --font-serif: 'Playfair Display', Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', Consolas, Monaco, monospace;
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--on-surface);
+    font-family: 'Times New Roman', Times, serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Paper Texture overlay using SVG fractal noise */
+.paper-texture {
+    position: relative;
+}
+.paper-texture::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 999;
+    background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+}
+
+/* Editorial Rules */
+.editorial-rule {
+    border-color: var(--outline) !important;
+}
+.vertical-rule {
+    border-left: 1px solid var(--outline);
+}
+
+/* Fonts and Typography */
+.serif-heading {
+    font-family: var(--font-serif);
+}
+.cursive-logo {
+    font-family: var(--font-serif);
+    font-style: italic;
+}
+
+/* Oxford Blue Button */
+.oxford-btn {
+    background-color: var(--primary);
+    color: var(--background);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--primary);
+}
+.oxford-btn:hover {
+    background-color: #00152e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 33, 71, 0.15);
+}
+
+/* Folio Card */
+.folio-card {
+    border: 1px solid var(--outline);
+    background-color: var(--background);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.folio-card:hover {
+    border-color: var(--primary);
+    background-color: rgba(0, 33, 71, 0.015);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 33, 71, 0.05);
+}
+
+/* Solid Fill for supports consensus */
+.solid-texture-fill {
+    background-color: var(--primary) !important;
+}
+
+/* Inputs and Forms */
+input[type="text"], input[type="password"], select {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid var(--outline);
+    transition: border-color 0.3s ease;
+}
+input[type="text"]:focus, input[type="password"]:focus, select:focus {
+    outline: none;
+    border-bottom-color: var(--primary) !important;
+    box-shadow: none !important;
+}
+
+/* Modal styling */
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(26, 26, 26, 0.3);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+.modal.hidden {
+    display: none !important;
+}
+.modal-content {
+    background-color: var(--background);
+    width: 450px;
+    max-height: 90vh;
+    animation: modal-slide 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 24px;
+}
+@keyframes modal-slide {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+}
+.modal-header h3 {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-style: italic;
+    color: var(--primary);
+}
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--secondary);
+    cursor: pointer;
+}
+.close-btn:hover {
+    color: var(--primary);
+}
+.form-group label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--secondary);
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--on-surface);
+}
+.help-text {
+    font-size: 11px;
+    color: var(--secondary);
+    opacity: 0.8;
+    line-height: 1.4;
+}
+
+/* Scroll Hide */
+.scroll-hide::-webkit-scrollbar {
+    display: none;
+}
+.scroll-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.02);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 33, 71, 0.15);
+    border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 33, 71, 0.3);
+}
+
+/* Spinner & Loader */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(0, 33, 71, 0.05);
+    border-top: 2px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Equation Box interactive list */
+.formula-item {
+    transition: all 0.2s ease;
+}
+.formula-item.selected {
+    background-color: var(--primary);
+    color: var(--background);
+    border-color: var(--primary);
+}
+
+/* Vis-network layout adjustments */
+.vis-network {
+    outline: none;
+}
+
+/* View transitions */
+#landing-view, #app-view {
+    transition: opacity 0.5s ease-in-out;
+}
+.hidden {
+    display: none !important;
+}
+
+/* Custom Chat Bubble separation */
+.message {
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.user-message {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background-color: rgba(253, 250, 246, 0.15);
+    border: 1px solid rgba(253, 250, 246, 0.25);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.ai-message {
+    font-family: var(--font-sans);
+    font-style: italic;
+    border-left: 2px solid rgba(253, 250, 246, 0.4);
+    opacity: 0.95;
+    padding-left: 16px;
+}
+.system-message {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    opacity: 0.7;
+    text-transform: uppercase;
+}

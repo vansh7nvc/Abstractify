@@ -1,0 +1,20 @@
+{
+  "name": "abstractify",
+  "version": "1.0.0",
+  "description": "De-jargonize research. Find consensus. Map the science.",
+  "main": "public/index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required for static frontend'"
+  },
+  "dependencies": {
+    "@google/genai": "^2.11.0",
+    "@netlify/functions": "^2.6.0",
+    "dotenv": "^16.4.5",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.20.1"
+  }
+}
