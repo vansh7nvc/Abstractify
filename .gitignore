@@ -1,9 +1,29 @@
+# Dependencies
 node_modules/
-.netlify/
-.env
+
+# Build output
 dist/
+
+# Environment & secrets
+.env
+
+# Netlify local
+.netlify/
+
+# Research artifacts (vendored)
 paper_embeddings.npy
 paper_faiss.index
 notebook_outline.txt
 check_env.py
 read_notebook*.py
+
+# Temp scripts
+*.ps1
+extract_docx.ps1
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Linter cache
+.eslintcache

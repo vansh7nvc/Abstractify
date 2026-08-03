@@ -1,66 +1,80 @@
-# 🎓 AbstractiFy: Academic AI Synthesis Portal
+# 🎓 AbstractiFy
 
 > **De-jargonize research. Find consensus. Map the science.**
 
-AbstractiFy is a premium, lightweight, and frictionless academic search and synthesis portal. It transitions research exploration from static paper lists to an interactive, multi-dimensional, consensus-driven intelligence suite. By utilizing open-access academic APIs combined with state-of-the-art LLMs, AbstractiFy allows researchers, graduate students, and developers to explore scientific literature at zero cost.
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=flat-square&logo=netlify)](https://abstractify.netlify.app)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Netlify Functions](https://img.shields.io/badge/Netlify-Serverless-00C7B7?style=flat-square&logo=netlify&logoColor=white)
+![Gemini](https://img.shields.io/badge/Google%20Gemini-AI-4285F4?style=flat-square&logo=google&logoColor=white)
+
+![AbstractiFy Landing Page](public/screenshots/landing_page.png)
 
 ---
 
-## 📸 Application Screenshots
+> **AbstractiFy** is a premium, zero-cost academic search and synthesis portal that transforms research exploration from static paper lists into an interactive, consensus-driven intelligence suite. Powered by open-access academic APIs and Google Gemini, it enables researchers, graduate students, and developers to explore 200M+ publications with semantic understanding.
+
+---
+
+## 📸 Screenshots
 
 ### 🏛️ Landing Page
 ![AbstractiFy Landing Page](public/screenshots/landing_page.png)
 
-### ⚙️ Secure Credentials Settings Drawer
-| Mode 1: Secure Background Key | Mode 2: Bring Your Own Key (BYOK) |
-| :---: | :---: |
-| ![Secure Background Key](public/screenshots/settings_background.png) | ![BYOK Mode](public/screenshots/settings_byok.png) |
+### ⚙️ Credentials Settings — BYOK Mode
+![BYOK Settings](public/screenshots/settings_byok.png)
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
-1. **🔍 Hybrid Semantic Search & Global Ingestion**
-   * Dynamically queries **Semantic Scholar** and **OpenAlex** APIs across 200M+ publications.
-   * Performs real-time L2-normalized vector similarity re-ranking using local text embeddings.
+### 🔍 Hybrid Semantic Search & Global Ingestion
+Dynamically queries **Semantic Scholar** and **OpenAlex** APIs across 200M+ publications. Performs real-time L2-normalized vector similarity re-ranking using local text embeddings from Google Gemini.
 
-2. **📊 The Consensus Meter**
-   * Classifies findings from the top relevant papers on a query assertion (e.g., *"Does physical exercise decrease beta-amyloid accumulation?"*).
-   * Visualizes support vs. contradiction balances with a clean percentage progress bar and synthesizes a brief 150-word overview of the current scientific consensus.
+### 📊 The Consensus Meter
+Classifies findings from the top relevant papers on a query assertion (e.g., *"Does physical exercise decrease beta-amyloid accumulation?"*). Visualises support vs. contradiction balances with a clean percentage progress bar and synthesises a brief 150-word overview of the current scientific consensus.
 
-3. **🧮 Study Comparison Matrix**
-   * Auto-extracts design parameters, core methodologies, primary outcomes, and limitations using structured JSON generation (Gemini schema parsing).
-   * Renders findings in an interactive spreadsheet format with one-click **CSV export**.
+### 🧮 Study Comparison Matrix
+Auto-extracts design parameters, core methodologies, primary outcomes, and limitations using structured JSON generation (Gemini schema parsing). Renders findings in an interactive spreadsheet format with one-click **CSV export**.
 
-4. **🕸️ Interactive Citation Network Graph**
-   * Visualizes reference and citation lineages up to 2 degrees of depth using **NetworkX** and **Pyvis**.
-   * Physics-stabilized, draggable HTML/JS network representations that color-code papers by publication year and scale nodes proportionally to citation count.
+### 🕸️ Interactive Citation Network Graph
+Visualises reference and citation lineages up to 2 degrees of depth using **vis-network**. Physics-stabilised, draggable HTML/JS network representations that colour-code papers by publication year and scale nodes proportionally to citation count.
 
-5. **💬 Reading Assistant & Equation Explainer**
-   * Allows uploading academic PDFs, performing local chunking, and index mapping.
-   * Features a regex-based parser that identifies LaTeX math equations (`$`/`$$`) and runs a structured breakdown to explain variables and mathematical logic using simple analogies.
+### 💬 Reading Assistant & Equation Explainer
+Upload academic PDFs, perform local chunking and index mapping. A regex-based parser identifies LaTeX math equations (`$`/`$$`) and runs a structured breakdown to explain variables and mathematical logic using simple analogies.
 
-6. **🔒 Flexible Credentials Management**
-   * **Secure Background Mode**: Runs with pre-configured server-side keys without exposing secrets to the client.
-   * **Bring Your Own Key (BYOK) Mode**: Allows developers to input their custom Gemini API keys securely in the frontend settings panel.
+### 🔗 Smart Citation Context
+Analyses how a paper is cited by others — classifying citation intent (supports, contradicts, extends, methodological) and extracting surrounding context for deeper understanding.
+
+### 🔒 Flexible Credentials Management
+- **Secure Background Mode**: Runs with pre-configured server-side keys without exposing secrets to the client.
+- **Bring Your Own Key (BYOK)**: Input your custom Gemini API key securely in the frontend settings panel.
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ Architecture
 
 ```mermaid
 graph TD
-    User([User Browser]) -->|1. Search Query / Upload PDF| FE[Frontend: Vanilla JS + Tailwind]
-    FE -->|2. Get Results / Parse Schema| BF[Netlify Serverless Functions]
-    
-    subgraph Serverless Backend
-        BF -->|Query Metadata| SS[Semantic Scholar API]
-        BF -->|Map Citations| OA[OpenAlex API]
-        BF -->|AI Synthesis & Embeddings| GEM[Google Gemini API]
+    User(["👤 User Browser"]) -->|Search / Upload| FE["Frontend<br/>Vanilla JS + Tailwind CDN"]
+    FE -->|API Requests| BF["Netlify Serverless Functions<br/>(TypeScript)"]
+
+    subgraph External APIs
+        SS["Semantic Scholar API"]
+        OA["OpenAlex API"]
+        GEM["Google Gemini API"]
     end
 
-    FE -->|3. Local Vector Search| FAISS[Client-side In-memory Index]
-    FE -->|4. Network Generation| VisNet[Vis-Network Graph]
+    BF --> SS
+    BF --> OA
+    BF --> GEM
+
+    FE -->|"Client-side Embeddings"| EMBED["In-memory Vector Index"]
+    FE -->|"Graph Rendering"| VIS["vis-network"]
+
+    style FE fill:#002147,color:#fff
+    style BF fill:#00C7B7,color:#fff
+    style GEM fill:#4285F4,color:#fff
 ```
 
 ---
@@ -69,74 +83,102 @@ graph TD
 
 ```
 Abstractify/
-├── docs/                               # Project Documentation
-│   ├── AbstractiFy PRD.pdf             # Product Requirement Document
-│   └── AbstractiFy Anti-Gravity...pdf  # Features Checklist
-├── netlify/                            # Netlify Serverless Backend
-│   └── functions/                      # Endpoint Handlers
-│       ├── _utils.ts                   # API & Verification Utilities
-│       ├── search.ts                   # Academic Search & Re-ranking
-│       ├── consensus.ts                # Consensus Meter Classification
-│       ├── compare.ts                  # Study Comparison Matrix Extraction
-│       ├── citation-context.ts         # Smart Citation Intents API
-│       ├── network-graph.ts            # Network Citation Builder
-│       ├── pdf-upload.ts               # Local PDF Chunking Handler
-│       ├── pdf-chat.ts                 # PDF In-Document Vector Chat
-│       └── pdf-explain-math.ts         # Inline LaTeX Math Explainer
-├── public/                             # Premium Web Frontend
-│   ├── index.html                      # Layout & Editorial Theme
-│   ├── styles.css                      # Custom Card & Modal Styling
-│   ├── app.js                          # Client-side Core Controller
-│   └── screenshots/                    # App Visuals & Assets
-├── research/                           # Prototypes & Notebooks
-│   └── Coding_Blocks_Research...ipynb  # Original Jupyter Prototype
-├── .gitignore                          # Exclusions List
-├── netlify.toml                        # Serverless Build Config
-├── package.json                        # Node Dependencies
-└── tsconfig.json                       # TypeScript Compiler Options
+├── public/                             # Frontend (served as static files)
+│   ├── index.html                      # Landing page + workspace UI
+│   ├── app.js                          # Client-side controller (~34KB)
+│   ├── styles.css                      # Custom styling
+│   └── screenshots/                    # App screenshots
+│
+├── netlify/functions/                  # Serverless API layer (TypeScript)
+│   ├── _utils.ts                       # Shared: API keys, Gemini client, types
+│   ├── search.ts                       # Hybrid semantic search + re-ranking
+│   ├── consensus.ts                    # Consensus Meter classification
+│   ├── compare.ts                      # Study Comparison Matrix extraction
+│   ├── citation-context.ts            # Smart citation intent analysis
+│   ├── network-graph.ts               # Citation network builder
+│   ├── pdf-upload.ts                   # PDF chunking handler
+│   ├── pdf-chat.ts                     # In-document vector chat (RAG)
+│   └── pdf-explain-math.ts            # LaTeX equation explainer
+│
+├── docs/                               # PRD & feature checklist
+├── research/                           # Jupyter prototype notebook
+│
+├── .eslintrc.json                      # ESLint config
+├── .prettierrc                         # Prettier config
+├── .gitattributes                      # GitHub language detection
+├── .env.example                        # Environment variable template
+├── LICENSE                             # MIT License
+├── netlify.toml                        # Build config + security headers
+├── package.json                        # Dependencies & scripts
+└── tsconfig.json                       # TypeScript compiler options
 ```
 
 ---
 
-## ⚙️ Local Installation & Development
+## ⚙️ Quick Start
 
 ### Prerequisites
-* [Node.js](https://nodejs.org/) (v18+)
-* Netlify CLI (`npm install -g netlify-cli`)
 
-### Setup Instructions
+- [Node.js](https://nodejs.org/) v18+
+- [Netlify CLI](https://docs.netlify.com/cli/get-started/) (`npm install -g netlify-cli`)
+- A [Google Gemini API key](https://aistudio.google.com/app/apikey)
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/vansh7nvc/Abstractify.git
-   cd Abstractify
-   ```
+### Setup
 
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+# 1. Clone the repository
+git clone https://github.com/vansh7nvc/Abstractify.git
+cd Abstractify
 
-3. **Configure Environment Variables**
-   Create a `.env` file in the root directory:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
+# 2. Install dependencies
+npm install
 
-4. **Run the Development Server**
-   Start the local Netlify environment:
-   ```bash
-   netlify dev
-   ```
-   Open your browser and navigate to `http://localhost:8888`.
+# 3. Configure environment
+cp .env.example .env
+# Edit .env and add your GEMINI_API_KEY
+
+# 4. Start the dev server
+netlify dev
+
+# 5. Open http://localhost:8888
+```
+
+### Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start local Netlify dev server |
+| `npm run lint` | Run ESLint on serverless functions |
+| `npm run lint:fix` | Auto-fix ESLint issues |
+| `npm run format` | Format code with Prettier |
+| `npm run format:check` | Check formatting without writing |
+| `npm run typecheck` | TypeScript type checking |
 
 ---
 
-## 🌐 Production Deployment
+## 🌐 Deployment
 
 Deploy to Netlify in a single command:
+
 ```bash
 netlify deploy --prod
 ```
 
-Make sure to configure the `GEMINI_API_KEY` inside your **Netlify Site Settings** (`Site configuration > Environment variables`) so serverless functions can access the model in production securely without exposing the key on the client!
+> [!IMPORTANT]
+> Configure `GEMINI_API_KEY` in **Netlify Site Settings** → **Environment variables** so serverless functions can access the model in production without exposing the key on the client.
+
+---
+
+## 🛡️ Security
+
+- **Security headers** enforced via `netlify.toml` (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`)
+- **No client-side API key exposure** in Secure Background Mode
+- **BYOK keys** are sent via headers, never persisted server-side
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+**Copyright © 2025 Vansh Sharma**

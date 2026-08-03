@@ -1,0 +1,8 @@
+# Force GitHub to detect TypeScript/JavaScript as primary language
+# and suppress Jupyter Notebook from language statistics.
+
+*.ts linguist-detectable=true
+*.js linguist-detectable=true
+*.ipynb linguist-detectable=false
+*.css linguist-detectable=false
+research/** linguist-vendored=true

@@ -6,7 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "netlify dev",
-    "build": "echo 'No build step required for static frontend'"
+    "build": "echo 'No build step required for static frontend'",
+    "lint": "eslint netlify/functions/**/*.ts",
+    "lint:fix": "eslint netlify/functions/**/*.ts --fix",
+    "format": "prettier --write \"netlify/functions/**/*.ts\"",
+    "format:check": "prettier --check \"netlify/functions/**/*.ts\"",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@google/genai": "^2.11.0",
@@ -15,6 +20,13 @@
     "pdf-parse": "^1.1.1"
   },
   "devDependencies": {
-    "netlify-cli": "^17.20.1"
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "netlify-cli": "^17.20.1",
+    "prettier": "^3.2.0",
+    "typescript": "^5.4.0"
   }
 }
+
