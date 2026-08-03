@@ -2,7 +2,7 @@
 
 > **De-jargonize research. Find consensus. Map the science.**
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=flat-square&logo=netlify)](https://abstractify.netlify.app)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=flat-square&logo=netlify)](https://abstractify1.netlify.app)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Netlify Functions](https://img.shields.io/badge/Netlify-Serverless-00C7B7?style=flat-square&logo=netlify&logoColor=white)
