@@ -10,6 +10,13 @@
 
 ![AbstractiFy Landing Page](public/screenshots/landing_page.png)
 
+### 🎬 Demo
+
+<!-- Replace the link below with your recorded demo GIF or video -->
+<!-- ![AbstractiFy Demo](public/screenshots/demo.gif) -->
+
+> 📹 *Demo video coming soon — record a 60-second walkthrough using [ScreenToGif](https://www.screentogif.com/), [Loom](https://www.loom.com/), or OBS and save it as `public/screenshots/demo.gif`.*
+
 ---
 
 > **AbstractiFy** is a premium, zero-cost academic search and synthesis portal that transforms research exploration from static paper lists into an interactive, consensus-driven intelligence suite. Powered by open-access academic APIs and Google Gemini, it enables researchers, graduate students, and developers to explore 200M+ publications with semantic understanding.
@@ -181,4 +188,4 @@ netlify deploy --prod
 
 This project is licensed under the [MIT License](LICENSE).
 
-**Copyright © 2025 Vansh Sharma**
+**Copyright © 2026 Vansh Sharma**
