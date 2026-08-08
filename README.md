@@ -78,10 +78,10 @@ Analyses how a paper is cited by others — classifying citation intent (support
 
 ```mermaid
 graph TD
-    User(["👤 User Browser"]) -->|Search / Upload| FE["Frontend<br/>Vanilla JS + Tailwind CDN"]
-    FE -->|API Requests| BF["Netlify Serverless Functions<br/>(TypeScript)"]
+    User["User Browser"] -->|Search / Upload| FE["Frontend (Vanilla JS + CSS)"]
+    FE -->|API Requests| BF["Netlify Serverless Functions (TypeScript)"]
 
-    subgraph External APIs
+    subgraph External_APIs["External APIs"]
         SS["Semantic Scholar API"]
         OA["OpenAlex API"]
         GEM["Google Gemini API"]
@@ -91,12 +91,8 @@ graph TD
     BF --> OA
     BF --> GEM
 
-    FE -->|"Client-side Embeddings"| EMBED["In-memory Vector Index"]
-    FE -->|"Graph Rendering"| VIS["vis-network"]
-
-    style FE fill:#002147,color:#fff
-    style BF fill:#00C7B7,color:#fff
-    style GEM fill:#4285F4,color:#fff
+    FE -->|Vector Embeddings| EMBED["In-Memory Vector Search Index"]
+    FE -->|Graph Rendering| VIS["vis-network Interactive Graph"]
 ```
 
 ---
