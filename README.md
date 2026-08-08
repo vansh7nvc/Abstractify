@@ -114,13 +114,6 @@ Abstractify/
 │   ├── pdf-chat.ts                     # In-document vector chat (RAG)
 │   └── pdf-explain-math.ts            # LaTeX equation explainer
 │
-├── issues/                             # Modular GitHub issue specifications & roadmap
-│   ├── README.md                       # Community contribution index & taxonomy
-│   ├── ISSUE_01_OPEN_ACCESS_FINDER.md  # Unpaywall API integration spec
-│   ├── ISSUE_02_KATEX_MATH_RENDERING.md# KaTeX math engine integration spec
-│   └── ...                             # Issues 03 to 09
-│
-├── docs/                               # PRD & anti-gravity checklist
 ├── research/                           # AbstractiFy Research Intelligence Notebook
 │   └── AbstractiFy_Research_Intelligence_System.ipynb
 │

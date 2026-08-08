@@ -51,30 +51,30 @@ Phase 4 — Open Source Readiness      [█████████████�
 
 ### Phase 4 — Open Source Contributor Suite (`100% Ready`)
 
-We have created **20 detailed community issue specifications** in the [`issues/`](issues/) directory.
+We have published **20 live community issues** on our [GitHub Issues Page](https://github.com/vansh7nvc/Abstractify/issues).
 
-| # | Issue | Difficulty | Target Area | Spec Link |
+| # | Issue | Difficulty | Target Area | Live Issue Link |
 |---|---|---|---|---|
-| 01 | 🔓 Open Access Finder (Unpaywall API) | `Easy` | API / Frontend | [Spec](issues/ISSUE_01_OPEN_ACCESS_FINDER.md) |
-| 02 | 🧮 KaTeX Math Rendering | `Easy` | Frontend | [Spec](issues/ISSUE_02_KATEX_MATH_RENDERING.md) |
-| 03 | 📸 Panel Screenshot Export (html2canvas) | `Easy` | Frontend | [Spec](issues/ISSUE_03_PANEL_SCREENSHOT_EXPORT.md) |
-| 04 | 📚 Bibliography Generator | `Easy` | Frontend | [Spec](issues/ISSUE_04_BIBLIOGRAPHY_GENERATOR.md) |
-| 05 | ⏱ Reading Time Estimator | `Easy` | Frontend | [Spec](issues/ISSUE_05_READING_TIME_ESTIMATOR.md) |
-| 06 | 🗺️ Research Geography Map (Leaflet) | `Medium` | GIS / Frontend | [Spec](issues/ISSUE_06_RESEARCH_GEOGRAPHY_MAP.md) |
-| 07 | 🏅 Altmetric Attention Badges | `Medium` | API / Frontend | [Spec](issues/ISSUE_07_ALTMETRIC_ATTENTION_BADGES.md) |
-| 08 | ⚠️ Retraction & Reliability Check | `Medium` | API / Backend | [Spec](issues/ISSUE_08_RETRACTION_RELIABILITY_CHECK.md) |
-| 09 | 🔍 Paper Recommendation Engine | `Medium` | Backend / AI | [Spec](issues/ISSUE_09_PAPER_RECOMMENDATION_ENGINE.md) |
-| 10 | 📥 Zotero & Mendeley RIS Exporter | `Easy` | Frontend | [Spec](issues/ISSUE_10_ZOTERO_MENDELEY_RIS_EXPORT.md) |
-| 11 | 🐳 Docker & Self-Hosting Package | `Medium` | DevOps | [Spec](issues/ISSUE_11_DOCKER_LOCAL_DEPLOYMENT.md) |
-| 12 | 🎙️ Abstract-to-Audio Podcast Summary | `Medium` | AI / Speech | [Spec](issues/ISSUE_12_ABSTRACT_TO_PODCAST_TTS.md) |
-| 13 | ⌨️ Keyboard Shortcuts & Accessibility | `Easy` | UX / Frontend | [Spec](issues/ISSUE_13_KEYBOARD_SHORTCUTS_ACCESSIBILITY.md) |
-| 14 | 📊 Plausible Privacy Analytics | `Easy` | Frontend | [Spec](issues/ISSUE_14_PLAUSIBLE_ANALYTICS_INTEGRATION.md) |
-| 15 | 🧩 Web Extension Manifest v3 | `Hard` | Browser Extension | [Spec](issues/ISSUE_15_CHROME_EXTENSION_SPEC.md) |
-| 16 | 🎨 Dark Mode & Theme System | `Easy` | UI / Frontend | [Spec](issues/ISSUE_16_DARK_MODE_THEME_SYSTEM.md) |
-| 17 | 📈 Research Trend Timeline | `Medium` | API / Frontend | [Spec](issues/ISSUE_17_RESEARCH_TREND_TIMELINE.md) |
-| 18 | 💾 Saved Research Sessions | `Easy` | UX / Frontend | [Spec](issues/ISSUE_18_SAVED_RESEARCH_SESSIONS.md) |
-| 19 | 🧠 Research Gap Detector | `Medium` | AI / Backend | [Spec](issues/ISSUE_19_RESEARCH_GAP_DETECTOR.md) |
-| 20 | 📚 Multi-Paper Cross-Chat RAG | `Medium` | RAG / Backend | [Spec](issues/ISSUE_20_MULTI_PAPER_CROSS_CHAT_RAG.md) |
+| 01 | 🔓 Open Access Finder (Unpaywall API) | `Easy` | API / Frontend | [Issue #1](https://github.com/vansh7nvc/Abstractify/issues/1) |
+| 02 | 🧮 KaTeX Math Rendering | `Easy` | Frontend | [Issue #2](https://github.com/vansh7nvc/Abstractify/issues/2) |
+| 03 | 📸 Panel Screenshot Export (html2canvas) | `Easy` | Frontend | [Issue #3](https://github.com/vansh7nvc/Abstractify/issues/3) |
+| 04 | 📚 Bibliography Generator | `Easy` | Frontend | [Issue #4](https://github.com/vansh7nvc/Abstractify/issues/4) |
+| 05 | ⏱ Reading Time Estimator | `Easy` | Frontend | [Issue #5](https://github.com/vansh7nvc/Abstractify/issues/5) |
+| 06 | 🗺️ Research Geography Map (Leaflet) | `Medium` | GIS / Frontend | [Issue #6](https://github.com/vansh7nvc/Abstractify/issues/6) |
+| 07 | 🏅 Altmetric Attention Badges | `Medium` | API / Frontend | [Issue #7](https://github.com/vansh7nvc/Abstractify/issues/7) |
+| 08 | ⚠️ Retraction & Reliability Check | `Medium` | API / Backend | [Issue #8](https://github.com/vansh7nvc/Abstractify/issues/8) |
+| 09 | 🔍 Paper Recommendation Engine | `Medium` | Backend / AI | [Issue #9](https://github.com/vansh7nvc/Abstractify/issues/9) |
+| 10 | 📥 Zotero & Mendeley RIS Exporter | `Easy` | Frontend | [Issue #10](https://github.com/vansh7nvc/Abstractify/issues/10) |
+| 11 | 🐳 Docker & Self-Hosting Package | `Medium` | DevOps | [Issue #11](https://github.com/vansh7nvc/Abstractify/issues/11) |
+| 12 | 🎙️ Abstract-to-Audio Podcast Summary | `Medium` | AI / Speech | [Issue #12](https://github.com/vansh7nvc/Abstractify/issues/12) |
+| 13 | ⌨️ Keyboard Shortcuts & Accessibility | `Easy` | UX / Frontend | [Issue #13](https://github.com/vansh7nvc/Abstractify/issues/13) |
+| 14 | 📊 Plausible Privacy Analytics | `Easy` | Frontend | [Issue #14](https://github.com/vansh7nvc/Abstractify/issues/14) |
+| 15 | 🧩 Web Extension Manifest v3 | `Hard` | Browser Extension | [Issue #15](https://github.com/vansh7nvc/Abstractify/issues/15) |
+| 16 | 🎨 Dark Mode & Theme System | `Easy` | UI / Frontend | [Issue #16](https://github.com/vansh7nvc/Abstractify/issues/16) |
+| 17 | 📈 Research Trend Timeline | `Medium` | API / Frontend | [Issue #17](https://github.com/vansh7nvc/Abstractify/issues/17) |
+| 18 | 💾 Saved Research Sessions | `Easy` | UX / Frontend | [Issue #18](https://github.com/vansh7nvc/Abstractify/issues/18) |
+| 19 | 🧠 Research Gap Detector | `Medium` | AI / Backend | [Issue #19](https://github.com/vansh7nvc/Abstractify/issues/19) |
+| 20 | 📚 Multi-Paper Cross-Chat RAG | `Medium` | RAG / Backend | [Issue #20](https://github.com/vansh7nvc/Abstractify/issues/20) |
 
 ---
 

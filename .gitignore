@@ -27,3 +27,8 @@ extract_docx.ps1
 
 # Linter cache
 .eslintcache
+
+# Internal docs & local issue specs
+docs/
+issues/
+
