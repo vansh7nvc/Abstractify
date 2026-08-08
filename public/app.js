@@ -200,10 +200,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─── Utility: Append chat messages ───
-    function appendChat(sender, html) {
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function appendChat(sender, content) {
         const div = document.createElement('div');
         div.className = `message ${sender === 'User' ? 'user-message' : sender === 'System' ? 'system-message' : 'ai-message'}`;
-        div.innerHTML = html;
+        
+        // If content starts with trusted HTML layout, render safely; otherwise sanitize text
+        if (typeof content === 'string' && (content.startsWith('<') || content.startsWith('🔧'))) {
+            div.innerHTML = content;
+        } else {
+            div.textContent = content;
+        }
+        
         chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return div;
@@ -619,9 +632,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const score = consensus.consensusScore || 0;
             const summary = consensus.summaryText || 'No summary text generated.';
             
+            const safeQuery = String(query).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
             let md = `---\n`;
             md += `title: "AbstractiFy Scientific Consensus Summary"\n`;
-            md += `query: "${query.replace(/"/g, '\\"')}"\n`;
+            md += `query: "${safeQuery}"\n`;
             md += `date: "${new Date().toISOString().split('T')[0]}"\n`;
             md += `consensusScore: "${Math.round(score)}%"\n`;
             md += `sampledPapers: ${state.searchResults.length}\n`;
