@@ -18,7 +18,7 @@
     "@google/genai": "^2.11.0",
     "@netlify/functions": "^2.6.0",
     "dotenv": "^16.4.5",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^2.4.5"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",
