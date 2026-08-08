@@ -111,7 +111,7 @@ export async function callGemini(
         },
     };
 
-    console.log(`[Backend] callGemini using key starting with: ${apiKey.substring(0, 12)}...`);
+    console.log(`[Backend] Executing Gemini API generation request...`);
     const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -148,9 +148,7 @@ export async function callGeminiEmbedding(text: string, apiKey: string): Promise
         },
     };
 
-    console.log(
-        `[Backend] callGeminiEmbedding using key starting with: ${apiKey.substring(0, 12)}...`,
-    );
+    console.log(`[Backend] Executing Gemini Embedding request...`);
     const response = await fetch(url, {
         method: 'POST',
         headers: {

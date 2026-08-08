@@ -200,23 +200,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─── Utility: Append chat messages ───
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
     function appendChat(sender, content) {
         const div = document.createElement('div');
         div.className = `message ${sender === 'User' ? 'user-message' : sender === 'System' ? 'system-message' : 'ai-message'}`;
-        
-        // If content starts with trusted HTML layout, render safely; otherwise sanitize text
-        if (typeof content === 'string' && (content.startsWith('<') || content.startsWith('🔧'))) {
-            div.innerHTML = content;
-        } else {
-            div.textContent = content;
-        }
-        
+        div.textContent = String(content || '');
         chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return div;
@@ -226,7 +213,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const div = document.createElement('div');
         div.id = 'typing-indicator';
         div.className = 'message system-message';
-        div.innerHTML = '<span class="spinner" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Agent is synthesizing...';
+
+        const spinner = document.createElement('span');
+        spinner.className = 'spinner';
+        spinner.style.width = '14px';
+        spinner.style.height = '14px';
+        spinner.style.display = 'inline-block';
+        spinner.style.verticalAlign = 'middle';
+        spinner.style.marginRight = '8px';
+
+        div.appendChild(spinner);
+        div.appendChild(document.createTextNode(' Agent is synthesizing...'));
+
         chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
