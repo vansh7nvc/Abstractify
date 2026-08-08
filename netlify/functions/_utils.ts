@@ -36,16 +36,18 @@ export function getApiKey(headers: Headers, type: 'gemini' | 'groq'): string {
 export async function retryWithBackoff<T>(
     fn: () => Promise<T>,
     retries = 3,
-    delay = 1000,
+    delay = process.env.VITEST ? 0 : 1000,
 ): Promise<T> {
     try {
         return await fn();
     } catch (error) {
         if (retries <= 0) throw error;
-        const jitter = Math.random();
-        const backoffDelay = delay * Math.pow(2, 3 - retries) + jitter * 1000;
-        console.warn(`API call failed, retrying in ${Math.round(backoffDelay)}ms... Error:`, error);
-        await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+        const jitter = delay > 0 ? Math.random() * 1000 : 0;
+        const backoffDelay = delay > 0 ? delay * Math.pow(2, 3 - retries) + jitter : 0;
+        if (backoffDelay > 0) {
+            console.warn(`API call failed, retrying in ${Math.round(backoffDelay)}ms... Error:`, error);
+            await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+        }
         return retryWithBackoff(fn, retries - 1, delay);
     }
 }
