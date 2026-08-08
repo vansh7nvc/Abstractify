@@ -15,6 +15,7 @@
 [![Hacktoberfest](https://img.shields.io/badge/Hacktoberfest-2026-9B51E0?style=flat-square)](issues/)
 [![Security Policy](https://img.shields.io/badge/security-policy-critical?style=flat-square)](SECURITY.md)
 [![Roadmap](https://img.shields.io/badge/roadmap-public-informational?style=flat-square)](ROADMAP.md)
+[![Wiki](https://img.shields.io/badge/wiki-documentation-blueviolet?style=flat-square&logo=wikipedia)](wiki/Home.md)
 
 ![AbstractiFy Feature Suite](public/screenshots/abstractify_hero.svg)
 
