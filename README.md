@@ -3,6 +3,7 @@
 > **De-jargonize research. Find consensus. Map the science.**
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=flat-square&logo=netlify)](https://abstractify1.netlify.app)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/vansh7nvc/Abstractify)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Netlify Functions](https://img.shields.io/badge/Netlify-Serverless-00C7B7?style=flat-square&logo=netlify&logoColor=white)
@@ -17,12 +18,19 @@
 
 ![AbstractiFy Landing Page](public/screenshots/landing_page.png)
 
-### 🎬 Demo
+---
 
-<!-- Replace the link below with your recorded demo GIF or video -->
-<!-- ![AbstractiFy Demo](public/screenshots/demo.gif) -->
+## ⚡ Why AbstractiFy? (Feature Comparison)
 
-> 📹 *Demo video coming soon — record a 60-second walkthrough using [ScreenToGif](https://www.screentogif.com/), [Loom](https://www.loom.com/), or OBS and save it as `public/screenshots/demo.gif`.*
+| Feature | AbstractiFy 🎓 | Google Scholar | Elicit | Consensus.ai |
+|---|:---:|:---:|:---:|:---:|
+| **100% Free & Open Source** | ✅ MIT | ✅ Free | ❌ Paid Tier | ❌ Paid Tier |
+| **Consensus Meter** | ✅ Free | ❌ No | ❌ No | 💰 Paid |
+| **Study Comparison Matrix** | ✅ Free | ❌ No | 💰 Paid | 💰 Paid |
+| **Citation Network Graph** | ✅ Interactive | ❌ No | ❌ No | ❌ No |
+| **Obsidian Graph & BibTeX Sync** | ✅ Native | ❌ No | ❌ No | ❌ No |
+| **Local Vector Search (BYOK)** | ✅ Free | ❌ No | ❌ No | ❌ No |
+| **PDF In-Doc Equation Explainer** | ✅ Native | ❌ No | ❌ No | ❌ No |
 
 ---
 
@@ -234,6 +242,18 @@ We welcome contributions from everyone! Whether it's fixing a typo, improving do
 ## 📋 Changelog
 
 All notable changes are documented in the [CHANGELOG](CHANGELOG.md), following the [Keep a Changelog](https://keepachangelog.com/) format.
+
+---
+
+## 🏆 Contributors Hall of Fame
+
+Thank you to all our amazing open-source contributors! 💖
+
+<a href="https://github.com/vansh7nvc/Abstractify/graphs/contributors">
+  <img src="https://contrib.rocks/preview?repo=vansh7nvc%2FAbstractify" alt="AbstractiFy Contributors" />
+</a>
+
+Want to see your avatar here? Check out our [`good first issue`](https://github.com/vansh7nvc/Abstractify/labels/good%20first%20issue) list and submit your first PR! 🚀
 
 ---
 
