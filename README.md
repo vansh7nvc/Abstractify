@@ -19,6 +19,16 @@
 
 ![AbstractiFy Feature Suite](public/screenshots/abstractify_hero.svg)
 
+## ℹ️ About
+
+AbstractiFy is an open-source academic search and synthesis platform that transforms static literature lists into an interactive research intelligence workspace. It combines hybrid semantic search, structured extraction, and an interactive citation network to help researchers, students, and practitioners quickly understand consensus, compare study designs, and explore citation lineages — all without paywalls or proprietary lock-in.
+
+Key points:
+
+- Free and MIT-licensed: built to remain accessible to the research community.
+- Hybrid ingestion: leverages Semantic Scholar and OpenAlex for broad coverage with local semantic re-ranking.
+- Interactive analysis: consensus meter, study comparison matrix, citation graphs, and in-document assistants speed up literature triage and synthesis.
+
 ---
 
 ## ⚡ Why AbstractiFy? (Feature Comparison)
@@ -35,7 +45,7 @@
 
 ---
 
-> **AbstractiFy** is a premium, zero-cost academic search and synthesis portal that transforms research exploration from static paper lists into an interactive, consensus-driven intelligence suite. Powered by open-access academic APIs and Google Gemini, it enables researchers, graduate students, and developers to explore 200M+ publications with semantic understanding.
+> **AbstractiFy** is a premium, zero-cost academic search and synthesis portal that transforms research exploration from static paper lists into an interactive, consensus-driven intelligence suite[...] 
 
 ---
 
@@ -52,19 +62,19 @@
 ## ✨ Features
 
 ### 🔍 Hybrid Semantic Search & Global Ingestion
-Dynamically queries **Semantic Scholar** and **OpenAlex** APIs across 200M+ publications. Performs real-time L2-normalized vector similarity re-ranking using local text embeddings from Google Gemini.
+Dynamically queries **Semantic Scholar** and **OpenAlex** APIs across 200M+ publications. Performs real-time L2-normalized vector similarity re-ranking using local text embeddings from Google Gemi[...]
 
 ### 📊 The Consensus Meter
-Classifies findings from the top relevant papers on a query assertion (e.g., *"Does physical exercise decrease beta-amyloid accumulation?"*). Visualises support vs. contradiction balances with a clean percentage progress bar and synthesises a brief 150-word overview of the current scientific consensus.
+Classifies findings from the top relevant papers on a query assertion (e.g., *"Does physical exercise decrease beta-amyloid accumulation?"*). Visualises support vs. contradiction balances with a c[...]
 
 ### 🧮 Study Comparison Matrix
-Auto-extracts design parameters, core methodologies, primary outcomes, and limitations using structured JSON generation (Gemini schema parsing). Renders findings in an interactive spreadsheet format with one-click **CSV export**.
+Auto-extracts design parameters, core methodologies, primary outcomes, and limitations using structured JSON generation (Gemini schema parsing). Renders findings in an interactive spreadsheet form[...]
 
 ### 🕸️ Interactive Citation Network Graph
-Visualises reference and citation lineages up to 2 degrees of depth using **vis-network**. Physics-stabilised, draggable HTML/JS network representations that colour-code papers by publication year and scale nodes proportionally to citation count.
+Visualises reference and citation lineages up to 2 degrees of depth using **vis-network**. Physics-stabilised, draggable HTML/JS network representations that colour-code papers by publication year[...]
 
 ### 💬 Reading Assistant & Equation Explainer
-Upload academic PDFs, perform local chunking and index mapping. A regex-based parser identifies LaTeX math equations (`$`/`$$`) and runs a structured breakdown to explain variables and mathematical logic using simple analogies.
+Upload academic PDFs, perform local chunking and index mapping. A regex-based parser identifies LaTeX math equations (`$`/`$$`) and runs a structured breakdown to explain variables and mathematica[...]
 
 ### 🔗 Smart Citation Context
 Analyses how a paper is cited by others — classifying citation intent (supports, contradicts, extends, methodological) and extracting surrounding context for deeper understanding.
@@ -136,7 +146,7 @@ Abstractify/
 │   ├── CODEOWNERS                      # Code review ownership
 │   ├── FUNDING.yml                     # GitHub Sponsors config
 │   ├── dependabot.yml                  # Dependency update automation
-│   └── release-drafter.yml             # Release drafter categories
+│   │   └── release-drafter.yml         # Release drafter categories
 │
 ├── .eslintrc.json                      # ESLint config
 ├── .prettierrc                         # Prettier config
@@ -149,7 +159,7 @@ Abstractify/
 ├── LICENSE                             # MIT License
 ├── netlify.toml                        # Build config + security headers
 ├── package.json                        # Dependencies & scripts
-└── tsconfig.json                       # TypeScript compiler options
+└── tsconfig.json                        # TypeScript compiler options
 ```
 
 ---
