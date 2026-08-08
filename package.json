@@ -12,7 +12,8 @@
     "format": "prettier --write \"netlify/functions/**/*.ts\"",
     "format:check": "prettier --check \"netlify/functions/**/*.ts\"",
     "typecheck": "tsc --noEmit",
-    "validate": "npm run typecheck && npm run lint && npm run format:check"
+    "validate": "npm run typecheck && npm run lint && npm run format:check",
+    "sync-wiki": "node scripts/sync-wiki.js"
   },
   "dependencies": {
     "@google/genai": "^2.11.0",
