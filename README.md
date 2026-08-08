@@ -16,7 +16,7 @@
 [![Security Policy](https://img.shields.io/badge/security-policy-critical?style=flat-square)](SECURITY.md)
 [![Roadmap](https://img.shields.io/badge/roadmap-public-informational?style=flat-square)](ROADMAP.md)
 
-![AbstractiFy Landing Page](public/screenshots/landing_page.png)
+![AbstractiFy Feature Suite](public/screenshots/abstractify_hero.svg)
 
 ---
 

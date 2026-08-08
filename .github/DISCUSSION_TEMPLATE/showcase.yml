@@ -1,0 +1,22 @@
+name: 🚀 Community Showcase
+description: Share a research project, paper analysis, or extension built using AbstractiFy
+title: "🚀 [Showcase]: "
+labels: ["showcase", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: "Showcase your research projects or tools powered by AbstractiFy!"
+  - type: input
+    id: title
+    attributes:
+      label: "Project Title"
+      placeholder: "e.g., Deep Learning Literature Mapping 2026"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Project Description & Links"
+      description: "Provide details, screenshot, or repository/live links."
+    validations:
+      required: true

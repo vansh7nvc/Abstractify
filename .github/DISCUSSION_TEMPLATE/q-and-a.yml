@@ -1,0 +1,23 @@
+name: ❓ Q&A / Technical Help
+description: Ask a question about AbstractiFy APIs, local setup, or research features
+title: "❓ [Q&A]: "
+labels: ["question", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: "Have a question about AbstractiFy setup, Gemini API keys, or paper synthesis? Ask the community!"
+  - type: textarea
+    id: question
+    attributes:
+      label: "Your Question"
+      description: "What would you like assistance with?"
+      placeholder: "e.g., How do I configure local BYOK Gemini key mode?"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: "Context / Environment"
+      description: "Provide any relevant details (OS, browser, Node version)."
+    validations:
+      required: false

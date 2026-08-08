@@ -1,0 +1,31 @@
+name: 💡 Feature Idea / Brainstorm
+description: Propose a new feature, AI model capability, or research tool enhancement
+title: "💡 [Idea]: "
+labels: ["enhancement", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for helping improve AbstractiFy! Please describe your feature proposal in detail below."
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem or Use Case"
+      description: "What problem does this feature solve for researchers or developers?"
+      placeholder: "e.g., Researchers want to export citation graphs directly into Obsidian..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed Solution"
+      description: "Describe how you envision this feature working in AbstractiFy."
+      placeholder: "Add a button to export network graph nodes as a JSON graph compatible with Obsidian canvas..."
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "Have you considered any alternative approaches or workarounds?"
+    validations:
+      required: false
