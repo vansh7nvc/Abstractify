@@ -7,7 +7,21 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
+    # Ignore major version bumps that break build configs
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-config-prettier"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@typescript-eslint/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@netlify/functions"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "pdf-parse"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependencies"
       - "chore"
