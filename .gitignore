@@ -25,8 +25,9 @@ extract_docx.ps1
 .vscode/
 .idea/
 
-# Linter cache
+# Linter & test coverage
 .eslintcache
+coverage/
 
 # Internal docs & local issue specs
 docs/

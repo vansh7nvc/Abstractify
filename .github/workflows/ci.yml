@@ -36,3 +36,6 @@ jobs:
 
       - name: 🎨 Check code formatting
         run: npm run format:check
+
+      - name: 🧪 Run unit tests & coverage
+        run: npm run test:coverage
