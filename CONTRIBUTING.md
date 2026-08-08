@@ -280,6 +280,17 @@ New to open source? Here's how to get started:
 
 ---
 
+## 🤖 Automated PR Review & Selective Triage
+
+AbstractiFy runs automated quality and security checks on every Pull Request:
+
+- **Automated Validation**: `npm run validate` (`typecheck` + `lint` + `format:check`) runs automatically on all PRs.
+- **Selective Triage**:
+  - **Human Contributor PRs**: Your PR will **NEVER** be auto-closed. If CI checks fail, diagnostic feedback will be posted to help you fix it, and the PR will be labeled `needs-maintainer-review`.
+  - **Routine Bot Noise**: Non-security routine bot PRs that fail quality checks are auto-closed silently to prevent notification backlog.
+
+---
+
 ## 💙 Thank You
 
 Every contribution, no matter how small — a typo fix, a documentation update, a bug report — makes AbstractiFy better. We appreciate your time and effort!

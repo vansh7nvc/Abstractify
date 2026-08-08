@@ -1,0 +1,78 @@
+name: Intelligent PR Cleanup & Triage
+
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Run every Monday at 00:00 UTC
+  workflow_dispatch: # Allows one-click manual run anytime under Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  triage:
+    name: Selective PR Triage Engine
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🤖 Execute Intelligent Triage
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+
+            console.log(`Found ${prs.data.length} open pull requests to analyze.`);
+
+            for (const pr of prs.data) {
+              const isBot = pr.user.type === 'Bot' || pr.user.login.includes('dependabot');
+              const isSecurity = pr.labels.some(l => l.name.toLowerCase().includes('security') || l.name.toLowerCase().includes('critical'));
+
+              // 1. HUMAN OR SECURITY PR — KEEP OPEN & HIGHLIGHT
+              if (!isBot || isSecurity) {
+                console.log(`📌 Preserving necessary PR #${pr.number} by @${pr.user.login}`);
+                
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  labels: ['needs-maintainer-review']
+                }).catch(() => {});
+
+                continue;
+              }
+
+              // 2. ROUTINE BOT PR — CHECK STATUS
+              const checks = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha
+              });
+
+              const hasFailures = checks.data.check_runs.some(c => c.conclusion === 'failure' || c.conclusion === 'cancelled');
+
+              if (hasFailures) {
+                console.log(`🧹 Auto-closing failing routine bot PR #${pr.number}`);
+                
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: '🤖 **Automated PR Cleanup**: Auto-closing routine non-security bot PR due to failing CI quality checks. Security patches and human contributor PRs are preserved.'
+                });
+
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  state: 'closed'
+                });
+              }
+            }
