@@ -1,0 +1,67 @@
+name: Welcome First-Time Contributors
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    name: Greeting New Contributor
+    runs-on: ubuntu-latest
+    steps:
+      - name: 👋 Welcome Issue Author
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const author = issue.user.login;
+            
+            // Check if this is the user's first issue in the repo
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: author,
+              state: 'all'
+            });
+
+            if (issues.data.length === 1) {
+              const body = `👋 Hello @${author}! Thank you for opening your very first issue in **AbstractiFy**! 🎓✨\n\nWe appreciate your feedback and contribution. Please make sure to check our [Contributing Guidelines](https://github.com/vansh7nvc/Abstractify/blob/main/CONTRIBUTING.md) and [Code of Conduct](https://github.com/vansh7nvc/Abstractify/blob/main/CODE_OF_CONDUCT.md).\n\nA maintainer will review your issue shortly!`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: body
+              });
+            }
+
+      - name: 🚀 Welcome PR Author
+        if: github.event_name == 'pull_request_target'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const author = pr.user.login;
+
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: author,
+              state: 'all'
+            });
+
+            if (prs.data.length === 1) {
+              const body = `🎉 Wow, @${author}! Thank you for submitting your first Pull Request to **AbstractiFy**! 🎓\n\nOur CI pipeline is currently running quality and security checks on your changes. In the meantime:\n- Make sure you filled out the [PR Template](https://github.com/vansh7nvc/Abstractify/blob/main/.github/PULL_REQUEST_TEMPLATE.md).\n- Check that \`npm run validate\` passes locally.\n\nThank you for making open-source research tools better for everyone! 🚀`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: body
+              });
+            }

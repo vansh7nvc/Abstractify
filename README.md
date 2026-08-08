@@ -7,6 +7,13 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Netlify Functions](https://img.shields.io/badge/Netlify-Serverless-00C7B7?style=flat-square&logo=netlify&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google%20Gemini-AI-4285F4?style=flat-square&logo=google&logoColor=white)
+[![CodeQL Scan](https://img.shields.io/badge/CodeQL-Security%20Scan-brightgreen?style=flat-square&logo=github)](.github/workflows/codeql.yml)
+[![Gitleaks Scan](https://img.shields.io/badge/Gitleaks-Secret%20Scan-blueviolet?style=flat-square&logo=github)](.github/workflows/gitleaks.yml)
+[![Contributing](https://img.shields.io/badge/contributions-welcome-orange?style=flat-square)](CONTRIBUTING.md)
+[![GSSoC 2026](https://img.shields.io/badge/GSSoC-2026%20Ready-ff69b4?style=flat-square)](issues/)
+[![Hacktoberfest](https://img.shields.io/badge/Hacktoberfest-2026-9B51E0?style=flat-square)](issues/)
+[![Security Policy](https://img.shields.io/badge/security-policy-critical?style=flat-square)](SECURITY.md)
+[![Roadmap](https://img.shields.io/badge/roadmap-public-informational?style=flat-square)](ROADMAP.md)
 
 ![AbstractiFy Landing Page](public/screenshots/landing_page.png)
 
@@ -107,13 +114,40 @@ Abstractify/
 │   ├── pdf-chat.ts                     # In-document vector chat (RAG)
 │   └── pdf-explain-math.ts            # LaTeX equation explainer
 │
-├── docs/                               # PRD & feature checklist
-├── research/                           # Jupyter prototype notebook
+├── issues/                             # Modular GitHub issue specifications & roadmap
+│   ├── README.md                       # Community contribution index & taxonomy
+│   ├── ISSUE_01_OPEN_ACCESS_FINDER.md  # Unpaywall API integration spec
+│   ├── ISSUE_02_KATEX_MATH_RENDERING.md# KaTeX math engine integration spec
+│   └── ...                             # Issues 03 to 09
+│
+├── docs/                               # PRD & anti-gravity checklist
+├── research/                           # AbstractiFy Research Intelligence Notebook
+│   └── AbstractiFy_Research_Intelligence_System.ipynb
+│
+├── .github/                            # GitHub automation & community health
+│   ├── ISSUE_TEMPLATE/                 # Structured YAML issue forms
+│   │   ├── bug_report.yml              # Bug report form
+│   │   ├── feature_request.yml         # Feature request form
+│   │   ├── documentation.yml           # Documentation improvement form
+│   │   └── config.yml                  # Issue chooser settings
+│   ├── workflows/                      # GitHub Actions CI/CD
+│   │   ├── ci.yml                      # Lint + Typecheck + Format pipeline
+│   │   ├── stale.yml                   # Auto-close stale issues/PRs
+│   │   └── release-drafter.yml         # Automated release notes
+│   ├── PULL_REQUEST_TEMPLATE.md        # PR checklist template
+│   ├── CODEOWNERS                      # Code review ownership
+│   ├── FUNDING.yml                     # GitHub Sponsors config
+│   ├── dependabot.yml                  # Dependency update automation
+│   └── release-drafter.yml             # Release drafter categories
 │
 ├── .eslintrc.json                      # ESLint config
 ├── .prettierrc                         # Prettier config
 ├── .gitattributes                      # GitHub language detection
 ├── .env.example                        # Environment variable template
+├── CONTRIBUTING.md                     # Contributor guide
+├── CODE_OF_CONDUCT.md                  # Contributor Covenant v2.1
+├── SECURITY.md                         # Vulnerability disclosure policy
+├── CHANGELOG.md                        # Release history (Keep a Changelog)
 ├── LICENSE                             # MIT License
 ├── netlify.toml                        # Build config + security headers
 ├── package.json                        # Dependencies & scripts
@@ -155,6 +189,7 @@ netlify dev
 | Command | Description |
 |---|---|
 | `npm run dev` | Start local Netlify dev server |
+| `npm run validate` | Run typecheck + lint + format checks in one command |
 | `npm run lint` | Run ESLint on serverless functions |
 | `npm run lint:fix` | Auto-fix ESLint issues |
 | `npm run format` | Format code with Prettier |
@@ -181,6 +216,37 @@ netlify deploy --prod
 - **Security headers** enforced via `netlify.toml` (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`)
 - **No client-side API key exposure** in Secure Background Mode
 - **BYOK keys** are sent via headers, never persisted server-side
+- For vulnerability reports, see our [Security Policy](SECURITY.md)
+
+---
+
+## 🗺️ Roadmap
+
+Check out our public [ROADMAP.md](ROADMAP.md) to track project progress across Phase 1 to Phase 4.
+
+---
+
+## 🤝 Contributing & Community Support
+
+We welcome contributions from everyone! Whether it's fixing a typo, improving documentation, or building a new feature — every contribution matters.
+
+- 📖 Read the [Contributing Guide](CONTRIBUTING.md) to get started
+- 🎯 Browse [20 community issue specifications](issues/) ready for open source contributors
+- 🏷️ Look for [`good first issue`](https://github.com/vansh7nvc/Abstractify/labels/good%20first%20issue) labels
+- 💬 Read the [Community Support Guide](SUPPORT.md) for help & FAQ
+- 📋 Check the [Code of Conduct](CODE_OF_CONDUCT.md)
+
+---
+
+## 📋 Changelog
+
+All notable changes are documented in the [CHANGELOG](CHANGELOG.md), following the [Keep a Changelog](https://keepachangelog.com/) format.
+
+---
+
+## ⭐ Star History
+
+If you find AbstractiFy useful, consider giving it a ⭐ on GitHub — it helps the project grow!
 
 ---
 

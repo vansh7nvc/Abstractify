@@ -327,8 +327,25 @@
                                 <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary/60 small-caps" style="font-family: 'Times New Roman', Times, serif;">Core Synthesis</span>
                                 <h2 class="serif-heading text-4xl italic text-on-surface" style="font-family: 'Times New Roman', Times, serif;">Synthesis Outcome</h2>
                             </div>
-                            <div class="text-right">
+                            <div class="flex items-center gap-4 text-right">
                                 <span id="papers-sampled-badge" class="font-mono text-[11px] uppercase tracking-widest text-secondary border border-primary/20 px-3 py-1" style="font-family: 'Times New Roman', Times, serif;">0 Papers Sampled</span>
+                                <!-- Export Consensus Dropdown -->
+                                <div class="relative inline-block text-left">
+                                    <button id="export-consensus-btn" class="font-mono text-[10px] uppercase tracking-widest text-primary border border-primary/40 px-3 py-1 hover:bg-primary hover:text-background transition-all flex items-center gap-1 cursor-pointer">
+                                        <span>Export</span>
+                                        <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                                    </button>
+                                    <div id="export-consensus-menu" class="hidden absolute right-0 mt-2 w-48 bg-background border editorial-rule shadow-lg z-50 py-1 font-mono text-[10px] uppercase tracking-wider">
+                                        <button id="export-consensus-md" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
+                                            <span>Markdown (.md)</span>
+                                            <span class="material-symbols-outlined text-xs">description</span>
+                                        </button>
+                                        <button id="export-consensus-json" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
+                                            <span>JSON Data (.json)</span>
+                                            <span class="material-symbols-outlined text-xs">code</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -386,7 +403,23 @@
                     <section class="space-y-8 pt-8">
                         <div class="flex justify-between items-center border-b editorial-rule pb-4">
                             <h3 class="serif-heading text-2xl italic" style="font-family: 'Times New Roman', Times, serif;">Comparison Matrix</h3>
-                            <button id="export-csv-btn" class="font-mono text-[9px] uppercase tracking-widest text-secondary hover:text-primary cursor-pointer border-0 bg-transparent" style="font-family: 'Times New Roman', Times, serif;">Export CSV Folio</button>
+                            <!-- Export Matrix Dropdown -->
+                            <div class="relative inline-block text-left">
+                                <button id="export-matrix-menu-btn" class="font-mono text-[9px] uppercase tracking-widest text-primary border border-primary/40 px-3 py-1 hover:bg-primary hover:text-background transition-all flex items-center gap-1 cursor-pointer">
+                                    <span>Export Matrix</span>
+                                    <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                                </button>
+                                <div id="export-matrix-menu" class="hidden absolute right-0 mt-2 w-52 bg-background border editorial-rule shadow-lg z-50 py-1 font-mono text-[10px] uppercase tracking-wider">
+                                    <button id="export-csv-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
+                                        <span>CSV Spreadsheet (.csv)</span>
+                                        <span class="material-symbols-outlined text-xs">table_chart</span>
+                                    </button>
+                                    <button id="export-matrix-md-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
+                                        <span>Markdown Table (.md)</span>
+                                        <span class="material-symbols-outlined text-xs">grid_on</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left font-sans">
@@ -410,8 +443,25 @@
 
                     <!-- Interactive Network Graph -->
                     <section class="space-y-8 pt-8">
-                        <div class="border-b editorial-rule pb-4">
+                        <div class="flex justify-between items-center border-b editorial-rule pb-4">
                             <h3 class="serif-heading text-2xl italic" style="font-family: 'Times New Roman', Times, serif;">Citation Lineage & Network Graph</h3>
+                            <!-- Export Graph Dropdown -->
+                            <div class="relative inline-block text-left">
+                                <button id="export-graph-menu-btn" class="font-mono text-[9px] uppercase tracking-widest text-primary border border-primary/40 px-3 py-1 hover:bg-primary hover:text-background transition-all flex items-center gap-1 cursor-pointer">
+                                    <span>Export Graph</span>
+                                    <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                                </button>
+                                <div id="export-graph-menu" class="hidden absolute right-0 mt-2 w-56 bg-background border editorial-rule shadow-lg z-50 py-1 font-mono text-[10px] uppercase tracking-wider">
+                                    <button id="export-graph-json-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
+                                        <span>Obsidian Graph (.json)</span>
+                                        <span class="material-symbols-outlined text-xs">share</span>
+                                    </button>
+                                    <button id="export-graph-bibtex-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
+                                        <span>BibTeX References (.bib)</span>
+                                        <span class="material-symbols-outlined text-xs">book</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div id="network-container" class="w-full h-[450px] border border-[#D1CDC7] bg-white relative">
                             <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-[10px] uppercase tracking-widest text-secondary bg-[#FDFAF6]/90 z-10 pointer-events-none">

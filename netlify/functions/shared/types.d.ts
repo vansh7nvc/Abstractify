@@ -33,10 +33,7 @@ declare module 'pdf-parse' {
         version?: string;
     }
 
-    function pdfParse(
-        dataBuffer: Buffer | ArrayBuffer,
-        options?: PDFOptions,
-    ): Promise<PDFData>;
+    function pdfParse(dataBuffer: Buffer | ArrayBuffer, options?: PDFOptions): Promise<PDFData>;
 
     export = pdfParse;
 }

@@ -1,0 +1,30 @@
+# Path rules for automated PR labeling
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: 'public/**/*'
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: 'netlify/functions/**/*'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**/*'
+          - 'issues/**/*'
+          - '*.md'
+
+devops:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**/*'
+          - 'netlify.toml'
+          - 'Dockerfile'
+          - 'docker-compose.yml'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'package.json'
+          - 'package-lock.json'

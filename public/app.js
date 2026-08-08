@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
         searchResults: [],
         selectedPaperId: null,
         networkInstance: null,
+        consensusData: null,
+        matrixData: [],
+        currentQuery: '',
         pdfChunks: [],       // stored in memory after PDF upload
         formulas: [],
         selectedFormula: null
@@ -253,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function triggerWorkspaceSearch(query) {
         // Reset UI Elements
+        state.currentQuery = query;
         if (workspaceTitle) workspaceTitle.innerText = query;
         if (welcomeMessage) welcomeMessage.classList.add('hidden');
         if (consensusSummaryText) consensusSummaryText.classList.add('hidden');
@@ -366,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errData.message || 'Consensus API failed');
             }
             const data = await res.json();
+            state.consensusData = data;
 
             const score = data.consensusScore || 0;
             if (papersSampledBadge) {
@@ -424,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errData.message || 'Comparison failed');
             }
             const data = await res.json();
+            state.matrixData = data.matrix || [];
 
             matrixBody.innerHTML = '';
             exportCsvBtn.classList.remove('hidden');
@@ -558,8 +564,100 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ══════════════════════════════════════════════════════
-    //  CSV EXPORT
+    //  EXPORT SUITE (Markdown, CSV, JSON, BibTeX)
     // ══════════════════════════════════════════════════════
+    function downloadFile(filename, content, contentType = 'text/plain') {
+        const blob = new Blob([content], { type: contentType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Toggle Dropdown Menus
+    const dropdowns = [
+        { btn: 'export-consensus-btn', menu: 'export-consensus-menu' },
+        { btn: 'export-matrix-menu-btn', menu: 'export-matrix-menu' },
+        { btn: 'export-graph-menu-btn', menu: 'export-graph-menu' }
+    ];
+
+    dropdowns.forEach(({ btn, menu }) => {
+        const btnEl = $(btn);
+        const menuEl = $(menu);
+        if (btnEl && menuEl) {
+            btnEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdowns.forEach(d => {
+                    if (d.menu !== menu) {
+                        const otherMenu = $(d.menu);
+                        if (otherMenu) otherMenu.classList.add('hidden');
+                    }
+                });
+                menuEl.classList.toggle('hidden');
+            });
+        }
+    });
+
+    // Close menus on click outside
+    document.addEventListener('click', () => {
+        dropdowns.forEach(({ menu }) => {
+            const menuEl = $(menu);
+            if (menuEl) menuEl.classList.add('hidden');
+        });
+    });
+
+    // 1. Export Consensus Markdown (.md)
+    const exportConsensusMdBtn = $('export-consensus-md');
+    if (exportConsensusMdBtn) {
+        exportConsensusMdBtn.addEventListener('click', () => {
+            const query = state.currentQuery || 'Research Analysis';
+            const consensus = state.consensusData || {};
+            const score = consensus.consensusScore || 0;
+            const summary = consensus.summaryText || 'No summary text generated.';
+            
+            let md = `---\n`;
+            md += `title: "AbstractiFy Scientific Consensus Summary"\n`;
+            md += `query: "${query.replace(/"/g, '\\"')}"\n`;
+            md += `date: "${new Date().toISOString().split('T')[0]}"\n`;
+            md += `consensusScore: "${Math.round(score)}%"\n`;
+            md += `sampledPapers: ${state.searchResults.length}\n`;
+            md += `---\n\n`;
+            md += `# 📊 Scientific Consensus Synthesis\n\n`;
+            md += `> **Assertion Query**: ${query}\n\n`;
+            md += `## Executive Summary\n\n${summary}\n\n`;
+            md += `## Paper Stances & Evidence\n\n`;
+            md += `| Paper Title | Year | Venue | Stance | Citations |\n`;
+            md += `|---|---|---|---|---|\n`;
+
+            state.searchResults.forEach(p => {
+                const stance = p.consensusStance || 'Neutral';
+                md += `| ${(p.title || 'N/A').replace(/\|/g, '-')} | ${p.year || 'N/A'} | ${p.venue || 'Journal'} | **${stance}** | ${p.citationCount || 0} |\n`;
+            });
+
+            downloadFile(`AbstractiFy_Consensus_${query.replace(/[^a-zA-Z0-9]/g, '_')}.md`, md, 'text/markdown');
+        });
+    }
+
+    // 2. Export Consensus JSON (.json)
+    const exportConsensusJsonBtn = $('export-consensus-json');
+    if (exportConsensusJsonBtn) {
+        exportConsensusJsonBtn.addEventListener('click', () => {
+            const data = {
+                generator: "AbstractiFy Academic Portal",
+                timestamp: new Date().toISOString(),
+                query: state.currentQuery,
+                consensus: state.consensusData,
+                papers: state.searchResults
+            };
+            downloadFile(`AbstractiFy_Consensus_${(state.currentQuery || 'analysis').replace(/[^a-zA-Z0-9]/g, '_')}.json`, JSON.stringify(data, null, 2), 'application/json');
+        });
+    }
+
+    // 3. Export Comparison Matrix CSV (.csv)
     if (exportCsvBtn) {
         exportCsvBtn.addEventListener('click', () => {
             const table = document.querySelector('table');
@@ -572,15 +670,86 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 rows.push(cells.join(','));
             }
-            const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'AbstractiFy_Comparison_Matrix.csv';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            downloadFile('AbstractiFy_Comparison_Matrix.csv', rows.join('\n'), 'text/csv');
+        });
+    }
+
+    // 4. Export Comparison Matrix Markdown Table (.md)
+    const exportMatrixMdBtn = $('export-matrix-md-btn');
+    if (exportMatrixMdBtn) {
+        exportMatrixMdBtn.addEventListener('click', () => {
+            let md = `# 🧮 Study Comparison Matrix\n\n`;
+            md += `> Query: ${state.currentQuery || 'Literature Analysis'}\n\n`;
+            md += `| Publication | Dataset Size | Methodology | Outcomes | Limitations |\n`;
+            md += `|---|---|---|---|---|\n`;
+
+            if (state.matrixData && state.matrixData.length > 0) {
+                state.matrixData.forEach(row => {
+                    md += `| **${(row.title || 'N/A').replace(/\|/g, '-')}** | ${row.datasetSize || 'N/A'} | ${row.methodology || 'N/A'} | ${row.outcomes || 'N/A'} | ${row.limitations || 'N/A'} |\n`;
+                });
+            } else {
+                md += `| No data available | N/A | N/A | N/A | N/A |\n`;
+            }
+
+            downloadFile('AbstractiFy_Comparison_Matrix.md', md, 'text/markdown');
+        });
+    }
+
+    // 5. Export Citation Network JSON (Obsidian Graph format) (.json)
+    const exportGraphJsonBtn = $('export-graph-json-btn');
+    if (exportGraphJsonBtn) {
+        exportGraphJsonBtn.addEventListener('click', () => {
+            const nodes = state.searchResults.map(p => ({
+                id: p.id,
+                label: p.title,
+                year: p.year,
+                citationCount: p.citationCount,
+                authors: (p.authors || []).map(a => a.name),
+                doi: p.doi || null,
+                url: p.url || null
+            }));
+
+            const graphData = {
+                generator: "AbstractiFy Obsidian Graph Exporter",
+                query: state.currentQuery,
+                exportedAt: new Date().toISOString(),
+                nodesCount: nodes.length,
+                nodes: nodes
+            };
+
+            downloadFile(`AbstractiFy_Citation_Graph_${(state.currentQuery || 'network').replace(/[^a-zA-Z0-9]/g, '_')}.json`, JSON.stringify(graphData, null, 2), 'application/json');
+        });
+    }
+
+    // 6. Export BibTeX References (.bib)
+    const exportGraphBibtexBtn = $('export-graph-bibtex-btn');
+    if (exportGraphBibtexBtn) {
+        exportGraphBibtexBtn.addEventListener('click', () => {
+            if (state.searchResults.length === 0) {
+                alert('No search results available to export to BibTeX.');
+                return;
+            }
+
+            let bib = `% AbstractiFy Generated BibTeX Bibliography\n`;
+            bib += `% Query: ${state.currentQuery || 'Academic Search'}\n\n`;
+
+            state.searchResults.forEach((p, idx) => {
+                const firstAuthor = (p.authors && p.authors[0]) ? p.authors[0].name.split(' ').pop().toLowerCase() : 'author';
+                const year = p.year || '2026';
+                const citationKey = `${firstAuthor}${year}paper${idx + 1}`;
+                const authorList = (p.authors || []).map(a => a.name).join(' and ');
+
+                bib += `@article{${citationKey},\n`;
+                bib += `  author = {${authorList || 'Unknown Author'}},\n`;
+                bib += `  title = {{${p.title}}},\n`;
+                bib += `  year = {${year}},\n`;
+                if (p.venue) bib += `  journal = {${p.venue}},\n`;
+                if (p.doi) bib += `  doi = {${p.doi}},\n`;
+                if (p.url) bib += `  url = {${p.url}},\n`;
+                bib += `}\n\n`;
+            });
+
+            downloadFile(`AbstractiFy_References_${(state.currentQuery || 'bib').replace(/[^a-zA-Z0-9]/g, '_')}.bib`, bib, 'text/plain');
         });
     }
 

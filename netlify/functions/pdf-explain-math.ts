@@ -1,5 +1,5 @@
-import { Context } from "@netlify/functions";
-import { getApiKey, callGemini, checkPasscode } from "./_utils.js";
+import { Context } from '@netlify/functions';
+import { getApiKey, callGemini, checkPasscode } from './_utils.js';
 
 interface ExplainMathRequest {
     equation: string;
@@ -7,32 +7,40 @@ interface ExplainMathRequest {
 }
 
 export default async (req: Request, context: Context) => {
-    if (req.method === "OPTIONS") {
-        return new Response("ok", { headers: { "Access-Control-Allow-Origin": "*" } });
+    if (req.method === 'OPTIONS') {
+        return new Response('ok', { headers: { 'Access-Control-Allow-Origin': '*' } });
     }
 
     const unauthorized = checkPasscode(req.headers);
     if (unauthorized) return unauthorized;
 
     try {
-        const body = await req.json() as ExplainMathRequest;
+        const body = (await req.json()) as ExplainMathRequest;
         const { equation, context: mathContext } = body;
 
         if (!equation) {
-            return new Response(JSON.stringify({ message: "Equation parameter is required" }), {
+            return new Response(JSON.stringify({ message: 'Equation parameter is required' }), {
                 status: 400,
-                headers: { "Content-Type": "application/json" }
+                headers: { 'Content-Type': 'application/json' },
             });
         }
 
-        const geminiKey = getApiKey(req.headers, "gemini");
+        const geminiKey = getApiKey(req.headers, 'gemini');
         if (!geminiKey) {
-            return new Response(JSON.stringify({
-                breakdown: "1. W: Synaptic weight matrix.\n2. i, j: Presynaptic and postsynaptic neuron indices.\n3. Requires Gemini API Key in Settings to extract dynamic parameter details.",
-                analogy: "Think of synaptic weights as the thickness of a bridge between two islands (neurons). A thicker bridge allows more cars (signals) to pass through quickly."
-            }), {
-                headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
-            });
+            return new Response(
+                JSON.stringify({
+                    breakdown:
+                        '1. W: Synaptic weight matrix.\n2. i, j: Presynaptic and postsynaptic neuron indices.\n3. Requires Gemini API Key in Settings to extract dynamic parameter details.',
+                    analogy:
+                        'Think of synaptic weights as the thickness of a bridge between two islands (neurons). A thicker bridge allows more cars (signals) to pass through quickly.',
+                }),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                },
+            );
         }
 
         const prompt = `You are an academic mathematics explainer. Break down the following mathematical equation/formula found in an academic research paper.
@@ -51,28 +59,30 @@ Provide your response in JSON format. Do not add markdown backticks outside of t
 }
 `;
 
-        const responseText = await callGemini(prompt, "application/json", geminiKey);
-        
+        const responseText = await callGemini(prompt, 'application/json', geminiKey);
+
         // Clean JSON formatting if Gemini adds markdown codeblocks
-        const cleanedText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+        const cleanedText = responseText
+            .replace(/```json/g, '')
+            .replace(/```/g, '')
+            .trim();
         const result = JSON.parse(cleanedText) as { breakdown: string; analogy: string };
 
         return new Response(JSON.stringify(result), {
-            headers: { 
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-            }
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
         });
-
     } catch (error: any) {
-        console.error("Explain Math API error:", error);
+        console.error('Explain Math API error:', error);
         return new Response(JSON.stringify({ message: error.message }), {
             status: 500,
-            headers: { "Content-Type": "application/json" }
+            headers: { 'Content-Type': 'application/json' },
         });
     }
 };
 
 export const config = {
-    path: "/api/pdf-explain-math"
+    path: '/api/pdf-explain-math',
 };

@@ -1,0 +1,16 @@
+# Default owner for everything in the repo
+* @vansh7nvc
+
+# Frontend
+/public/ @vansh7nvc
+
+# Serverless functions (backend)
+/netlify/functions/ @vansh7nvc
+
+# Documentation
+/docs/ @vansh7nvc
+/issues/ @vansh7nvc
+*.md @vansh7nvc
+
+# CI/CD and GitHub config
+/.github/ @vansh7nvc

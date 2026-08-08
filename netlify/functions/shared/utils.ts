@@ -14,12 +14,12 @@ export interface Paper {
 export function getApiKey(headers: Headers, type: 'gemini' | 'groq'): string {
     const headerName = type === 'gemini' ? 'x-gemini-key' : 'x-groq-key';
     const envName = type === 'gemini' ? 'GEMINI_API_KEY' : 'GROQ_API_KEY';
-    
+
     const keyFromHeader = headers.get(headerName);
     if (keyFromHeader && keyFromHeader.trim()) {
         return keyFromHeader.trim();
     }
-    
+
     return process.env[envName] || '';
 }
 
@@ -27,7 +27,7 @@ export function getApiKey(headers: Headers, type: 'gemini' | 'groq'): string {
 export async function retryWithBackoff<T>(
     fn: () => Promise<T>,
     retries = 3,
-    delay = 1000
+    delay = 1000,
 ): Promise<T> {
     try {
         return await fn();
@@ -36,7 +36,7 @@ export async function retryWithBackoff<T>(
         const jitter = Math.random();
         const backoffDelay = delay * Math.pow(2, 3 - retries) + jitter * 1000;
         console.warn(`API call failed, retrying in ${Math.round(backoffDelay)}ms... Error:`, error);
-        await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        await new Promise((resolve) => setTimeout(resolve, backoffDelay));
         return retryWithBackoff(fn, retries - 1, delay);
     }
 }
@@ -45,27 +45,29 @@ export async function retryWithBackoff<T>(
 export async function callGemini(
     prompt: string,
     responseMimeType: 'text/plain' | 'application/json' = 'text/plain',
-    apiKey: string
+    apiKey: string,
 ): Promise<string> {
     if (!apiKey) {
         throw new Error('Gemini API key is required. Please configure it in Settings.');
     }
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-    
+
     const body = {
-        contents: [{
-            parts: [{ text: prompt }]
-        }],
+        contents: [
+            {
+                parts: [{ text: prompt }],
+            },
+        ],
         generationConfig: {
-            responseMimeType: responseMimeType
-        }
+            responseMimeType: responseMimeType,
+        },
     };
 
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -73,7 +75,7 @@ export async function callGemini(
         throw new Error(`Gemini API Error (HTTP ${response.status}): ${errorText}`);
     }
 
-    const data = await response.json() as any;
+    const data = (await response.json()) as any;
     if (!data.candidates || data.candidates.length === 0 || !data.candidates[0].content) {
         throw new Error('Malformed Gemini response: ' + JSON.stringify(data));
     }
@@ -82,26 +84,23 @@ export async function callGemini(
 }
 
 // Raw HTTP client for Gemini Embeddings API
-export async function callGeminiEmbedding(
-    text: string,
-    apiKey: string
-): Promise<number[]> {
+export async function callGeminiEmbedding(text: string, apiKey: string): Promise<number[]> {
     if (!apiKey) {
         throw new Error('Gemini API key is required for embeddings.');
     }
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${apiKey}`;
-    
+
     const body = {
         content: {
-            parts: [{ text: text }]
-        }
+            parts: [{ text: text }],
+        },
     };
 
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -109,7 +108,7 @@ export async function callGeminiEmbedding(
         throw new Error(`Gemini Embedding Error: ${errorText}`);
     }
 
-    const data = await response.json() as any;
+    const data = (await response.json()) as any;
     if (!data.embedding || !data.embedding.values) {
         throw new Error('Malformed Gemini embedding response');
     }

@@ -1,0 +1,55 @@
+name-template: 'v$RESOLVED_VERSION 🎓'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: '🚀 New Features'
+    labels:
+      - 'enhancement'
+      - 'feature'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'bug'
+      - 'fix'
+      - 'bugfix'
+  - title: '📖 Documentation'
+    labels:
+      - 'documentation'
+      - 'docs'
+  - title: '🔧 Maintenance'
+    labels:
+      - 'chore'
+      - 'dependencies'
+      - 'refactor'
+  - title: '🔒 Security'
+    labels:
+      - 'security'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+no-changes-template: 'No changes since last release.'
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+      - 'breaking'
+  minor:
+    labels:
+      - 'minor'
+      - 'enhancement'
+      - 'feature'
+  patch:
+    labels:
+      - 'patch'
+      - 'bug'
+      - 'fix'
+      - 'documentation'
+      - 'chore'
+  default: patch
+
+template: |
+  ## 🎓 AbstractiFy $RESOLVED_VERSION
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/vansh7nvc/Abstractify/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

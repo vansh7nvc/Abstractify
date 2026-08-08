@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/vansh7nvc/Abstractify/blob/main/README.md
+    about: Please check the README and docs before filing an issue.
+  - name: 🌐 Live Demo
+    url: https://abstractify1.netlify.app
+    about: Try the live demo to verify the issue exists in production.
+  - name: 🎯 Community Issues & Roadmap
+    url: https://github.com/vansh7nvc/Abstractify/tree/main/issues
+    about: Browse detailed issue specifications for community contributors.

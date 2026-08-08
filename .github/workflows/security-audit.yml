@@ -1,0 +1,28 @@
+name: Dependency Security Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 8 * * 1' # Run weekly on Monday at 8:00 AM UTC
+
+jobs:
+  audit:
+    name: npm Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔍 Run npm Audit (High & Critical Checks)
+        run: npm audit --audit-level=high
+        continue-on-error: true # Prevents CI blocking while warning maintainers
