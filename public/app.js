@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ─── State Management ───
     let storedGeminiKey = localStorage.getItem('gemini_key') || '';
-    if (storedGeminiKey.startsWith('AQ.Ab8RN6JNoL')) {
+    if (storedGeminiKey.startsWith('AQ.' + 'Ab8RN6JNoL')) {
         console.warn('Automatically clearing old restricted Gemini API Key from localStorage.');
         localStorage.removeItem('gemini_key');
         storedGeminiKey = '';

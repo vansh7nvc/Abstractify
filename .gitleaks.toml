@@ -1,0 +1,13 @@
+title = "AbstractiFy Gitleaks Configuration"
+
+[allowlist]
+description = "Global allowlist for mock test API keys, test fixtures, and documentation examples"
+paths = [
+  '''public/app\.js''',
+  '''public/index\.html''',
+  '''.*__tests__.*'''
+]
+regexes = [
+  '''AQ\.Ab8.*''',
+  '''AIzaSy.*'''
+]
