@@ -45,7 +45,10 @@ export async function retryWithBackoff<T>(
         const jitter = delay > 0 ? Math.random() * 1000 : 0;
         const backoffDelay = delay > 0 ? delay * Math.pow(2, 3 - retries) + jitter : 0;
         if (backoffDelay > 0) {
-            console.warn(`API call failed, retrying in ${Math.round(backoffDelay)}ms... Error:`, error);
+            console.warn(
+                `API call failed, retrying in ${Math.round(backoffDelay)}ms... Error:`,
+                error,
+            );
             await new Promise((resolve) => setTimeout(resolve, backoffDelay));
         }
         return retryWithBackoff(fn, retries - 1, delay);
