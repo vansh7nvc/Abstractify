@@ -1,6 +1,6 @@
 /**
  * AbstractiFy Export Suite Utilities
- * Supports exporting search results, consensus metrics, and matrices to Markdown, CSV, JSON, and BibTeX.
+ * Supports exporting search results, consensus metrics, and matrices to Markdown, CSV, JSON, BibTeX, and RIS.
  */
 
 /**
@@ -125,4 +125,58 @@ export function exportToBibTeX(papers) {
         entry += `}`;
         return entry;
     }).join('\n\n');
+}
+/**
+ * Render one RIS tag line, or an empty string when the field is absent.
+ * RIS keeps one field per line, so embedded newlines are folded to spaces.
+ * @param {string} tag Two-character RIS tag
+ * @param {string|number|undefined|null} value
+ * @returns {string}
+ */
+function risLine(tag, value) {
+    if (value === undefined || value === null || value === '') return '';
+    const oneLine = String(value).replace(/\s*\r?\n\s*/g, ' ').trim();
+    if (!oneLine) return '';
+    return `${tag}  - ${oneLine}\r\n`;
+}
+
+/**
+ * Normalise an author to the RIS "Last, First" convention.
+ * A name that already contains a comma is assumed to be in that form and is
+ * left untouched; a single-word name (e.g. "Plato") is emitted as-is.
+ * @param {string} name
+ * @returns {string}
+ */
+function risAuthor(name) {
+    const clean = String(name || '').replace(/\s+/g, ' ').trim();
+    if (!clean || clean.includes(',')) return clean;
+
+    const parts = clean.split(' ');
+    if (parts.length < 2) return clean;
+    return `${parts[parts.length - 1]}, ${parts.slice(0, -1).join(' ')}`;
+}
+
+/**
+ * Format publication list as RIS, the tagged interchange format that Zotero,
+ * Mendeley, EndNote and RefWorks import natively.
+ * Records are CRLF-delimited and separated by a blank line; absent fields are
+ * omitted rather than emitted empty, which every RIS parser treats as unset.
+ * @param {Array<Object>} papers
+ * @returns {string}
+ */
+export function exportToRis(papers) {
+    return (papers || []).map(p => {
+        let entry = 'TY  - JOUR\r\n';
+        entry += risLine('TI', p.title);
+        (p.authors || []).forEach(a => {
+            entry += risLine('AU', risAuthor(a));
+        });
+        entry += risLine('PY', p.year);
+        entry += risLine('JO', p.venue);
+        entry += risLine('DO', p.doi);
+        entry += risLine('UR', p.url);
+        entry += risLine('AB', p.abstract);
+        entry += 'ER  - \r\n';
+        return entry;
+    }).join('\r\n');
 }
