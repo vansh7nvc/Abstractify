@@ -19,7 +19,7 @@
     "sync-wiki": "node scripts/sync-wiki.js"
   },
   "dependencies": {
-    "@google/genai": "^2.19.0",
+    "@google/genai": "^2.21.0",
     "@netlify/functions": "^2.6.0",
     "@upstash/redis": "^1.38.3",
     "@upstash/vector": "^1.2.3",
