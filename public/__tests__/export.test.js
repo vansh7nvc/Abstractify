@@ -167,6 +167,13 @@ describe('public/js/export.js', () => {
             expect(second).not.toContain('AB  - ');
         });
 
+        it('emits AU for string authors and for { name } author objects', () => {
+            const ris = exportToRis([{ title: 'T', authors: ['Ashish Vaswani', { name: 'Noam Shazeer' }, { name: '' }, null] }]);
+            expect(ris).toContain('AU  - Vaswani, Ashish');
+            expect(ris).toContain('AU  - Shazeer, Noam');
+            expect(ris.match(/^AU {2}- /gm)).toHaveLength(2);
+        });
+
         it('keeps an author name that is already in "Last, First" form', () => {
             const ris = exportToRis([{ title: 'T', authors: ['van der Berg, Jan', 'Plato'] }]);
             expect(ris).toContain('AU  - van der Berg, Jan');

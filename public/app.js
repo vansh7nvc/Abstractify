@@ -773,8 +773,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return oneLine ? `${tag}  - ${oneLine}\r\n` : '';
         };
 
-        const risAuthorName = (name) => {
-            const clean = String(name || '').replace(/\s+/g, ' ').trim();
+        const risAuthorName = (author) => {
+            const rawName = typeof author === 'string'
+                ? author
+                : (author && typeof author === 'object' && author.name ? author.name : '');
+            const clean = rawName.replace(/\s+/g, ' ').trim();
             if (!clean || clean.includes(',')) return clean;
             const parts = clean.split(' ');
             if (parts.length < 2) return clean;
@@ -785,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let entry = 'TY  - JOUR\r\n';
             entry += risField('TI', p.title);
             (p.authors || []).forEach(a => {
-                entry += risField('AU', risAuthorName(a && a.name));
+                entry += risField('AU', risAuthorName(a));
             });
             entry += risField('PY', p.year);
             entry += risField('JO', p.venue);

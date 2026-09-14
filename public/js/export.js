@@ -147,8 +147,11 @@ function risLine(tag, value) {
  * @param {string} name
  * @returns {string}
  */
-function risAuthor(name) {
-    const clean = String(name || '').replace(/\s+/g, ' ').trim();
+function risAuthor(author) {
+    const rawName = typeof author === 'string'
+        ? author
+        : (author && typeof author === 'object' && author.name ? author.name : '');
+    const clean = rawName.replace(/\s+/g, ' ').trim();
     if (!clean || clean.includes(',')) return clean;
 
     const parts = clean.split(' ');
