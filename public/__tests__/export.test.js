@@ -3,7 +3,8 @@ import {
     exportToMarkdown,
     exportToCsv,
     exportToJson,
-    exportToBibTeX
+    exportToBibTeX,
+    exportToRis
 } from '../js/export.js';
 
 describe('public/js/export.js', () => {
@@ -109,6 +110,79 @@ describe('public/js/export.js', () => {
 
             expect(bib).toContain('@article{Anonymous');
             expect(bib).toContain('title = {Classical Analysis of Neural Networks}');
+        });
+    });
+
+    describe('exportToRis', () => {
+        const risPapers = [
+            {
+                id: 'paper-1',
+                title: 'Attention Is All You Need',
+                authors: ['Ashish Vaswani', 'Noam Shazeer'],
+                year: 2017,
+                venue: 'Advances in Neural Information Processing Systems',
+                doi: '10.48550/arXiv.1706.03762',
+                url: 'https://arxiv.org/abs/1706.03762',
+                abstract: 'The dominant sequence transduction models.\nA second line of the abstract.'
+            }
+        ];
+
+        it('emits a complete RIS record with the expected tags in order', () => {
+            const ris = exportToRis(risPapers);
+            const lines = ris.split('\r\n');
+
+            expect(lines[0]).toBe('TY  - JOUR');
+            expect(lines[1]).toBe('TI  - Attention Is All You Need');
+            expect(lines[2]).toBe('AU  - Vaswani, Ashish');
+            expect(lines[3]).toBe('AU  - Shazeer, Noam');
+            expect(lines[4]).toBe('PY  - 2017');
+            expect(lines[5]).toBe('JO  - Advances in Neural Information Processing Systems');
+            expect(lines[6]).toBe('DO  - 10.48550/arXiv.1706.03762');
+            expect(lines[7]).toBe('UR  - https://arxiv.org/abs/1706.03762');
+            expect(lines[8]).toBe('AB  - The dominant sequence transduction models. A second line of the abstract.');
+            expect(lines[9]).toBe('ER  - ');
+        });
+
+        it('uses CRLF line endings and terminates every record with ER', () => {
+            const ris = exportToRis(risPapers);
+            expect(ris.endsWith('ER  - \r\n')).toBe(true);
+            expect(ris.split('\n').every(l => l === '' || l.endsWith('\r'))).toBe(true);
+        });
+
+        it('separates multiple records with a blank line', () => {
+            const ris = exportToRis(samplePapers);
+            const records = ris.split('ER  - \r\n').filter(Boolean);
+            expect(records).toHaveLength(2);
+            expect(records[1].startsWith('\r\nTY  - JOUR')).toBe(true);
+        });
+
+        it('omits tags for missing fields instead of emitting empty values', () => {
+            const ris = exportToRis(samplePapers);
+            const second = ris.split('ER  - \r\n')[1];
+
+            expect(second).toContain('TI  - Classical Analysis of Neural Networks');
+            expect(second).not.toContain('AU  - ');
+            expect(second).not.toContain('PY  - ');
+            expect(second).not.toContain('DO  - ');
+            expect(second).not.toContain('AB  - ');
+        });
+
+        it('emits AU for string authors and for { name } author objects', () => {
+            const ris = exportToRis([{ title: 'T', authors: ['Ashish Vaswani', { name: 'Noam Shazeer' }, { name: '' }, null] }]);
+            expect(ris).toContain('AU  - Vaswani, Ashish');
+            expect(ris).toContain('AU  - Shazeer, Noam');
+            expect(ris.match(/^AU {2}- /gm)).toHaveLength(2);
+        });
+
+        it('keeps an author name that is already in "Last, First" form', () => {
+            const ris = exportToRis([{ title: 'T', authors: ['van der Berg, Jan', 'Plato'] }]);
+            expect(ris).toContain('AU  - van der Berg, Jan');
+            expect(ris).toContain('AU  - Plato');
+        });
+
+        it('returns an empty string for no papers', () => {
+            expect(exportToRis([])).toBe('');
+            expect(exportToRis(null)).toBe('');
         });
     });
 });

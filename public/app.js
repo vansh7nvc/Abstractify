@@ -765,6 +765,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 7. Export RIS References (.ris) for Zotero / Mendeley
+    function formatRIS(papers) {
+        const risField = (tag, value) => {
+            if (value === undefined || value === null || value === '') return '';
+            const oneLine = String(value).replace(/\s*\r?\n\s*/g, ' ').trim();
+            return oneLine ? `${tag}  - ${oneLine}\r\n` : '';
+        };
+
+        const risAuthorName = (author) => {
+            const rawName = typeof author === 'string'
+                ? author
+                : (author && typeof author === 'object' && author.name ? author.name : '');
+            const clean = rawName.replace(/\s+/g, ' ').trim();
+            if (!clean || clean.includes(',')) return clean;
+            const parts = clean.split(' ');
+            if (parts.length < 2) return clean;
+            return `${parts[parts.length - 1]}, ${parts.slice(0, -1).join(' ')}`;
+        };
+
+        return (papers || []).map(p => {
+            let entry = 'TY  - JOUR\r\n';
+            entry += risField('TI', p.title);
+            (p.authors || []).forEach(a => {
+                entry += risField('AU', risAuthorName(a));
+            });
+            entry += risField('PY', p.year);
+            entry += risField('JO', p.venue);
+            entry += risField('DO', p.doi);
+            entry += risField('UR', p.url);
+            entry += risField('AB', p.abstract);
+            entry += 'ER  - \r\n';
+            return entry;
+        }).join('\r\n');
+    }
+
+    const exportGraphRisBtn = $('export-graph-ris-btn');
+    if (exportGraphRisBtn) {
+        exportGraphRisBtn.addEventListener('click', () => {
+            if (state.searchResults.length === 0) {
+                alert('No search results available to export to RIS.');
+                return;
+            }
+
+            const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+            downloadFile(`abstractify_references_${stamp}.ris`, formatRIS(state.searchResults), 'application/x-research-info-systems');
+        });
+    }
+
     // ══════════════════════════════════════════════════════
     //  PDF UPLOAD & INGESTION
     // ══════════════════════════════════════════════════════
