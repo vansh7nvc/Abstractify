@@ -13,8 +13,8 @@ Researchers frequently consume scientific literature while commuting or multitas
 Per production guidance from community discussion (Issue #12 comments), the most listenable format is an intermediate **two-host conversational dialogue** (similar to NotebookLM audio overviews). Converting paper metadata and consensus syntheses into structured dialogue turns (`[{"speaker": "A", "text": "..."}, {"speaker": "B", "text": "..."}]`) delivered by alternating voices creates an engaging, natural briefing.
 
 ### Architectural Decision: v1 Client-Side TTS vs. v2 Server-Side Audio Pipeline
-- **v1 Client-Side TTS (`window.speechSynthesis`)**: Deliberate zero-cost / serverless constraint decision. Netlify serverless functions enforce a strict 10s execution timeout and zero external binary audio storage budget. Client-side synthesis incurs zero hosting costs and runs instantly. *Known limitation*: OS-dependent voice timbres across platforms and lack of audio file caching.
-- **v2 Server-Side Audio Pipeline (Planned Roadmap)**: When backend compute/storage budget permits, a server-side TTS engine (e.g. `edge-tts`) will synthesize cached `.mp3` files stored in Redis/CDN for deterministic, identical playback across all devices.
+- **v1 Client-Side TTS (`window.speechSynthesis`)**: Deliberate zero-cost / serverless constraint decision. Netlify synchronous serverless functions enforce a strict 10s execution timeout. Client-side synthesis incurs zero hosting costs and runs instantly. *Known limitation*: OS-dependent voice timbres across platforms and lack of audio file caching.
+- **v2 Server-Side Audio Pipeline (Planned Roadmap)**: When backend storage budget permits, a server-side TTS engine (e.g. `edge-tts`) running in a **Netlify Background Function** (filename ends in `-background`, 15 min timeout) will synthesize cached `.mp3` files. The real v2 blocker is storage, not compute. Netlify Blobs (1GB free) or Cloudflare R2 (10GB free, Issue #34) may cover `.mp3` caching without a separate Redis/CDN store — verify limits before planning.
 - **Durable Contract**: The intermediate structured turns JSON schema (`speaker: 'A' | 'B'` and `text`) serves as the durable, canonical contract. Audio rendering is derived and disposable, guaranteeing zero breaking changes when migrating to v2.
 
 ---
@@ -56,8 +56,8 @@ Per production guidance from community discussion (Issue #12 comments), the most
   - **Output Token Ceiling**: Set `maxOutputTokens` to `1536` (accommodating a ~16-turn, ~485-word spoken dialogue with safety margin).
   - **Compact JSON Instruction**: Explicitly instruct Gemini in the prompt: `Output compact, single-line JSON without formatting newlines or indentation to minimize token overhead.` (reclaims ~75 structural whitespace tokens).
   - **Empirical Token Logging**: Log `usage.output_tokens` on every generation to monitor empirical p95 token consumption.
-  - **Truncation & Parse Error Recovery**: Treat `max_tokens` truncation as a first-class outcome. Wrap `JSON.parse` with recovery logic (attempting to close unclosed JSON structures or falling back cleanly to the local script generator) before running terminal punctuation validation on the final turn.
-- **Distributed Cache**: Hash dialogue turns and store in Upstash Redis via `cacheSet(key, turns, 86400 * 30)` for instant, zero-marginal-cost re-listening.
+  - **Truncation & Parse Error Recovery**: If `finishReason === "MAX_TOKENS"`, treat the generation as failed: log `usage.candidatesTokenCount`, retry once with the abstract trimmed further, and never cache the result. Trim to the last complete turn and validate terminal punctuation. A repaired array produces a podcast that ends mid-thought, which is worse than no output.
+- **Distributed Cache**: Hash dialogue turns and store in Upstash Redis via `cacheSet(key, turns, 86400 * 30)` for instant, zero-marginal-cost re-listening. **Never cache partial/truncated results** (`finishReason === "MAX_TOKENS"`).
 - **Deterministic Fallback**: Local two-host script generator if Gemini API key is not provided, network fails, or truncation invalidates JSON.
 
 ### 2. Dual-Voice Playback Engine (`public/js/tts.js`)
@@ -90,7 +90,7 @@ Per production guidance from community discussion (Issue #12 comments), the most
 - [ ] Add `🎙️ Audio Briefing` button on paper cards and Consensus Meter panel.
 - [ ] Implement backend `/api/podcast-script` endpoint generating two-host structured dialogue turns (`speaker` and `text`) with Gemini.
 - [ ] Set `maxOutputTokens: 1536` with compact JSON prompt enforcement and log `usage.output_tokens`.
-- [ ] Implement robust JSON truncation and parse error handling with deterministic local fallback.
+- [ ] Implement truncation rejection on `finishReason == "MAX_TOKENS"`: retry once with trimmed abstract, never cache partial, deterministic local fallback for all other failures.
 - [ ] Cache dialogue turns in Upstash Redis to prevent redundant LLM generations.
 - [ ] Implement dual-voice playback engine alternating between Host A and Host B via `window.speechSynthesis`.
 - [ ] Implement audio dock with Play, Pause, Resume, Stop controls and `.audio-playing-wave` equalizer animation.
