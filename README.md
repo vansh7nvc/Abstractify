@@ -79,6 +79,9 @@ Upload academic PDFs, perform local chunking and index mapping. A regex-based pa
 ### 🔗 Smart Citation Context
 Analyses how a paper is cited by others — classifying citation intent (supports, contradicts, extends, methodological) and extracting surrounding context for deeper understanding.
 
+### 🤖 Multi-Agent Research Orchestration
+Coordinates dedicated search, evidence analysis, methodology review, memory, and academic writing agents behind `POST /api/agent/multi-query`. Independent specialists can run in staged parallel phases, while sequential mode is available for deterministic workflows. Clients can request JSON results or `text/event-stream` lifecycle events for live agent visualizers.
+
 ### 🔒 Flexible Credentials Management
 - **Secure Background Mode**: Runs with pre-configured server-side keys without exposing secrets to the client.
 - **Bring Your Own Key (BYOK)**: Input your custom Gemini API key securely in the frontend settings panel.
@@ -120,6 +123,8 @@ Abstractify/
 │
 ├── netlify/functions/                  # Serverless API layer (TypeScript)
 │   ├── _utils.ts                       # Shared: API keys, Gemini client, types
+│   ├── agent/                          # Typed specialist agents + executive orchestrator
+│   ├── multi-query.ts                  # Multi-agent JSON and SSE endpoint
 │   ├── search.ts                       # Hybrid semantic search + re-ranking
 │   ├── consensus.ts                    # Consensus Meter classification
 │   ├── compare.ts                      # Study Comparison Matrix extraction
