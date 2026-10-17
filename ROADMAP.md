@@ -53,7 +53,7 @@ Phase 6 — Cortex Cognitive Engine    [░░░░░░░░░░░░░�
 
 ### Phase 4 — Open Source Contributor Suite (`100% Ready`)
 
-We have published **39 live community issues** on our [GitHub Issues Page](https://github.com/vansh7nvc/Abstractify/issues).
+We maintain **39 community & architecture issues** in our [issues directory](issues/) and [GitHub Issues Page](https://github.com/vansh7nvc/Abstractify/issues).
 
 | # | Issue | Difficulty | Target Area | Spec Link |
 |---|---|---|---|---|

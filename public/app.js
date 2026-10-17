@@ -117,6 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (geminiKeyModeByok) geminiKeyModeByok.addEventListener('change', updateGeminiKeyModeUI);
 
     // ─── View Transition Helpers ───
+    /**
+     * Transitions the application view from the public landing page to the main scholarly workspace.
+     * Automatically triggers a recalculation and fit of the citation network if initialized.
+     * @returns {void}
+     */
     function switchToWorkspace() {
         document.body.classList.remove('show-landing');
         document.body.classList.add('show-app');
@@ -132,6 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 
+    /**
+     * Transitions the application view from the scholarly workspace back to the public landing page.
+     * @returns {void}
+     */
     function switchToLanding() {
         document.body.classList.remove('show-app');
         document.body.classList.add('show-landing');
@@ -143,6 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabBtns = document.querySelectorAll('.workspace-tab-btn');
     const tabPanes = document.querySelectorAll('.workspace-tab-pane');
 
+    /**
+     * Switches the active workspace tab pane, synchronizes tab button aria attributes and active classes.
+     * Dynamically triggers Vis.js network graph resizing if switching to the citation lineage tab.
+     * @param {string} targetTabId - The DOM element ID of the workspace tab pane to display.
+     * @returns {void}
+     */
     function switchWorkspaceTab(targetTabId) {
         tabBtns.forEach(btn => {
             const isMatch = btn.getAttribute('data-tab') === targetTabId;
@@ -363,6 +378,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─── Render Cited Publication Cards in Literature Explorer ───
+    /**
+     * Renders responsive publication cards in the Literature Explorer grid.
+     * Updates the literature explorer tab count badge with current result size.
+     * @returns {void}
+     */
     function renderPaperCards() {
         resultsList.innerHTML = '';
 
@@ -513,6 +533,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ══════════════════════════════════════════════════════
     //  STUDY COMPARISON MATRIX
     // ══════════════════════════════════════════════════════
+    /**
+     * Executes study comparison extraction across search results, populating the comparison matrix.
+     * Updates the matrix tab badge with total compared studies.
+     * @returns {Promise<void>}
+     */
     async function runComparison() {
         try {
             const res = await fetch('/api/compare', {
