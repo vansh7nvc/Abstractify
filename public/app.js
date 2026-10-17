@@ -139,6 +139,43 @@ document.addEventListener('DOMContentLoaded', () => {
         landingView.classList.remove('hidden');
     }
 
+    // ─── Workspace Multi-Tab Switching System ───
+    const tabBtns = document.querySelectorAll('.workspace-tab-btn');
+    const tabPanes = document.querySelectorAll('.workspace-tab-pane');
+
+    function switchWorkspaceTab(targetTabId) {
+        tabBtns.forEach(btn => {
+            const isMatch = btn.getAttribute('data-tab') === targetTabId;
+            btn.classList.toggle('active', isMatch);
+            btn.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+        });
+
+        tabPanes.forEach(pane => {
+            const isMatch = pane.id === targetTabId;
+            pane.classList.toggle('active', isMatch);
+            if (isMatch) {
+                pane.classList.remove('hidden');
+            } else {
+                pane.classList.add('hidden');
+            }
+        });
+
+        // Trigger Vis Network resize if graph tab is activated
+        if (targetTabId === 'tab-graph' && state.networkInstance) {
+            setTimeout(() => {
+                state.networkInstance.setSize('100%', '100%');
+                state.networkInstance.fit();
+            }, 60);
+        }
+    }
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            if (tabId) switchWorkspaceTab(tabId);
+        });
+    });
+
     // Bind transition triggers
     accessWorkspaceBtns.forEach(btn => {
         btn.addEventListener('click', switchToWorkspace);
@@ -325,41 +362,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ─── Render Cited Publication Cards in Sidebar ───
+    // ─── Render Cited Publication Cards in Literature Explorer ───
     function renderPaperCards() {
         resultsList.innerHTML = '';
+
+        const tabLitBadge = $('tab-badge-literature');
+        if (tabLitBadge) {
+            tabLitBadge.innerText = `${state.searchResults.length}`;
+        }
+
+        if (state.searchResults.length === 0) {
+            resultsList.innerHTML = `
+                <div class="col-span-full py-16 text-center text-secondary italic bg-surface border border-outline rounded-xl p-8">
+                    No matching papers found. Try another query.
+                </div>
+            `;
+            return;
+        }
+
         state.searchResults.forEach((paper, idx) => {
             const card = document.createElement('div');
             const stance = paper.consensusStance || 'neutral';
-            
-            // Set styles matching editorial theme
-            let stanceStyleClass = 'bg-primary/5 text-secondary';
-            if (stance === 'supports') {
-                stanceStyleClass = 'bg-accent-supporting text-primary border border-primary/10';
-            } else if (stance === 'contradicts') {
-                stanceStyleClass = 'bg-accent-contradicts text-red-800 border border-red-200';
-            } else if (stance === 'neutral') {
-                stanceStyleClass = 'bg-accent-mixed text-purple-900 border border-purple-200';
-            }
-
-            card.className = `folio-card p-5 space-y-3 group cursor-pointer ${state.selectedPaperId === paper.id ? 'border-primary bg-primary/[0.015]' : 'editorial-rule'}`;
-            
             const idxStr = String(idx + 1).padStart(2, '0');
+            
+            card.className = `paper-card ${state.selectedPaperId === paper.id ? 'selected' : ''}`;
+            
+            const authorsStr = (paper.authors || []).join(', ') || 'Unknown Authors';
+            const abstractExcerpt = paper.abstract 
+                ? (paper.abstract.length > 240 ? paper.abstract.substring(0, 240) + '...' : paper.abstract)
+                : 'No abstract available.';
+
             card.innerHTML = `
-                <div class="flex justify-between items-center text-[9px] font-mono uppercase tracking-widest text-secondary">
-                    <span class="${stanceStyleClass} px-2 py-0.5">${paper.year || 'N/A'} · ${stance}</span>
-                    <span>#${idxStr}</span>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-[11px] font-mono text-secondary">
+                        <div class="flex items-center gap-2">
+                            <span class="stance-pill ${stance}">
+                                <span class="material-symbols-outlined text-[13px]">${stance === 'supports' ? 'check_circle' : stance === 'contradicts' ? 'cancel' : 'help'}</span>
+                                ${stance}
+                            </span>
+                            <span class="text-secondary-muted">•</span>
+                            <span>${paper.year || 'N/A'}</span>
+                        </div>
+                        <span class="font-semibold text-primary font-mono">#${idxStr}</span>
+                    </div>
+
+                    <h3 class="serif-heading text-lg font-bold text-on-surface hover:text-primary transition-colors leading-snug">
+                        ${paper.title}
+                    </h3>
+                    
+                    <p class="text-xs text-primary/70 font-mono line-clamp-1">
+                        ${authorsStr}
+                    </p>
+
+                    <p class="text-xs text-secondary leading-relaxed line-clamp-3">
+                        ${abstractExcerpt}
+                    </p>
                 </div>
-                <h5 class="serif-heading text-lg leading-snug group-hover:text-primary transition-colors">${paper.title}</h5>
-                <p class="font-mono text-[10px] text-primary/60">${(paper.authors || []).join(', ') || 'Unknown Author'}</p>
+
+                <div class="pt-3 border-t border-outline flex items-center justify-between text-xs font-mono">
+                    <span class="text-secondary-muted flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">format_quote</span>
+                        ${paper.citations || paper.citationCount || 0} citations
+                    </span>
+                    <div class="flex items-center gap-2">
+                        ${paper.doi ? `<a href="https://doi.org/${encodeURIComponent(paper.doi)}" target="_blank" rel="noopener" class="text-primary hover:underline flex items-center gap-0.5"><span>DOI</span><span class="material-symbols-outlined text-xs">open_in_new</span></a>` : ''}
+                        <button class="inspect-btn px-2.5 py-1 bg-surface-muted hover:bg-primary-light text-primary border border-outline rounded text-[11px] transition-colors cursor-pointer">
+                            Inspect Intents
+                        </button>
+                    </div>
+                </div>
             `;
 
-            card.addEventListener('click', () => {
-                document.querySelectorAll('#results-list .folio-card').forEach(c => c.classList.remove('border-primary', 'bg-primary/[0.015]'));
-                card.classList.add('border-primary', 'bg-primary/[0.015]');
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('a')) return;
+
+                document.querySelectorAll('#results-list .paper-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
                 state.selectedPaperId = paper.id;
-                appendChat('System', `Cited Item #${idxStr} selected: "${paper.title}"`);
+                appendChat('System', `Publication #${idxStr} selected: "${paper.title}"`);
                 loadCitationContext(paper);
+
+                if (e.target.closest('.inspect-btn')) {
+                    switchWorkspaceTab('tab-copilot');
+                }
             });
 
             resultsList.appendChild(card);
@@ -441,6 +526,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await res.json();
             state.matrixData = data.matrix || [];
+
+            const tabMatBadge = $('tab-badge-matrix');
+            if (tabMatBadge) {
+                tabMatBadge.innerText = `${state.matrixData.length}`;
+            }
 
             matrixBody.innerHTML = '';
             exportCsvBtn.classList.remove('hidden');

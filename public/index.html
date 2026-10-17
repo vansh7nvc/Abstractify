@@ -3,10 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>AbstractiFy | Academic AI Synthesis</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+    <title>AbstractiFy | Academic AI Synthesis & Literature Intelligence</title>
+    
+    <!-- Modern Typography: Plus Jakarta Sans (UI), Playfair Display (Serif Headings), JetBrains Mono (Code/Stats) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
+    
     <!-- Vis-Network for Draggable Graphs -->
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -17,21 +21,20 @@
                 theme: {
                     extend: {
                         "colors": {
-                            "primary": "#002147", /* Oxford Blue */
+                            "primary": "#002147", /* Oxford Navy */
+                            "primary-hover": "#00152e",
+                            "primary-light": "#eef4fb",
                             "background": "#FDFAF6", /* Ivory */
-                            "surface": "#FDFAF6",
-                            "on-surface": "#1A1A1A", /* Charcoal Ink */
-                            "on-background": "#1A1A1A",
-                            "outline": "#D1CDC7", /* Elegant Rule Color */
-                            "secondary": "#4A4A4A",
-                            "accent-supporting": "#E8F0F2",
-                            "accent-mixed": "#F2E8F0",
-                            "accent-contradicts": "#F2E8E8"
+                            "surface": "#FFFFFF",
+                            "surface-muted": "#F8F5EF",
+                            "on-surface": "#14171A", /* Charcoal Ink */
+                            "outline": "#E2DDD5", /* Rule Color */
+                            "secondary": "#4B5563"
                         },
                         "fontFamily": {
-                            "serif": ["Playfair Display", "serif"],
-                            "sans": ["Inter", "sans-serif"],
-                            "mono": ["JetBrains Mono", "monospace"]
+                            "sans": ["'Plus Jakarta Sans'", "sans-serif"],
+                            "serif": ["'Playfair Display'", "serif"],
+                            "mono": ["'JetBrains Mono'", "monospace"]
                         }
                     }
                 }
@@ -40,224 +43,105 @@
     </script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="font-sans antialiased paper-texture min-h-screen show-landing" style="font-family: 'Times New Roman', Times, serif;">
+<body class="font-sans antialiased paper-texture min-h-screen show-landing">
 
     <!-- ========================================== -->
     <!--          LANDING PAGE VIEW                 -->
     <!-- ========================================== -->
     <div id="landing-view" class="w-full">
         <!-- Global Top Nav -->
-        <header class="fixed top-0 w-full h-20 z-50 flex justify-between items-center px-10 bg-background/90 backdrop-blur-md border-b editorial-rule">
-            <div class="flex items-center gap-2">
+        <header class="fixed top-0 w-full h-20 z-50 flex justify-between items-center px-8 md:px-12 bg-background/90 backdrop-blur-md border-b editorial-rule">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-2xl">school</span>
                 <span class="cursive-logo text-2xl font-bold text-primary tracking-tight">AbstractiFy</span>
             </div>
-            <nav class="hidden md:flex items-center gap-10 font-mono text-[11px] uppercase tracking-[0.2em]" style="font-family: 'Times New Roman', Times, serif;">
-                <a class="text-primary border-b border-primary pb-1" href="#">Journal</a>
-                <a class="text-secondary hover:text-primary transition-colors" href="#">Methodology</a>
-                <a class="text-secondary hover:text-primary transition-colors" href="#">Archives</a>
+            <nav class="hidden md:flex items-center gap-8 font-mono text-[11px] uppercase tracking-[0.2em] text-secondary">
+                <a class="text-primary font-semibold border-b-2 border-primary pb-1" href="#">Journal</a>
+                <a class="hover:text-primary transition-colors" href="#methodology">Methodology</a>
+                <a class="hover:text-primary transition-colors" href="#features">Features</a>
             </nav>
-            <div class="flex items-center gap-8">
-                <button class="access-workspace-btn font-mono text-[11px] uppercase tracking-widest text-primary border border-primary px-4 py-2 hover:bg-primary hover:text-background transition-all" style="font-family: 'Times New Roman', Times, serif;">
-                    Access Workspace
+            <div class="flex items-center gap-6">
+                <button class="access-workspace-btn oxford-btn">
+                    <span>Access Workspace</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
                 </button>
-                <div class="w-8 h-8 rounded-full overflow-hidden border border-primary/20 grayscale">
-                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmImB6T-JF7b9sIuG34hwQjaE3-IbPn--jt3O5EPOqGI9vpQoEj2LBlS0YNv4pqjJTXpTO_DVpcq5EiKPjh2nyjoNwFhfjyYgzIiKFUbuJdVEgwUIIbcgp309IzRiSwWM3GEnb_BIhNthnYMy5_1dKkrF3G50L59wwiK5WXj73Rm_LHb2DSR6Ysitcy3hGhJ50raVanvL5FO4AffPNW-HL68rxNHGfmjfbFLuJXq1l53VuW7jekHe-etic-Yk8RL0T4Vky1rTZT60"/>
-                </div>
             </div>
         </header>
 
         <!-- Hero Section -->
         <section class="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-24 px-8 text-center border-b editorial-rule">
-            <div class="max-w-4xl mx-auto space-y-12">
-                <div class="font-mono text-[12px] uppercase tracking-[0.3em] text-secondary border-y editorial-rule py-3 inline-block px-12" style="font-family: 'Times New Roman', Times, serif;">
-                    Volume IV • Issue II • MMXXIV
+            <div class="max-w-4xl mx-auto space-y-10">
+                <div class="font-mono text-[11px] uppercase tracking-[0.3em] text-secondary border-y editorial-rule py-2.5 inline-block px-10 bg-surface/50 rounded-full">
+                    Volume IV • Issue II • Scholarly Intelligence
                 </div>
-                <h1 class="cursive-logo text-7xl md:text-9xl text-primary leading-none py-4">
+                <h1 class="cursive-logo text-6xl md:text-8xl text-primary leading-tight py-2">
                     AbstractiFy
                 </h1>
-                <div class="space-y-6">
-                    <h2 class="serif-heading text-4xl md:text-6xl text-on-surface tracking-tight leading-tight italic" style="font-family: 'Times New Roman', Times, serif;">
-                        A New Standard for Scholarly Synthesis
+                <div class="space-y-4">
+                    <h2 class="serif-heading text-3xl md:text-5xl text-on-surface tracking-tight leading-snug">
+                        De-jargonize research. Find consensus. Map the science.
                     </h2>
-                    <p class="font-sans text-xl text-secondary max-w-2xl mx-auto leading-relaxed italic opacity-80">
-                        Bridging the gap between exhaustive data and profound insight. Experience the evolution of academic rigor through neural synthesis.
+                    <p class="font-sans text-lg text-secondary max-w-2xl mx-auto leading-relaxed">
+                        An open-source academic synthesis platform transforming static literature into an interactive intelligence suite with verified consensus, study matrices, and citation lineages.
                     </p>
                 </div>
                 <!-- Landing Quick Search Form -->
-                <div class="max-w-xl mx-auto pt-4">
+                <div class="max-w-xl mx-auto pt-2">
                     <form id="landing-search-form" class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-lg">search</span>
-                        <input id="landing-search-input" class="w-full bg-transparent border-b-2 border-primary/20 focus:border-primary focus:ring-0 text-sm font-mono uppercase tracking-widest pl-10 pr-24 py-3 transition-all" placeholder="Enter Thesis or Query..." type="text" style="font-family: 'Times New Roman', Times, serif;">
-                        <button type="submit" class="absolute right-0 top-1/2 -translate-y-1/2 oxford-btn px-6 py-2.5 font-mono text-[10px] uppercase tracking-widest">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-lg">search</span>
+                        <input id="landing-search-input" class="w-full bg-surface border border-outline rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/10 text-sm font-sans pl-11 pr-28 py-4 transition-all shadow-sm" placeholder="Ask a question or enter a hypothesis..." type="text">
+                        <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 oxford-btn">
                             Analyze
                         </button>
                     </form>
                 </div>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-8 pt-4">
-                    <button class="access-workspace-btn oxford-btn px-10 py-4 font-mono text-xs uppercase tracking-widest" style="font-family: 'Times New Roman', Times, serif;">
-                        Access Workspace
-                    </button>
-                    <button id="landing-settings-btn" class="px-10 py-4 border border-primary text-primary font-mono text-xs uppercase tracking-widest hover:bg-primary/5 transition-all" style="font-family: 'Times New Roman', Times, serif;">
-                        Configure Credentials
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Editorial Grid (Problem/Solution) -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 border-b editorial-rule">
-            <div class="p-16 lg:p-24 space-y-8 flex flex-col justify-center">
-                <span class="font-mono text-[10px] uppercase tracking-[0.4em] text-secondary" style="font-family: 'Times New Roman', Times, serif;">The Scholarly Crisis</span>
-                <h3 class="serif-heading text-4xl lg:text-5xl italic leading-tight" style="font-family: 'Times New Roman', Times, serif;">The burden of fragmented knowledge.</h3>
-                <p class="text-secondary text-lg max-w-md leading-relaxed">
-                    The modern researcher is besieged by a deluge of publications. Information overload has become the primary barrier to genuine discovery, forcing scholars into silos of hyper-specialization.
-                </p>
-                <div class="pt-8 border-t editorial-rule font-serif italic text-xl text-primary/60" style="font-family: 'Times New Roman', Times, serif;">
-                    "We are drowning in information, while starving for wisdom."
-                </div>
-            </div>
-            <div class="p-16 lg:p-24 space-y-8 bg-primary text-background flex flex-col justify-center vertical-rule">
-                <span class="font-mono text-[10px] uppercase tracking-[0.4em] opacity-60" style="font-family: 'Times New Roman', Times, serif;">The Synthesis Engine</span>
-                <h3 class="serif-heading text-4xl lg:text-5xl italic leading-tight" style="font-family: 'Times New Roman', Times, serif;">Clarity through neural mapping.</h3>
-                <p class="opacity-80 text-lg max-w-md leading-relaxed">
-                    AbstractiFy employs advanced semantic architectures to distill complex literature into coherent narratives. Our system identifies consensus and highlights anomalies with surgical precision.
-                </p>
-                <div class="pt-12 grid grid-cols-2 gap-8 border-t border-background/20">
-                    <div>
-                        <p class="font-mono text-[24px]">4.2s</p>
-                        <p class="font-mono text-[10px] uppercase tracking-widest opacity-60" style="font-family: 'Times New Roman', Times, serif;">Avg. Synthesis Time</p>
-                    </div>
-                    <div>
-                        <p class="font-mono text-[24px]">99.8%</p>
-                        <p class="font-mono text-[10px] uppercase tracking-widest opacity-60" style="font-family: 'Times New Roman', Times, serif;">Citation Accuracy</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Artistic Synthesis Representation -->
-        <section class="py-24 px-10 bg-[#f4f1ec] border-b editorial-rule">
-            <div class="max-w-7xl mx-auto text-center mb-16">
-                <h2 class="serif-heading text-5xl italic mb-4" style="font-family: 'Times New Roman', Times, serif;">The Art of Connection</h2>
-                <div class="w-24 h-[1px] bg-primary mx-auto mb-6"></div>
-                <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-secondary" style="font-family: 'Times New Roman', Times, serif;">Visualizing the Neural Fabric of Research</p>
-            </div>
-            <div class="max-w-5xl mx-auto relative group">
-                <!-- Abstract Artistic Representation -->
-                <div class="aspect-[16/9] bg-white border editorial-rule shadow-sm overflow-hidden flex items-center justify-center relative">
-                    <div class="absolute inset-0 opacity-10 paper-texture"></div>
-                    <div class="relative z-10 w-full h-full p-12 flex items-center justify-center">
-                        <img alt="Abstract Synthesis Collage" class="w-full h-full object-cover grayscale sepia-[.2] contrast-125 mix-blend-multiply opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxfGozllTS2JKSbu9eQvXIlVn0IfJuYdwTDGb5rSaGDxxMQc0EcaB2SS0wz84P-0rph-Yekhk3PwebsGx7UwD2JbX9Zl7s6KRwmBrOLFSIK3JmGjI-dS2Xivuh2pqD_QUtVMRS98Gw38-wGqD2PVb-BhPnj3BOCPM0e8yP1TUR6LKY5TMtHz_CLorP_a1YnkuyynwWsMsD0Zu6Wg5JHBbOdwQaw7LsyrtfDbA4j-hbtXqiEBNqNbeq_uw-X5d8EoUNLlM8kF-txPU"/>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-1/2 h-1/2 border-[0.5px] border-primary/20 rotate-45 animate-pulse"></div>
-                            <div class="absolute text-primary/40 font-mono text-[8px] uppercase tracking-tighter p-4 border border-primary/10 backdrop-blur-sm bg-white/50" style="font-family: 'Times New Roman', Times, serif;">
-                                Synthesizing Correlated Networks...
-                            </div>
-                        </div>
-                    </div>
-                    <div class="absolute bottom-4 right-4 bg-background px-4 py-2 border editorial-rule font-mono text-[9px] uppercase tracking-widest text-secondary" style="font-family: 'Times New Roman', Times, serif;">
-                        Fig 1.1: Semantic Convergence Mapping
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Multi-Column Editorial Features -->
-        <section class="py-24 px-10 border-b editorial-rule">
-            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l editorial-rule">
-                <!-- Feature 1 -->
-                <div class="p-12 border-r border-b editorial-rule space-y-6">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary" style="font-family: 'Times New Roman', Times, serif;">01 / Topology</span>
-                    <h4 class="serif-heading text-2xl font-bold" style="font-family: 'Times New Roman', Times, serif;">Citation Genealogy</h4>
-                    <p class="text-secondary text-sm leading-relaxed">
-                        Trace the historical progression of scientific thought. Our temporal mapping reveals the foundations upon which modern discoveries are built.
-                    </p>
-                    <ul class="space-y-3 font-mono text-[10px] uppercase tracking-widest text-primary/70" style="font-family: 'Times New Roman', Times, serif;">
-                        <li>• Temporal Flow Analysis</li>
-                        <li>• Influence Weighting</li>
-                    </ul>
-                </div>
-                <!-- Feature 2 -->
-                <div class="p-12 border-r border-b editorial-rule space-y-6">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary" style="font-family: 'Times New Roman', Times, serif;">02 / Analysis</span>
-                    <h4 class="serif-heading text-2xl font-bold" style="font-family: 'Times New Roman', Times, serif;">Consensus Matrix</h4>
-                    <p class="text-secondary text-sm leading-relaxed">
-                        An objective grid comparing methodologies and conclusions. Neutralize bias by viewing the entire landscape of data in a single frame.
-                    </p>
-                    <ul class="space-y-3 font-mono text-[10px] uppercase tracking-widest text-primary/70" style="font-family: 'Times New Roman', Times, serif;">
-                        <li>• Methodology Alignment</li>
-                        <li>• Conflict Detection</li>
-                    </ul>
-                </div>
-                <!-- Feature 3 -->
-                <div class="p-12 border-r border-b editorial-rule space-y-6">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary" style="font-family: 'Times New Roman', Times, serif;">03 / Synthesis</span>
-                    <h4 class="serif-heading text-2xl font-bold" style="font-family: 'Times New Roman', Times, serif;">RAG Reasoning</h4>
-                    <p class="text-secondary text-sm leading-relaxed">
-                        Engage in a sophisticated dialogue with your library. Extract specific answers with verified citations directly from the source text.
-                    </p>
-                    <ul class="space-y-3 font-mono text-[10px] uppercase tracking-widest text-primary/70" style="font-family: 'Times New Roman', Times, serif;">
-                        <li>• Document Reasoning</li>
-                        <li>• Verifiable Citations</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Final CTA Section -->
-        <section class="py-32 px-10 text-center border-b editorial-rule">
-            <div class="max-w-4xl mx-auto space-y-10">
-                <h2 class="serif-heading text-5xl md:text-6xl italic leading-tight" style="font-family: 'Times New Roman', Times, serif;">A prestigious future for <br/>scientific inquiry.</h2>
-                <p class="text-secondary text-lg max-w-xl mx-auto font-sans leading-relaxed">
-                    Join a community of 50,000+ academics who have elevated their workflow with AbstractiFy.
-                </p>
-                <div class="flex flex-col items-center gap-6 pt-6">
-                    <button class="access-workspace-btn oxford-btn px-16 py-5 font-mono text-xs uppercase tracking-[0.3em]" style="font-family: 'Times New Roman', Times, serif;">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6 pt-2">
+                    <button class="access-workspace-btn oxford-btn py-3.5 px-8">
                         Initialize Workspace
                     </button>
-                    <p class="font-mono text-[10px] uppercase tracking-widest text-secondary opacity-60" style="font-family: 'Times New Roman', Times, serif;">
-                        Early Access • Academic Credentials Required
+                    <button id="landing-settings-btn" class="secondary-btn py-3 px-6">
+                        <span class="material-symbols-outlined text-base">tune</span>
+                        <span>Configure API Keys</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Showcase Grid -->
+        <section id="features" class="py-20 px-8 max-w-7xl mx-auto">
+            <div class="text-center mb-16 space-y-3">
+                <span class="font-mono text-xs uppercase tracking-[0.25em] text-primary">Core Architecture</span>
+                <h3 class="serif-heading text-4xl font-bold text-on-surface">Precision Research Suite</h3>
+                <p class="text-secondary text-base max-w-lg mx-auto">Every module is isolated into its own dedicated workspace for deep focus and zero clutter.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="folio-card p-8 space-y-4">
+                    <span class="material-symbols-outlined text-primary text-3xl">balance</span>
+                    <h4 class="serif-heading text-2xl font-bold text-primary">The Consensus Meter</h4>
+                    <p class="text-secondary text-sm leading-relaxed">
+                        Classifies findings across top peer-reviewed publications. See support vs. contradiction balance with sample-size weighted confidence scores.
+                    </p>
+                </div>
+                <div class="folio-card p-8 space-y-4">
+                    <span class="material-symbols-outlined text-primary text-3xl">table_chart</span>
+                    <h4 class="serif-heading text-2xl font-bold text-primary">Study Comparison Matrix</h4>
+                    <p class="text-secondary text-sm leading-relaxed">
+                        Extracts experimental parameters, sample sizes, methodology designs, and primary limitations automatically in an interactive spreadsheet format.
+                    </p>
+                </div>
+                <div class="folio-card p-8 space-y-4">
+                    <span class="material-symbols-outlined text-primary text-3xl">hub</span>
+                    <h4 class="serif-heading text-2xl font-bold text-primary">Citation Lineage Graph</h4>
+                    <p class="text-secondary text-sm leading-relaxed">
+                        Draggable, physics-stabilized citation network mapping papers by publication year and influence weight, exportable to Obsidian and BibTeX.
                     </p>
                 </div>
             </div>
         </section>
 
         <!-- Landing Footer -->
-        <footer class="py-20 px-10">
-            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-                <div class="col-span-1 md:col-span-2 space-y-6">
-                    <span class="cursive-logo text-3xl font-bold text-primary">AbstractiFy</span>
-                    <p class="text-secondary text-sm max-w-xs italic opacity-80 leading-relaxed">
-                        Defining the intelligent infrastructure for the next century of scientific discovery and human understanding.
-                    </p>
-                </div>
-                <div class="space-y-6">
-                    <h5 class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary" style="font-family: 'Times New Roman', Times, serif;">Journal</h5>
-                    <ul class="space-y-3 text-[12px] text-secondary font-sans">
-                        <li><a class="hover:text-primary transition-colors" href="#">Publications</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Ethics Statement</a></li>
-                        <li><a class="hover:text-primary transition-colors" href="#">Institutional Licensing</a></li>
-                    </ul>
-                </div>
-                <div class="space-y-6">
-                    <h5 class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary" style="font-family: 'Times New Roman', Times, serif;">Correspondence</h5>
-                    <div class="flex gap-6">
-                        <a class="text-secondary hover:text-primary transition-all" href="#">
-                            <span class="material-symbols-outlined text-[20px]">alternate_email</span>
-                        </a>
-                        <a class="text-secondary hover:text-primary transition-all" href="#">
-                            <span class="material-symbols-outlined text-[20px]">rss_feed</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="max-w-7xl mx-auto pt-16 mt-16 border-t editorial-rule flex flex-col md:flex-row justify-between text-[10px] font-mono uppercase tracking-[0.2em] text-secondary/60" style="font-family: 'Times New Roman', Times, serif;">
-                <p>© MMXXIV AbstractiFy AI. All Rights Reserved.</p>
-                <div class="flex gap-8 mt-4 md:mt-0">
-                    <a class="hover:text-primary" href="#">Privacy Codex</a>
-                    <a class="hover:text-primary" href="#">Terms of Engagement</a>
-                </div>
-            </div>
+        <footer class="py-12 px-8 border-t editorial-rule text-center text-xs text-secondary font-mono">
+            <p>© MMXXIV AbstractiFy • Free & Open Source Academic Intelligence</p>
         </footer>
     </div>
 
@@ -265,341 +149,444 @@
     <!-- ========================================== -->
     <!--          WORKSPACE DASHBOARD VIEW          -->
     <!-- ========================================== -->
-    <div id="app-view" class="w-full hidden">
-        <!-- Top Navigation -->
-        <header class="sticky top-0 w-full h-24 z-50 flex justify-between items-center px-10 bg-background/95 backdrop-blur-md border-b editorial-rule">
-            <div class="flex items-center gap-10">
-                <span id="nav-brand-btn" class="cursive-logo text-3xl font-bold text-primary tracking-tight cursor-pointer">AbstractiFy</span>
-                <nav class="hidden md:flex items-center gap-8 font-mono text-[11px] uppercase tracking-[0.2em]" style="font-family: 'Times New Roman', Times, serif;">
-                    <a class="text-primary border-b border-primary pb-1" href="#">Workspace</a>
-                    <a id="nav-landing-link" class="text-secondary hover:text-primary transition-colors cursor-pointer">Home</a>
-                    <a id="nav-settings-link" class="text-secondary hover:text-primary transition-colors cursor-pointer">Credentials</a>
-                </nav>
-            </div>
+    <div id="app-view" class="w-full hidden min-h-screen flex flex-col">
+        <!-- Top Workspace Sticky Header -->
+        <header class="sticky top-0 w-full z-40 bg-surface/95 backdrop-blur-md border-b editorial-rule px-6 md:px-10 py-4 flex items-center justify-between gap-6 shadow-sm">
             <div class="flex items-center gap-6">
-                <!-- Search Input Form inside Header -->
-                <div class="relative hidden sm:block">
-                    <form id="search-form">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
-                        <input id="search-input" class="bg-transparent border-b editorial-rule focus:border-primary focus:ring-0 text-xs font-mono uppercase tracking-widest pl-9 pr-4 py-2 w-64 transition-all" placeholder="Search Synthesis..." type="text" style="font-family: 'Times New Roman', Times, serif;">
-                    </form>
+                <div id="nav-brand-btn" class="flex items-center gap-2 cursor-pointer group">
+                    <span class="material-symbols-outlined text-primary text-2xl group-hover:scale-105 transition-transform">school</span>
+                    <span class="cursive-logo text-2xl font-bold text-primary tracking-tight">AbstractiFy</span>
                 </div>
-                <!-- PDF Upload Action Button -->
-                <button id="upload-pdf-btn" class="font-mono text-[11px] uppercase tracking-widest text-primary border border-primary px-5 py-2.5 hover:bg-primary hover:text-background transition-all" style="font-family: 'Times New Roman', Times, serif;">
-                    Upload Folio
+                <div class="hidden lg:flex items-center gap-4 text-xs font-mono uppercase tracking-wider text-secondary">
+                    <button id="nav-landing-link" class="hover:text-primary transition-colors cursor-pointer flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">home</span>
+                        <span>Home</span>
+                    </button>
+                    <span class="text-outline">/</span>
+                    <span class="text-primary font-semibold">Workspace</span>
+                </div>
+            </div>
+
+            <!-- Header Quick Search Form -->
+            <div class="flex-1 max-w-lg hidden sm:block">
+                <form id="search-form" class="relative">
+                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary text-base">search</span>
+                    <input id="search-input" class="w-full bg-background border border-outline rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/10 text-xs font-sans pl-10 pr-20 py-2.5 transition-all" placeholder="Search literature or enter claim..." type="text">
+                    <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1 bg-primary text-white text-[10px] font-mono uppercase rounded font-medium hover:bg-primary-hover transition-colors">
+                        Run
+                    </button>
+                </form>
+            </div>
+
+            <!-- Workspace Action Toolbar -->
+            <div class="flex items-center gap-3">
+                <button id="upload-pdf-btn" class="secondary-btn text-xs py-2 px-3.5">
+                    <span class="material-symbols-outlined text-base">upload_file</span>
+                    <span class="hidden md:inline">Upload Folio</span>
                 </button>
                 <input type="file" id="pdf-file-input" accept="application/pdf" class="hidden">
                 
-                <!-- Settings Gear Icon -->
-                <button id="settings-btn" class="icon-btn text-primary hover:opacity-80">
-                    <span class="material-symbols-outlined text-[20px] block">settings</span>
+                <button id="settings-btn" class="secondary-btn text-xs py-2 px-3" title="API Keys & Model Settings">
+                    <span class="material-symbols-outlined text-base">tune</span>
                 </button>
-                
-                <div class="w-10 h-10 rounded-full overflow-hidden border border-primary/20 grayscale">
-                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1uNA1lYtMg4H9aIeiCAlGTMoTA_tkwCeWEH5k2VHGqOUw7GPdC9Ytn7r9x3aDM52ogsuiYP3uoTcI7ompBNanZ7HeSXvQ80hKWCfppjOdOFw0W-1RCzcjcypsIFmQT-qLu5ugllJwX6WMuwBkjODU9Bz699hnHwmN6mlvCzfNgTa1gq3NMn58C0lK7zg3KWXEL5Xw24jhERJ8syVWDfQ6hKA9vWEgl-l3fJEhiB6Byth1pqNrDAwkojXWhvy71DdQNVpxCOSeS_E" alt="User Profile">
-                </div>
+                <button id="nav-settings-link" class="hidden"></button>
             </div>
         </header>
 
-        <!-- Main Dashboard Workspace -->
-        <main class="max-w-[1400px] mx-auto px-10 py-16">
-            <!-- Main Content Header -->
-            <div class="text-center mb-20 space-y-4">
-                <div class="font-mono text-[10px] uppercase tracking-[0.4em] text-secondary small-caps" style="font-family: 'Times New Roman', Times, serif;">Published Workspace Analysis</div>
-                <h1 id="workspace-title" class="serif-heading text-5xl md:text-7xl italic text-primary leading-tight" style="font-family: 'Times New Roman', Times, serif;">Scholarly Exploration</h1>
-                <div class="flex items-center justify-center gap-4 text-secondary font-mono text-[11px] uppercase tracking-widest mt-6" style="font-family: 'Times New Roman', Times, serif;">
-                    <span>Volume IV</span>
-                    <span class="w-1 h-1 bg-primary rounded-full"></span>
-                    <span>Issue II</span>
-                    <span class="w-1 h-1 bg-primary rounded-full"></span>
-                    <span>MMXXIV</span>
+        <!-- Main Workspace Body -->
+        <main class="flex-1 max-w-[1500px] w-full mx-auto px-6 md:px-10 py-8">
+            <!-- Active Investigation Bar -->
+            <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b editorial-rule">
+                <div>
+                    <div class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70 mb-1">Active Inquiry</div>
+                    <h1 id="workspace-title" class="serif-heading text-2xl md:text-3xl font-bold text-primary">
+                        Literature Workspace
+                    </h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="papers-sampled-badge" class="tab-badge text-xs px-3 py-1 font-mono">
+                        0 Papers Sampled
+                    </span>
                 </div>
             </div>
 
-            <!-- Dashboard Grid -->
-            <div class="grid grid-cols-12 gap-16">
-                <!-- Center Content: Synthesis & Matrix & Network Graph -->
-                <div class="col-span-12 lg:col-span-8 space-y-16">
-                    <!-- Core Synthesis Card -->
-                    <article class="space-y-10">
-                        <div class="border-y editorial-rule py-8 flex justify-between items-end">
-                            <div class="space-y-2">
-                                <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary/60 small-caps" style="font-family: 'Times New Roman', Times, serif;">Core Synthesis</span>
-                                <h2 class="serif-heading text-4xl italic text-on-surface" style="font-family: 'Times New Roman', Times, serif;">Synthesis Outcome</h2>
-                            </div>
-                            <div class="flex items-center gap-4 text-right">
-                                <span id="papers-sampled-badge" class="font-mono text-[11px] uppercase tracking-widest text-secondary border border-primary/20 px-3 py-1" style="font-family: 'Times New Roman', Times, serif;">0 Papers Sampled</span>
-                                <!-- Export Consensus Dropdown -->
-                                <div class="relative inline-block text-left">
-                                    <button id="export-consensus-btn" class="font-mono text-[10px] uppercase tracking-widest text-primary border border-primary/40 px-3 py-1 hover:bg-primary hover:text-background transition-all flex items-center gap-1 cursor-pointer">
-                                        <span>Export</span>
-                                        <span class="material-symbols-outlined text-[14px]">expand_more</span>
-                                    </button>
-                                    <div id="export-consensus-menu" class="hidden absolute right-0 mt-2 w-48 bg-background border editorial-rule shadow-lg z-50 py-1 font-mono text-[10px] uppercase tracking-wider">
-                                        <button id="export-consensus-md" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
-                                            <span>Markdown (.md)</span>
-                                            <span class="material-symbols-outlined text-xs">description</span>
-                                        </button>
-                                        <button id="export-consensus-json" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
-                                            <span>JSON Data (.json)</span>
-                                            <span class="material-symbols-outlined text-xs">code</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Workspace Multi-Tab Navigation Bar -->
+            <div class="workspace-tabs-container">
+                <nav class="workspace-tabs-nav" role="tablist">
+                    <button class="workspace-tab-btn active" data-tab="tab-consensus" role="tab" aria-selected="true">
+                        <span class="material-symbols-outlined text-[18px]">balance</span>
+                        <span>Consensus & Synthesis</span>
+                        <span id="tab-badge-consensus" class="tab-badge">Overview</span>
+                    </button>
+                    <button class="workspace-tab-btn" data-tab="tab-matrix" role="tab" aria-selected="false">
+                        <span class="material-symbols-outlined text-[18px]">table_chart</span>
+                        <span>Study Matrix</span>
+                        <span id="tab-badge-matrix" class="tab-badge">0</span>
+                    </button>
+                    <button class="workspace-tab-btn" data-tab="tab-graph" role="tab" aria-selected="false">
+                        <span class="material-symbols-outlined text-[18px]">hub</span>
+                        <span>Citation Lineage</span>
+                        <span id="tab-badge-graph" class="tab-badge">Network</span>
+                    </button>
+                    <button class="workspace-tab-btn" data-tab="tab-literature" role="tab" aria-selected="false">
+                        <span class="material-symbols-outlined text-[18px]">menu_book</span>
+                        <span>Literature Explorer</span>
+                        <span id="tab-badge-literature" class="tab-badge">0</span>
+                    </button>
+                    <button class="workspace-tab-btn" data-tab="tab-copilot" role="tab" aria-selected="false">
+                        <span class="material-symbols-outlined text-[18px]">psychology</span>
+                        <span>Assistant & Folio Copilot</span>
+                        <span id="tab-badge-copilot" class="tab-badge">AI</span>
+                    </button>
+                </nav>
+            </div>
 
-                        <!-- Consensus Progress bar -->
-                        <div id="consensus-progress-box" class="space-y-6 hidden">
-                            <div class="flex justify-between items-center text-[10px] font-mono uppercase tracking-widest text-secondary mb-2" style="font-family: 'Times New Roman', Times, serif;">
-                                <span>Consensus Meter</span>
-                                <div class="flex gap-4">
-                                    <span class="flex items-center gap-1"><span class="w-2 h-2 solid-texture-fill"></span> <span id="stat-supports">Supports</span></span>
-                                    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#ce5dff]"></span> <span id="stat-neutral">Mixed</span></span>
-                                    <span class="flex items-center gap-1"><span class="w-2 h-2 bg-[#93000a]"></span> <span id="stat-contradicts">Opposes</span></span>
-                                </div>
-                            </div>
-                            <!-- Bar fill elements dynamically sized in JS -->
-                            <div class="w-full h-4 bg-accent-supporting/50 border editorial-rule overflow-hidden flex">
-                                <div id="consensus-bar-supports" class="h-full solid-texture-fill" style="width: 0%;"></div>
-                                <div id="consensus-bar-neutral" class="h-full bg-[#ce5dff]/60" style="width: 0%;"></div>
-                                <div id="consensus-bar-contradicts" class="h-full bg-[#93000a]/60" style="width: 0%;"></div>
-                            </div>
-                        </div>
+            <!-- Loader Indicator -->
+            <div id="loader" class="loader-container hidden py-12 text-center">
+                <div class="spinner"></div>
+                <span class="font-mono text-xs uppercase tracking-widest text-primary animate-pulse">
+                    Synthesizing global research literature...
+                </span>
+            </div>
 
-                        <!-- Welcome & Summary Text boxes -->
-                        <div id="welcome-message" class="serif-heading text-2xl leading-relaxed text-on-surface italic" style="font-family: 'Times New Roman', Times, serif;">
-                            "Enter a query to search and re-rank global literature, analyze scientific consensus, and view paper metadata."
+            <!-- ========================================================= -->
+            <!-- TAB 1: CONSENSUS & SYNTHESIS PANE                         -->
+            <!-- ========================================================= -->
+            <div id="tab-consensus" class="workspace-tab-pane active space-y-8">
+                <!-- Consensus Overview Card -->
+                <article class="folio-card p-8 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b editorial-rule">
+                        <div>
+                            <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Consensus Meter</span>
+                            <h2 class="serif-heading text-3xl font-bold text-on-surface">Scientific Synthesis</h2>
                         </div>
-                        <div id="loader" class="loader-container hidden py-8 text-center font-mono text-xs uppercase tracking-widest text-secondary" style="font-family: 'Times New Roman', Times, serif;">
-                            <span class="animate-pulse">Analyzing academic publications...</span>
-                        </div>
-                        <p id="consensus-summary-text" class="serif-heading text-2xl leading-relaxed text-on-surface italic hidden" style="font-family: 'Times New Roman', Times, serif;">
-                            <!-- Populated dynamically -->
-                        </p>
-
-                        <!-- Key Metrics cards -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
-                            <div class="folio-card p-6 space-y-4">
-                                <div class="flex justify-between items-start">
-                                    <span class="font-mono text-[9px] uppercase tracking-widest border border-primary/20 px-2 py-0.5" style="font-family: 'Times New Roman', Times, serif;">Key Insight</span>
-                                    <span class="material-symbols-outlined text-primary text-sm">energy_savings_leaf</span>
-                                </div>
-                                <h4 class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary small-caps" style="font-family: 'Times New Roman', Times, serif;">Methodological Alignment</h4>
-                                <p class="text-sm leading-relaxed text-secondary italic">Extract and map methodological pathways across multiple publications instantly.</p>
-                            </div>
-                            <div class="folio-card p-6 space-y-4">
-                                <div class="flex justify-between items-start">
-                                    <span class="font-mono text-[9px] uppercase tracking-widest border border-primary/20 px-2 py-0.5">Focus State</span>
-                                    <span class="material-symbols-outlined text-primary text-sm">timer</span>
-                                </div>
-                                <h4 class="font-mono text-[10px] uppercase tracking-[0.2em] text-secondary small-caps" style="font-family: 'Times New Roman', Times, serif;">Parameter Extraction</h4>
-                                <p class="text-sm leading-relaxed text-secondary italic">Distill dataset sizes, experimental boundaries, and performance metrics automatically.</p>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Comparison Matrix -->
-                    <section class="space-y-8 pt-8">
-                        <div class="flex justify-between items-center border-b editorial-rule pb-4">
-                            <h3 class="serif-heading text-2xl italic" style="font-family: 'Times New Roman', Times, serif;">Comparison Matrix</h3>
-                            <!-- Export Matrix Dropdown -->
-                            <div class="relative inline-block text-left">
-                                <button id="export-matrix-menu-btn" class="font-mono text-[9px] uppercase tracking-widest text-primary border border-primary/40 px-3 py-1 hover:bg-primary hover:text-background transition-all flex items-center gap-1 cursor-pointer">
-                                    <span>Export Matrix</span>
-                                    <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                        <!-- Export Consensus Dropdown -->
+                        <div class="relative inline-block text-left">
+                            <button id="export-consensus-btn" class="secondary-btn text-xs py-1.5 px-3">
+                                <span class="material-symbols-outlined text-sm">download</span>
+                                <span>Export Synthesis</span>
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
+                            </button>
+                            <div id="export-consensus-menu" class="hidden absolute right-0 mt-2 w-48 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
+                                <button id="export-consensus-md" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                    <span>Markdown (.md)</span>
+                                    <span class="material-symbols-outlined text-xs">description</span>
                                 </button>
-                                <div id="export-matrix-menu" class="hidden absolute right-0 mt-2 w-52 bg-background border editorial-rule shadow-lg z-50 py-1 font-mono text-[10px] uppercase tracking-wider">
-                                    <button id="export-csv-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
-                                        <span>CSV Spreadsheet (.csv)</span>
-                                        <span class="material-symbols-outlined text-xs">table_chart</span>
-                                    </button>
-                                    <button id="export-matrix-md-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
-                                        <span>Markdown Table (.md)</span>
-                                        <span class="material-symbols-outlined text-xs">grid_on</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left font-sans">
-                                <thead>
-                                    <tr class="font-mono text-[10px] uppercase tracking-[0.2em] text-primary/60 border-b editorial-rule" style="font-family: 'Times New Roman', Times, serif;">
-                                        <th class="py-4 font-normal">Publication</th>
-                                        <th class="py-4 font-normal">Dataset Size</th>
-                                        <th class="py-4 font-normal">Methodology</th>
-                                        <th class="py-4 font-normal">Outcomes</th>
-                                        <th class="py-4 font-normal">Limitations</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="matrix-body" class="text-sm">
-                                    <tr class="border-b editorial-rule">
-                                        <td colspan="5" class="py-8 text-center text-secondary italic">No data available. Perform a search or upload a PDF to extract parameters.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-
-                    <!-- Interactive Network Graph -->
-                    <section class="space-y-8 pt-8">
-                        <div class="flex justify-between items-center border-b editorial-rule pb-4">
-                            <h3 class="serif-heading text-2xl italic" style="font-family: 'Times New Roman', Times, serif;">Citation Lineage & Network Graph</h3>
-                            <!-- Export Graph Dropdown -->
-                            <div class="relative inline-block text-left">
-                                <button id="export-graph-menu-btn" class="font-mono text-[9px] uppercase tracking-widest text-primary border border-primary/40 px-3 py-1 hover:bg-primary hover:text-background transition-all flex items-center gap-1 cursor-pointer">
-                                    <span>Export Graph</span>
-                                    <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                                <button id="export-consensus-json" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                    <span>JSON Data (.json)</span>
+                                    <span class="material-symbols-outlined text-xs">code</span>
                                 </button>
-                                <div id="export-graph-menu" class="hidden absolute right-0 mt-2 w-56 bg-background border editorial-rule shadow-lg z-50 py-1 font-mono text-[10px] uppercase tracking-wider">
-                                    <button id="export-graph-json-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
-                                        <span>Obsidian Graph (.json)</span>
-                                        <span class="material-symbols-outlined text-xs">share</span>
-                                    </button>
-                                    <button id="export-graph-bibtex-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
-                                        <span>BibTeX References (.bib)</span>
-                                        <span class="material-symbols-outlined text-xs">book</span>
-                                    </button>
-                                    <button id="export-graph-ris-btn" class="w-full text-left px-4 py-2 hover:bg-primary/10 text-primary flex items-center justify-between">
-                                        <span>Zotero / Mendeley (.ris)</span>
-                                        <span class="material-symbols-outlined text-xs">library_books</span>
-                                    </button>
-                                </div>
                             </div>
-                        </div>
-                        <div id="network-container" class="w-full h-[450px] border border-[#D1CDC7] bg-white relative">
-                            <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-[10px] uppercase tracking-widest text-secondary bg-[#FDFAF6]/90 z-10 pointer-events-none">
-                                Search results citation network will display here. Interactive nodes represent papers, sized by citations and colored by year.
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <!-- Right Sidebar: Cited Publications & Assistant & Equation Box -->
-                <aside class="col-span-12 lg:col-span-4 space-y-12 border-l editorial-rule pl-12">
-                    <!-- Related Publications list -->
-                    <div class="space-y-8">
-                        <h4 class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary small-caps border-b editorial-rule pb-2" style="font-family: 'Times New Roman', Times, serif;">Cited Publications</h4>
-                        <div id="results-list" class="space-y-6 max-h-[550px] overflow-y-auto pr-2">
-                            <!-- Paper cards populated in JavaScript -->
                         </div>
                     </div>
 
-                    <!-- AI Assistant Section -->
-                    <div class="bg-primary p-8 text-background space-y-6">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-background/80">ink_pen</span>
-                            <h4 class="font-mono text-[10px] uppercase tracking-[0.3em] small-caps" style="font-family: 'Times New Roman', Times, serif;">Research Assistant</h4>
+                    <!-- Progress Bar & Breakdown -->
+                    <div id="consensus-progress-box" class="space-y-4 hidden">
+                        <div class="flex flex-wrap justify-between items-center text-xs font-mono uppercase tracking-wider text-secondary">
+                            <span class="font-semibold text-primary">Aggregate Balance</span>
+                            <div class="flex items-center gap-6">
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> <span id="stat-supports">Supports</span></span>
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span> <span id="stat-neutral">Mixed</span></span>
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span> <span id="stat-contradicts">Opposes</span></span>
+                            </div>
                         </div>
-                        <div id="chat-messages" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                            <p class="text-xs italic leading-relaxed opacity-90 border-l border-background/30 pl-4">
-                                Hello! I am your agentic research companion. Ask me anything about the search results, compare specific papers, or query your uploaded PDF.
+                        <div class="w-full h-3.5 bg-surface-muted rounded-full border border-outline overflow-hidden flex">
+                            <div id="consensus-bar-supports" class="h-full bg-emerald-600 transition-all duration-500" style="width: 0%;"></div>
+                            <div id="consensus-bar-neutral" class="h-full bg-purple-500 transition-all duration-500" style="width: 0%;"></div>
+                            <div id="consensus-bar-contradicts" class="h-full bg-rose-600 transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Welcome & Summary Text boxes -->
+                    <div id="welcome-message" class="text-base text-secondary leading-relaxed bg-surface-muted p-6 rounded-lg border border-outline">
+                        <p class="font-medium text-primary mb-1">Welcome to Abstractify Research Workspace.</p>
+                        <p class="text-sm">Search any scientific proposition, clinical assertion, or computational question to classify findings, extract study parameters, and map citation networks across Semantic Scholar and OpenAlex.</p>
+                    </div>
+
+                    <p id="consensus-summary-text" class="text-base leading-relaxed text-on-surface bg-surface-muted p-6 rounded-lg border border-outline hidden">
+                        <!-- Populated dynamically -->
+                    </p>
+
+                    <!-- Key Insights Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                        <div class="p-6 bg-surface-muted border border-outline rounded-lg space-y-2">
+                            <div class="flex items-center gap-2 text-primary">
+                                <span class="material-symbols-outlined text-lg">verified</span>
+                                <h4 class="font-mono text-xs uppercase tracking-wider font-semibold">Methodological Alignment</h4>
+                            </div>
+                            <p class="text-xs text-secondary leading-relaxed">
+                                Evaluates experimental tiers (Randomized Controlled Trials, Cohort Studies, Systematic Reviews) and weighs high-powered empirical evidence against observational data.
                             </p>
                         </div>
-                        <div class="relative pt-4 border-t border-background/20">
-                            <form id="chat-form">
-                                <input id="chat-input" type="text" class="w-full bg-transparent border border-background/30 focus:border-background/80 focus:ring-0 text-xs py-3 pl-4 pr-12 font-mono uppercase tracking-widest placeholder:text-background/40" placeholder="Address Assistant..." style="font-family: 'Times New Roman', Times, serif;" required>
-                                <button type="submit" class="absolute right-3 top-[calc(50%+8px)] -translate-y-1/2 bg-transparent border-0 text-background">
-                                    <span class="material-symbols-outlined text-sm">arrow_forward_ios</span>
-                                </button>
-                            </form>
+                        <div class="p-6 bg-surface-muted border border-outline rounded-lg space-y-2">
+                            <div class="flex items-center gap-2 text-primary">
+                                <span class="material-symbols-outlined text-lg">psychology</span>
+                                <h4 class="font-mono text-xs uppercase tracking-wider font-semibold">Dialectical Boundary Resolution</h4>
+                            </div>
+                            <p class="text-xs text-secondary leading-relaxed">
+                                Detects apparent contradictions and resolves whether conflicts stem from dosage variations, patient cohorts, or differing experimental benchmarks.
+                            </p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- TAB 2: STUDY COMPARISON MATRIX PANE                       -->
+            <!-- ========================================================= -->
+            <div id="tab-matrix" class="workspace-tab-pane space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Structured Extraction</span>
+                        <h2 class="serif-heading text-2xl font-bold text-on-surface">Study Comparison Matrix</h2>
+                    </div>
+                    <!-- Export Matrix Dropdown -->
+                    <div class="relative inline-block text-left">
+                        <button id="export-matrix-menu-btn" class="secondary-btn text-xs py-1.5 px-3">
+                            <span class="material-symbols-outlined text-sm">download</span>
+                            <span>Export Matrix</span>
+                            <span class="material-symbols-outlined text-sm">expand_more</span>
+                        </button>
+                        <div id="export-matrix-menu" class="hidden absolute right-0 mt-2 w-52 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
+                            <button id="export-csv-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                <span>CSV Spreadsheet (.csv)</span>
+                                <span class="material-symbols-outlined text-xs">table_chart</span>
+                            </button>
+                            <button id="export-matrix-md-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                <span>Markdown Table (.md)</span>
+                                <span class="material-symbols-outlined text-xs">grid_on</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Matrix Table Wrapper -->
+                <div class="matrix-table-wrapper">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Publication</th>
+                                <th style="width: 15%;">Dataset Size (n)</th>
+                                <th style="width: 20%;">Core Methodology</th>
+                                <th style="width: 20%;">Primary Outcomes</th>
+                                <th style="width: 20%;">Limitations</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrix-body">
+                            <tr>
+                                <td colspan="5" class="py-12 text-center text-secondary italic">
+                                    No data available. Perform a search to extract structured parameters across papers.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- TAB 3: CITATION LINEAGE & NETWORK GRAPH PANE              -->
+            <!-- ========================================================= -->
+            <div id="tab-graph" class="workspace-tab-pane space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Citation Topology</span>
+                        <h2 class="serif-heading text-2xl font-bold text-on-surface">Interactive Citation Lineage</h2>
+                    </div>
+                    <!-- Export Graph Dropdown -->
+                    <div class="relative inline-block text-left">
+                        <button id="export-graph-menu-btn" class="secondary-btn text-xs py-1.5 px-3">
+                            <span class="material-symbols-outlined text-sm">download</span>
+                            <span>Export Graph</span>
+                            <span class="material-symbols-outlined text-sm">expand_more</span>
+                        </button>
+                        <div id="export-graph-menu" class="hidden absolute right-0 mt-2 w-56 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
+                            <button id="export-graph-json-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                <span>Obsidian Graph (.json)</span>
+                                <span class="material-symbols-outlined text-xs">share</span>
+                            </button>
+                            <button id="export-graph-bibtex-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                <span>BibTeX References (.bib)</span>
+                                <span class="material-symbols-outlined text-xs">book</span>
+                            </button>
+                            <button id="export-graph-ris-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                <span>Zotero / Mendeley (.ris)</span>
+                                <span class="material-symbols-outlined text-xs">library_books</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graph Canvas Viewport -->
+                <div class="graph-viewport">
+                    <div id="network-container" class="w-full h-full relative">
+                        <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-xs uppercase tracking-widest text-secondary bg-surface/90 z-10 pointer-events-none">
+                            Citation network will render here after search. Interactive nodes represent papers, sized by citations and colored by year.
+                        </div>
+                    </div>
+                </div>
+                <div class="graph-legend-bar rounded-lg">
+                    <div class="flex items-center gap-6">
+                        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-primary"></span> Focus Study</span>
+                        <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-[#0284c7]"></span> Co-cited Reference</span>
+                        <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#94a3b8]"></span> Derivative Work</span>
+                    </div>
+                    <span class="text-[10px] text-secondary-muted">Physics-stabilized • Draggable nodes • Click to inspect</span>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- TAB 4: LITERATURE EXPLORER PANE                           -->
+            <!-- ========================================================= -->
+            <div id="tab-literature" class="workspace-tab-pane space-y-6">
+                <div>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Global Repository Ingestion</span>
+                    <h2 class="serif-heading text-2xl font-bold text-on-surface">Literature Explorer</h2>
+                    <p class="text-xs text-secondary mt-1">Directly explore ingested publications from Semantic Scholar and OpenAlex with citation intent tags.</p>
+                </div>
+
+                <!-- Papers Container -->
+                <div id="results-list" class="paper-grid">
+                    <div class="col-span-full py-16 text-center text-secondary italic bg-surface border border-outline rounded-xl p-8">
+                        No publications currently loaded. Enter a search query in the header to populate the literature library.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- TAB 5: ASSISTANT & FOLIO COPILOT PANE                     -->
+            <!-- ========================================================= -->
+            <div id="tab-copilot" class="workspace-tab-pane space-y-6">
+                <div>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">AI Research Companion</span>
+                    <h2 class="serif-heading text-2xl font-bold text-on-surface">Assistant & Folio Copilot</h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Left: Mathematical Foundation & PDF Folio (5 cols) -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <div class="folio-card p-6 space-y-4">
+                            <div class="flex items-center justify-between pb-3 border-b editorial-rule">
+                                <div class="flex items-center gap-2 text-primary">
+                                    <span class="material-symbols-outlined text-lg">functions</span>
+                                    <h4 class="font-mono text-xs uppercase tracking-wider font-semibold">Mathematical Foundations</h4>
+                                </div>
+                            </div>
+                            <div id="formula-explanation-container">
+                                <div id="formula-list" class="flex flex-wrap gap-2 mb-4">
+                                    <span class="text-xs text-secondary italic">Upload a research PDF folio to extract LaTeX math formulas automatically</span>
+                                </div>
+                                <div id="formula-explanation" class="hidden space-y-3 bg-surface-muted p-4 rounded-lg border border-outline">
+                                    <div id="selected-formula-text" class="py-4 text-center text-primary font-mono text-base border-b border-outline">
+                                        <!-- Selected Formula Math -->
+                                    </div>
+                                    <p id="selected-formula-desc" class="text-xs text-secondary leading-relaxed">
+                                        <!-- Explanation text -->
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="folio-card p-6 space-y-4 bg-primary-light/50 border-primary/20">
+                            <div class="flex items-center gap-2 text-primary font-semibold text-xs font-mono uppercase">
+                                <span class="material-symbols-outlined text-base">upload_file</span>
+                                <span>Folio Ingestion Engine</span>
+                            </div>
+                            <p class="text-xs text-secondary leading-relaxed">
+                                Upload full-text research PDFs. Abstractify performs local chunking, vector indexing, and in-document question-answering with exact citation quotes.
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Equation Box -->
-                    <div class="border editorial-rule p-8 space-y-6">
-                        <div class="flex items-center gap-3 border-b editorial-rule pb-4">
-                            <span class="material-symbols-outlined text-primary text-lg">functions</span>
-                            <h4 class="font-mono text-[10px] uppercase tracking-[0.3em] text-primary small-caps" style="font-family: 'Times New Roman', Times, serif;">Mathematical Foundation</h4>
-                        </div>
-                        <div id="formula-explanation-container">
-                            <div id="formula-list" class="flex flex-wrap gap-2 mb-4">
-                                <span class="text-[11px] text-secondary italic">Upload a PDF to extract math formulas automatically</span>
-                            </div>
-                            <div id="formula-explanation" class="hidden space-y-4">
-                                <div id="selected-formula-text" class="py-8 text-center text-primary font-mono italic text-xl border-y border-primary/5 bg-primary/[0.01]" style="font-family: 'Times New Roman', Times, serif;">
-                                    <!-- Selected Formula Math -->
+                    <!-- Right: Conversational AI Research Assistant (7 cols) -->
+                    <div class="lg:col-span-7">
+                        <div class="bg-primary rounded-xl p-6 text-white space-y-5 shadow-md flex flex-col h-[580px]">
+                            <div class="flex items-center justify-between border-b border-white/15 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sky-300 text-lg">ink_pen</span>
+                                    <h4 class="font-mono text-xs uppercase tracking-wider font-semibold">Research Synthesis Agent</h4>
                                 </div>
-                                <p id="selected-formula-desc" class="text-[11px] leading-relaxed text-secondary italic">
-                                    <!-- Explanation text -->
+                                <span class="text-[10px] font-mono text-white/60">Powered by Gemini AI</span>
+                            </div>
+                            
+                            <!-- Chat Messages Stream -->
+                            <div id="chat-messages" class="flex-1 overflow-y-auto pr-2 space-y-3">
+                                <p class="text-xs italic leading-relaxed text-white/80 border-l-2 border-sky-400 pl-3">
+                                    Greetings! I am your scientific synthesis agent. You can ask me to compare study methodologies, summarize consensus balances, or analyze equations from your uploaded folio.
                                 </p>
+                            </div>
+
+                            <!-- Chat Input Form -->
+                            <div class="pt-3 border-t border-white/15">
+                                <form id="chat-form" class="relative">
+                                    <input id="chat-input" type="text" class="w-full bg-white/10 border border-white/20 focus:border-white focus:ring-0 text-xs text-white rounded-lg py-3 pl-4 pr-12 font-sans placeholder:text-white/40" placeholder="Ask about papers, methodologies, or uploaded folio..." required>
+                                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-white hover:text-sky-300 transition-colors">
+                                        <span class="material-symbols-outlined text-base">send</span>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                </aside>
+                </div>
             </div>
         </main>
 
         <!-- Workspace Footer -->
-        <footer class="mt-20 py-12 px-10 border-t border-[#D1CDC7] text-center">
-            <div class="max-w-4xl mx-auto space-y-6">
-                <span class="cursive-logo text-2xl font-bold text-primary">AbstractiFy</span>
-                <div class="flex justify-center gap-10 font-mono text-[10px] uppercase tracking-[0.3em] text-secondary/60" style="font-family: 'Times New Roman', Times, serif;">
-                    <a href="#" class="hover:text-primary transition-colors">Privacy Codex</a>
-                    <a class="hover:text-primary transition-colors" href="#">Terms of Engagement</a>
-                    <a class="hover:text-primary transition-colors" href="#">Correspondence</a>
-                </div>
-                <p class="font-mono text-[9px] uppercase tracking-[0.2em] text-secondary/40" style="font-family: 'Times New Roman', Times, serif;">© MMXXIV AbstractiFy AI. All Rights Reserved.</p>
-            </div>
+        <footer class="mt-auto py-8 px-8 border-t editorial-rule text-center text-xs text-secondary/70 font-mono">
+            <p>© MMXXIV AbstractiFy AI • Epistemic Scientific Research Intelligence</p>
         </footer>
     </div>
 
     <!-- Credentials & Settings Drawer Modal -->
     <div id="settings-modal" class="modal hidden">
-        <div class="modal-content border border-[#D1CDC7]">
-            <div class="modal-header border-b border-[#D1CDC7]">
-                <h3>Settings & Credentials</h3>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Credentials & Configuration</h3>
                 <button id="settings-close-btn" class="close-btn">&times;</button>
             </div>
-            <div class="modal-body space-y-6 py-6">
-                <!-- Gemini Key Mode Selector -->
-                <div class="form-group space-y-2">
-                    <label class="block font-mono text-[10px] uppercase tracking-wider text-secondary">Gemini API Key Configuration</label>
-                    <div class="space-y-3 pt-1">
-                        <label class="flex items-start gap-2.5 cursor-pointer text-sm">
-                            <input type="radio" name="gemini-key-mode" value="background" id="gemini-key-mode-background" class="mt-1 h-4 w-4 border-outline text-primary focus:ring-primary">
-                            <div class="space-y-0.5">
-                                <span class="font-medium text-[#1A1A1A]">Use built-in key (Secure Background)</span>
-                                <p class="text-xs text-secondary/70">Runs with the system's pre-configured Gemini credentials securely in the background.</p>
-                            </div>
+            <div class="space-y-6 pt-4">
+                <!-- Gemini Key Mode Toggle -->
+                <div class="space-y-3">
+                    <label class="font-mono text-[11px] uppercase tracking-wider font-semibold text-secondary">Gemini API Key Mode</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 p-3 border border-outline rounded-lg cursor-pointer hover:bg-surface-muted text-xs font-sans">
+                            <input type="radio" id="gemini-key-mode-background" name="gemini_mode" value="background">
+                            <span>System Key</span>
                         </label>
-                        <label class="flex items-start gap-2.5 cursor-pointer text-sm">
-                            <input type="radio" name="gemini-key-mode" value="byok" id="gemini-key-mode-byok" class="mt-1 h-4 w-4 border-outline text-primary focus:ring-primary">
-                            <div class="space-y-0.5">
-                                <span class="font-medium text-[#1A1A1A]">Bring Your Own Key (BYOK)</span>
-                                <p class="text-xs text-secondary/70">Enter your custom Google Gemini API key to run queries on your own account.</p>
-                            </div>
+                        <label class="flex items-center gap-2 p-3 border border-outline rounded-lg cursor-pointer hover:bg-surface-muted text-xs font-sans">
+                            <input type="radio" id="gemini-key-mode-byok" name="gemini_mode" value="byok">
+                            <span>BYOK (Custom Key)</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- Gemini API Key Input (conditional) -->
-                <div id="gemini-key-input-container" class="form-group space-y-2 hidden">
-                    <label for="gemini-key-input">Custom Gemini API Key</label>
-                    <input type="password" id="gemini-key-input" placeholder="Paste your API key here (e.g. AQ... or AIza...)">
+                <div id="gemini-key-input-container" class="form-group hidden">
+                    <label for="gemini-key-input">Custom Google Gemini API Key</label>
+                    <input id="gemini-key-input" type="password" placeholder="AIzaSy... or AQ...">
+                    <p class="help-text">Saved locally in your browser. Never transmitted to third-party logs.</p>
                 </div>
 
-                <div class="form-group space-y-2">
-                    <label for="groq-key-input">Groq API Key (Optional)</label>
-                    <input type="password" id="groq-key-input" placeholder="gsk_...">
+                <div class="form-group">
+                    <label for="groq-key-input">Groq API Key (Optional Fast Llama-3)</label>
+                    <input id="groq-key-input" type="password" placeholder="gsk_...">
                 </div>
 
-                <div class="form-group space-y-2">
-                    <label for="model-select">Active Synthesis Model</label>
+                <div class="form-group">
+                    <label for="model-select">Active Synthesis Engine</label>
                     <select id="model-select">
-                        <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Recommended)</option>
-                        <option value="llama-3.1-8b">Groq Llama 3.1 8B</option>
-                        <option value="ollama-local">Ollama Local (Fallback)</option>
+                        <option value="gemini-3.1-flash-lite">Google Gemini 2.5 Flash Lite (Fastest)</option>
+                        <option value="gemini-2.5-flash">Google Gemini 2.5 Flash (Balanced)</option>
+                        <option value="gemini-2.5-pro">Google Gemini 2.5 Pro (Deepest Synthesis)</option>
                     </select>
                 </div>
 
-                <div class="modal-actions pt-4">
-                    <button id="save-settings-btn" class="oxford-btn w-full py-3 font-mono text-xs uppercase tracking-widest">Save Settings</button>
+                <div class="pt-4 flex justify-end gap-3 border-t editorial-rule">
+                    <button id="save-settings-btn" class="oxford-btn w-full">Save Configuration</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Script Entrypoint -->
     <script src="app.js"></script>
 </body>
 </html>
