@@ -56,8 +56,8 @@ interface HighlightTriggerPayload {
 ## ✅ Acceptance Criteria
 
 - [ ] Render uploaded PDFs in a dedicated dual-pane reader workspace inside `public/index.html`.
-- [ ] Implement text selection listener capturing precise coordinates and text content.
-- [ ] Render floating popover with options for **Explain Equation**, **De-Jargonize**, and **Summarize Table**.
+- [ ] Implement text and region selection listener capable of drawing a bounding box around an equation, chart, or table and capturing precise page coordinates and text content.
+- [ ] Render floating popover with interactive options for **Explain Equation**, **De-Jargonize**, and **Summarize Table**, each actively processing selected content and displaying rendered explanations.
 - [ ] Connect "Explain Equation" directly to `netlify/functions/pdf-explain-math.ts` and render formatted KaTeX output.
 - [ ] Detect in-text citations (`[1]`, `(Smith et al., 2021)`) and render hover tooltip resolving the reference.
 - [ ] Fully responsive on desktop viewports with zoom, page navigation, and search controls.

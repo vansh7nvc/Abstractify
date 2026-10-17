@@ -27,24 +27,30 @@ Transform Abstractify's workspace UI from a single vertical list into an **Infin
 
 ### 1. Cascading Column Architecture (`public/app.js`)
 
-```typescript
-interface ColumnPane {
-    id: string;
-    level: number;
-    title: string;
-    type: 'search' | 'paper_detail' | 'similar_papers' | 'author_profile' | 'citation_lineage';
-    entityId: string; // DOI, OpenAlex ID, or Query
-    data: any;
-}
+The following structural pseudocode illustrates the architecture to be implemented in plain JavaScript in `public/app.js`:
+
+```javascript
+// Pseudocode / Architectural Model for public/app.js
+/**
+ * @typedef {Object} ColumnPane
+ * @property {string} id
+ * @property {number} level
+ * @property {string} title
+ * @property {'search' | 'paper_detail' | 'similar_papers' | 'author_profile' | 'citation_lineage'} type
+ * @property {string} entityId - DOI, OpenAlex ID, or Query string
+ * @property {any} data
+ */
 
 class MillerColumnManager {
-    private stack: ColumnPane[] = [];
-    private container: HTMLElement;
+    constructor(containerElement) {
+        this.stack = [];
+        this.container = containerElement;
+    }
 
-    pushColumn(pane: Omit<ColumnPane, 'level'>): void;
-    popToLevel(level: number): void;
-    scrollToActiveColumn(): void;
-    syncWithGraph(activeEntityId: string): void;
+    pushColumn(paneConfig) { /* push new column and slide into view */ }
+    popToLevel(level) { /* pop deeper columns and detach event listeners */ }
+    scrollToActiveColumn() { /* smooth horizontal scroll */ }
+    syncWithGraph(activeEntityId) { /* cross-highlight node in Vis.js canvas */ }
 }
 ```
 
@@ -69,4 +75,4 @@ class MillerColumnManager {
 - [ ] Bidirectionally synchronize node highlighting and canvas panning with the `vis-network` citation graph.
 - [ ] Implement drag-and-drop or one-click "Add to Collection" drawer.
 - [ ] Ensure responsive horizontal scrolling with smooth touch and trackpad gestures.
-- [ ] Zero layout thrashing or memory leaks when opening $> 6$ nested column levels.
+- [ ] Verify column updates cause no forced synchronous layouts in a browser performance trace, and verify repeated open/close operations beyond six nested levels cleanly detach event listeners without retaining closed DOM panes in memory.

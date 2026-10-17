@@ -32,6 +32,21 @@ Build a browser extension (Chrome / Firefox / Edge Manifest v3) that detects aca
      "background": {
        "service_worker": "background.js"
      },
+     "content_scripts": [
+       {
+         "matches": [
+           "*://*.nature.com/*",
+           "*://*.sciencedirect.com/*",
+           "*://*.wiley.com/*",
+           "*://*.ieee.org/*",
+           "*://*.biorxiv.org/*",
+           "*://*.medrxiv.org/*",
+           "*://pubmed.ncbi.nlm.nih.gov/*",
+           "*://arxiv.org/*"
+         ],
+         "js": ["content-scripts/publisher-scrapers.js"]
+       }
+     ],
      "action": {
        "default_popup": "popup.html"
      }
@@ -65,8 +80,8 @@ Inspect the output to borrow URL match patterns (`*://*.sciencedirect.com/*`, `*
 
 - [ ] Create `extension/` directory with valid Manifest v3 specification.
 - [ ] Implement right-click context menu "Analyze with AbstractiFy".
-- [ ] Implement `publisher-scrapers.js` covering Nature, ScienceDirect, Wiley, IEEE, and PubMed.
-- [ ] Auto-extract DOI regex patterns (`10.\d{4,9}/[-._;()/:A-Z0-9]+`) and `<meta name="citation_doi">` tags.
+- [ ] Implement `publisher-scrapers.js` registered under `content_scripts` covering Nature, ScienceDirect, Wiley, IEEE, and PubMed.
+- [ ] Auto-extract DOI regex patterns (`/10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+/i`) and `<meta name="citation_doi">` tags.
 - [ ] Open AbstractiFy web app side-panel pre-populated with extracted paper DOI.
 - [ ] Provide packaging build script in `package.json` (`npm run build:extension`).
 

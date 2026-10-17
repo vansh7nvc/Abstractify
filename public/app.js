@@ -163,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isMatch = btn.getAttribute('data-tab') === targetTabId;
             btn.classList.toggle('active', isMatch);
             btn.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+            btn.setAttribute('tabindex', isMatch ? '0' : '-1');
         });
 
         tabPanes.forEach(pane => {
@@ -184,10 +185,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Set initial roving tabindex on tabs
     tabBtns.forEach(btn => {
+        const isActive = btn.classList.contains('active');
+        btn.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+
+    tabBtns.forEach((btn, index) => {
         btn.addEventListener('click', () => {
             const tabId = btn.getAttribute('data-tab');
             if (tabId) switchWorkspaceTab(tabId);
+        });
+
+        btn.addEventListener('keydown', (e) => {
+            let nextIndex = null;
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextIndex = (index + 1) % tabBtns.length;
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                nextIndex = (index - 1 + tabBtns.length) % tabBtns.length;
+            } else if (e.key === 'Home') {
+                nextIndex = 0;
+            } else if (e.key === 'End') {
+                nextIndex = tabBtns.length - 1;
+            }
+
+            if (nextIndex !== null) {
+                e.preventDefault();
+                const nextBtn = tabBtns[nextIndex];
+                const tabId = nextBtn.getAttribute('data-tab');
+                if (tabId) {
+                    switchWorkspaceTab(tabId);
+                    nextBtn.focus();
+                }
+            }
         });
     });
 
@@ -426,17 +456,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="font-semibold text-primary font-mono">#${idxStr}</span>
                     </div>
 
-                    <h3 class="serif-heading text-lg font-bold text-on-surface hover:text-primary transition-colors leading-snug">
-                        ${paper.title}
-                    </h3>
+                    <h3 class="paper-title serif-heading text-lg font-bold text-on-surface hover:text-primary transition-colors leading-snug"></h3>
                     
-                    <p class="text-xs text-primary/70 font-mono line-clamp-1">
-                        ${authorsStr}
-                    </p>
+                    <p class="paper-authors text-xs text-primary/70 font-mono line-clamp-1"></p>
 
-                    <p class="text-xs text-secondary leading-relaxed line-clamp-3">
-                        ${abstractExcerpt}
-                    </p>
+                    <p class="paper-abstract text-xs text-secondary leading-relaxed line-clamp-3"></p>
                 </div>
 
                 <div class="pt-3 border-t border-outline flex items-center justify-between text-xs font-mono">
@@ -452,6 +476,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
+
+            const titleEl = card.querySelector('.paper-title');
+            if (titleEl) titleEl.textContent = paper.title || 'Untitled Publication';
+
+            const authorsEl = card.querySelector('.paper-authors');
+            if (authorsEl) authorsEl.textContent = authorsStr;
+
+            const abstractEl = card.querySelector('.paper-abstract');
+            if (abstractEl) abstractEl.textContent = abstractExcerpt;
 
             card.addEventListener('click', (e) => {
                 if (e.target.closest('a')) return;

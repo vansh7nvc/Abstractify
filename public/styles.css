@@ -2,8 +2,7 @@
    AbstractiFy Design System & Typography Stylesheet
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
+/* Fonts loaded via <link> tags in index.html */
 :root {
     /* Brand Colors */
     --primary: #002147;          /* Oxford Navy */
@@ -474,7 +473,7 @@ input[type="text"]:focus, input[type="password"]:focus, select:focus {
 
 .paper-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
     gap: 18px;
 }
 

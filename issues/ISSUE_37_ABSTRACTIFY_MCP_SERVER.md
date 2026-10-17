@@ -16,7 +16,7 @@ By building an official **Abstractify MCP Server** (using the Model Context Prot
 
 ## 🎯 Goal
 
-Build and distribute `@abstractify/mcp` — a TypeScript MCP server built with `@modelcontextprotocol/sdk` exposing Abstractify's hybrid literature search, consensus classification, study comparison matrix, LaTeX equation explainer, and Cortex dialectical reasoning engine to AI agents over standard I/O (`stdio`) and SSE.
+Build and distribute `@abstractify/mcp` — a TypeScript MCP server built with `@modelcontextprotocol/sdk` exposing Abstractify's hybrid literature search, consensus classification, study comparison matrix, LaTeX equation explainer, and Cortex dialectical reasoning engine to AI agents over standard I/O (`stdio`) and Streamable HTTP (with optional SSE compatibility transport).
 
 ---
 
