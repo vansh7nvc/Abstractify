@@ -44,6 +44,9 @@ Welcome to the **AbstractiFy Community Contributor Suite**! This directory conta
 | 34 | ☁️ Cloudflare R2 Persistent PDF & Export Artifact Storage | Backend / Storage | `Medium` | [`ISSUE_34_CLOUDFLARE_R2_STORAGE.md`](ISSUE_34_CLOUDFLARE_R2_STORAGE.md) |
 | 35 | 🧩 Multi-Source Paper Deduplicator & Hybrid Cross-Ranker | Backend / AI | `Medium` | [`ISSUE_35_MULTI_SOURCE_DEDUPLICATOR_RANKER.md`](ISSUE_35_MULTI_SOURCE_DEDUPLICATOR_RANKER.md) |
 | 36 | 🧠 Cortex — Novel Epistemic Cognitive Architecture | Core AI / Research | `Hard` | [`ISSUE_36_CORTEX_COGNITIVE_ARCHITECTURE.md`](ISSUE_36_CORTEX_COGNITIVE_ARCHITECTURE.md) |
+| 37 | 🔌 Abstractify Model Context Protocol (MCP) Server | Backend / AI | `Hard` | [`ISSUE_37_ABSTRACTIFY_MCP_SERVER.md`](ISSUE_37_ABSTRACTIFY_MCP_SERVER.md) |
+| 38 | 🐇 Cascading Miller Columns & Infinite Exploratory Canvas UI/UX | Frontend / Graph | `Hard` | [`ISSUE_38_MILLER_COLUMNS_EXPLORATORY_CANVAS.md`](ISSUE_38_MILLER_COLUMNS_EXPLORATORY_CANVAS.md) |
+| 39 | 🔬 In-Document PDF Visual Copilot & Coordinate-Mapped Explainer | Frontend / Backend / AI | `Hard` | [`ISSUE_39_INDOC_PDF_VISUAL_COPILOT.md`](ISSUE_39_INDOC_PDF_VISUAL_COPILOT.md) |
 
 ---
 

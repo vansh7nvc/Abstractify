@@ -53,7 +53,7 @@ Phase 6 — Cortex Cognitive Engine    [░░░░░░░░░░░░░�
 
 ### Phase 4 — Open Source Contributor Suite (`100% Ready`)
 
-We have published **36 live community issues** on our [GitHub Issues Page](https://github.com/vansh7nvc/Abstractify/issues).
+We maintain **39 community & architecture issues** in our [issues directory](issues/) and [GitHub Issues Page](https://github.com/vansh7nvc/Abstractify/issues).
 
 | # | Issue | Difficulty | Target Area | Spec Link |
 |---|---|---|---|---|
@@ -93,6 +93,9 @@ We have published **36 live community issues** on our [GitHub Issues Page](https
 | 34 | ☁️ Cloudflare R2 PDF & Artifact Storage | `Medium` | Backend / Storage | [`ISSUE_34`](issues/ISSUE_34_CLOUDFLARE_R2_STORAGE.md) |
 | 35 | 🧩 Multi-Source Paper Deduplicator & Ranker | `Medium` | Backend / AI | [`ISSUE_35`](issues/ISSUE_35_MULTI_SOURCE_DEDUPLICATOR_RANKER.md) |
 | 36 | 🧠 Cortex — Epistemic Cognitive Architecture | `Research` | Core AI / Research | `[Internal In-Lab Research]` |
+| 37 | 🔌 Abstractify Model Context Protocol (MCP) Server | `Hard` | Backend / AI | [`ISSUE_37`](issues/ISSUE_37_ABSTRACTIFY_MCP_SERVER.md) |
+| 38 | 🐇 Cascading Miller Columns & Infinite Canvas UI/UX | `Hard` | Frontend / Graph | [`ISSUE_38`](issues/ISSUE_38_MILLER_COLUMNS_EXPLORATORY_CANVAS.md) |
+| 39 | 🔬 In-Document PDF Visual Copilot & Formula Explainer | `Hard` | Frontend / AI | [`ISSUE_39`](issues/ISSUE_39_INDOC_PDF_VISUAL_COPILOT.md) |
 
 ---
 

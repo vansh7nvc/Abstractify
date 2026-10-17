@@ -94,6 +94,24 @@ const issuesToCreate = [
         num: 36,
         title: 'Issue #36: 🧠 Cortex — Novel Epistemic Cognitive Architecture for Scientific Reasoning',
         labels: ['enhancement', 'help wanted', 'backend', 'area: ai', 'research', 'difficulty: hard']
+    },
+    {
+        file: 'ISSUE_37_ABSTRACTIFY_MCP_SERVER.md',
+        num: 37,
+        title: 'Issue #37: 🔌 Abstractify Model Context Protocol (MCP) Server',
+        labels: ['enhancement', 'help wanted', 'backend', 'area: api', 'area: ai', 'difficulty: hard']
+    },
+    {
+        file: 'ISSUE_38_MILLER_COLUMNS_EXPLORATORY_CANVAS.md',
+        num: 38,
+        title: 'Issue #38: 🐇 Cascading Miller Columns & Infinite Exploratory Canvas UI/UX (ResearchRabbit Pattern)',
+        labels: ['enhancement', 'help wanted', 'frontend', 'design', 'difficulty: hard']
+    },
+    {
+        file: 'ISSUE_39_INDOC_PDF_VISUAL_COPILOT.md',
+        num: 39,
+        title: 'Issue #39: 🔬 In-Document PDF Visual Copilot & Coordinate-Mapped Explainer (SciSpace Pattern)',
+        labels: ['enhancement', 'help wanted', 'frontend', 'backend', 'design', 'area: ai', 'difficulty: hard']
     }
 ];
 
