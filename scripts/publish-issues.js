@@ -5,9 +5,14 @@ import { issuesToCreate } from './issues-data.js';
 
 const issuesDir = path.resolve('issues');
 
-console.log(`Starting GitHub issue publication for ${issuesToCreate.length} issues...`);
+const args = process.argv.slice(2).map(n => parseInt(n, 10)).filter(n => !isNaN(n));
+const filteredIssues = args.length > 0 
+    ? issuesToCreate.filter(i => args.includes(i.num))
+    : issuesToCreate.filter(i => i.num >= 37);
 
-for (const issue of issuesToCreate) {
+console.log(`Starting GitHub issue publication for ${filteredIssues.length} issue(s) (Numbers: ${filteredIssues.map(i => i.num).join(', ')})...`);
+
+for (const issue of filteredIssues) {
     const filePath = path.join(issuesDir, issue.file);
     if (!fs.existsSync(filePath)) {
         console.error(`Missing spec file: ${filePath}`);
