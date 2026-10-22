@@ -37,7 +37,7 @@
     "prettier": "^3.9.10",
     "typescript": "^5.4.0",
     "vite": "^8.3.4",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   },
   "overrides": {
     "sharp": "^0.35.4",
