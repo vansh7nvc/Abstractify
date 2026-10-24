@@ -1,3 +1,6 @@
+[build.environment]
+  NODE_VERSION = "22.23.4"
+
 [build]
   publish = "public"
   functions = "netlify/functions"
