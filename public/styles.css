@@ -1230,3 +1230,45 @@ a:focus-visible,
         left: 150%;
     }
 }
+
+
+/* Retraction & Reliability Badges (Issue #28) */
+.retraction-badge {
+    background: rgba(225, 29, 72, 0.12);
+    border: 1px solid rgba(225, 29, 72, 0.35);
+    color: #e11d48;
+    box-shadow: 0 0 10px rgba(225, 29, 72, 0.15);
+}
+
+[data-theme="dark"] .retraction-badge {
+    background: rgba(244, 63, 94, 0.2);
+    border-color: rgba(244, 63, 94, 0.45);
+    color: #fb7185;
+    box-shadow: 0 0 12px rgba(244, 63, 94, 0.25);
+}
+
+.retraction-banner {
+    background: rgba(225, 29, 72, 0.08);
+    border: 1px solid rgba(225, 29, 72, 0.3);
+    color: #be123c;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+[data-theme="dark"] .retraction-banner {
+    background: rgba(225, 29, 72, 0.18);
+    border-color: rgba(244, 63, 94, 0.4);
+    color: #fecdd3;
+}
+
+.correction-badge {
+    background: rgba(217, 119, 6, 0.12);
+    border: 1px solid rgba(217, 119, 6, 0.35);
+    color: #d97706;
+}
+
+[data-theme="dark"] .correction-badge {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: rgba(245, 158, 11, 0.45);
+    color: #fbbf24;
+}

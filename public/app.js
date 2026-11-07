@@ -500,6 +500,100 @@ document.addEventListener('DOMContentLoaded', () => {
             : `idx:${idx}`;
     }
 
+    // ── Retraction & Reliability Verification (Issue #28) ──
+    function getRetractionBadgeHtml(paper) {
+        if (paper.isRetracted) {
+            return `
+                <span class="text-secondary-muted">•</span>
+                <span class="retraction-badge px-2 py-0.5 rounded text-[10px] font-mono font-bold flex items-center gap-1 shadow-sm animate-pulse" title="This publication has been RETRACTED according to Crossref metadata">
+                    <span class="material-symbols-outlined text-[12px] text-rose-500">warning</span>
+                    <span>RETRACTED</span>
+                </span>
+            `;
+        }
+        if (paper.hasCorrections) {
+            return `
+                <span class="text-secondary-muted">•</span>
+                <span class="correction-badge px-2 py-0.5 rounded text-[10px] font-mono flex items-center gap-1" title="This publication has formal corrections or errata">
+                    <span class="material-symbols-outlined text-[12px] text-amber-500">edit_note</span>
+                    <span>CORRECTED</span>
+                </span>
+            `;
+        }
+        return '';
+    }
+
+    function applyRetractionStatusToCard(paper, card, data) {
+        if (!data || !card) return;
+        const metaContainer = card.querySelector('.paper-meta-pills');
+        const contentContainer = card.querySelector('.paper-card-content');
+
+        if (data.isRetracted) {
+            paper.isRetracted = true;
+            if (metaContainer && !metaContainer.querySelector('.retraction-badge')) {
+                const badgeSpan = document.createElement('span');
+                badgeSpan.className = 'retraction-badge px-2 py-0.5 rounded text-[10px] font-mono font-bold flex items-center gap-1 shadow-sm animate-pulse';
+                badgeSpan.title = 'This publication has been RETRACTED according to Crossref metadata';
+                badgeSpan.innerHTML = '<span class="material-symbols-outlined text-[12px] text-rose-500">warning</span><span>RETRACTED</span>';
+
+                const dot = document.createElement('span');
+                dot.className = 'text-secondary-muted';
+                dot.textContent = '•';
+
+                metaContainer.appendChild(dot);
+                metaContainer.appendChild(badgeSpan);
+            }
+
+            if (contentContainer && !contentContainer.querySelector('.retraction-banner')) {
+                const banner = document.createElement('div');
+                banner.className = 'retraction-banner text-xs font-mono flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-rose-500/30';
+                banner.innerHTML = '<span class="material-symbols-outlined text-sm text-rose-500">gpp_maybe</span><span><strong>CRITICAL WARNING:</strong> Retracted in Crossmark metadata.</span>';
+                contentContainer.insertBefore(banner, contentContainer.firstChild);
+            }
+        } else if (data.hasCorrections) {
+            paper.hasCorrections = true;
+            if (metaContainer && !metaContainer.querySelector('.correction-badge') && !metaContainer.querySelector('.retraction-badge')) {
+                const badgeSpan = document.createElement('span');
+                badgeSpan.className = 'correction-badge px-2 py-0.5 rounded text-[10px] font-mono flex items-center gap-1';
+                badgeSpan.title = 'This publication has formal corrections or errata';
+                badgeSpan.innerHTML = '<span class="material-symbols-outlined text-[12px] text-amber-500">edit_note</span><span>CORRECTED</span>';
+
+                const dot = document.createElement('span');
+                dot.className = 'text-secondary-muted';
+                dot.textContent = '•';
+
+                metaContainer.appendChild(dot);
+                metaContainer.appendChild(badgeSpan);
+            }
+        }
+    }
+
+    async function verifyPaperRetraction(paper, card) {
+        if (!paper || !paper.doi) return;
+        const cacheKey = 'doi_retraction_' + paper.doi;
+        let cached = null;
+        try {
+            const item = sessionStorage.getItem(cacheKey);
+            if (item) cached = JSON.parse(item);
+        } catch (_) {}
+
+        if (cached) {
+            applyRetractionStatusToCard(paper, card, cached);
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/doi-check?doi=' + encodeURIComponent(paper.doi));
+            if (res.ok) {
+                const data = await res.json();
+                try {
+                    sessionStorage.setItem(cacheKey, JSON.stringify(data));
+                } catch (_) {}
+                applyRetractionStatusToCard(paper, card, data);
+            }
+        } catch (_) {}
+    }
+
     function renderPaperCards() {
         resultsList.innerHTML = '';
 
@@ -531,11 +625,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const readingMetrics = calculateReadingMetrics(paper.abstract || paper.title || '');
             const readingBadgeHtml = formatReadingTimeBadge(readingMetrics);
+            const retractionBadgeHtml = getRetractionBadgeHtml(paper);
+            const retractionBannerHtml = paper.isRetracted
+                ? `<div class="retraction-banner text-xs font-mono flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-rose-500/30">
+                    <span class="material-symbols-outlined text-sm text-rose-500">gpp_maybe</span>
+                    <span><strong>CRITICAL WARNING:</strong> Retracted in Crossmark metadata.</span>
+                   </div>`
+                : '';
 
             card.innerHTML = `
-                <div class="space-y-3">
+                <div class="space-y-3 paper-card-content">
+                    ${retractionBannerHtml}
                     <div class="flex items-center justify-between text-[11px] font-mono text-secondary">
-                        <div class="flex items-center gap-2 flex-wrap">
+                        <div class="flex items-center gap-2 flex-wrap paper-meta-pills">
                             <input type="checkbox" class="paper-select-checkbox cursor-pointer rounded border-outline text-primary focus:ring-primary/20" data-paper-id="${paper.id || idx}" title="Select for bibliography citation" aria-label="Select paper for bibliography">
                             <span class="stance-pill ${stance}">
                                 <span class="material-symbols-outlined text-[13px]">${stance === 'supports' ? 'check_circle' : stance === 'contradicts' ? 'cancel' : 'help'}</span>
@@ -545,6 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>${paper.year || 'N/A'}</span>
                             <span class="text-secondary-muted">•</span>
                             ${readingBadgeHtml}
+                            ${retractionBadgeHtml}
                         </div>
                         <span class="font-semibold text-primary font-mono">#${idxStr}</span>
                     </div>
@@ -594,6 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             resultsList.appendChild(card);
+            verifyPaperRetraction(paper, card);
         });
     }
 

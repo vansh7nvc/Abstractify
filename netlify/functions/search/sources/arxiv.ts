@@ -161,13 +161,13 @@ export function parseArxivAtomFeed(xml: string): ArxivEntry[] {
         const pdfUrl = parseArxivPdfUrl(entryXml, cleanId);
 
         // Primary category: <arxiv:primary_category term="cs.AI" /> or <category term="..." />
-        let primaryCategory =
+        const primaryCategory =
             extractXmlAttribute(entryXml, 'arxiv:primary_category', 'term') ||
             extractXmlAttribute(entryXml, 'category', 'term') ||
             undefined;
 
         // DOI if present: <arxiv:doi>10.48550/arXiv.2310.06825</arxiv:doi>
-        let doi = extractXmlTagContent(entryXml, 'arxiv:doi') || undefined;
+        const doi = extractXmlTagContent(entryXml, 'arxiv:doi') || undefined;
         if (doi) {
             doi = doi
                 .replace(/^https?:\/\/doi\.org\//i, '')
