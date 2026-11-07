@@ -1006,3 +1006,57 @@ a:focus-visible,
         transform: translateY(0) scale(1);
     }
 }
+
+/* ==========================================================================
+   Reading Time & Academic Complexity Estimator (Issue #05)
+   ========================================================================== */
+.badge-reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    border-radius: 9999px;
+    white-space: nowrap;
+    transition: var(--transition-smooth);
+    user-select: none;
+}
+
+.badge-reading-time.low {
+    background-color: #ECFDF5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}
+
+.badge-reading-time.moderate {
+    background-color: #EFF6FF;
+    color: #1E40AF;
+    border: 1px solid #BFDBFE;
+}
+
+.badge-reading-time.dense {
+    background-color: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FDE68A;
+}
+
+[data-theme="dark"] .badge-reading-time.low {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="dark"] .badge-reading-time.moderate {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .badge-reading-time.dense {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #fde68a;
+    border-color: rgba(245, 158, 11, 0.3);
+}
