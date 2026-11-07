@@ -1081,3 +1081,46 @@ a:focus-visible,
 [data-theme="dark"] .btn-export-screenshot:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
+
+
+/* ══════════════════════════════════════════════════════
+   Saved Research Sessions Styling (Issue #18)
+   ══════════════════════════════════════════════════════ */
+.session-card {
+    background-color: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: all var(--transition-smooth, 0.2s ease);
+}
+
+.session-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .session-card {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .session-card:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.session-tag-chip {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--surface-muted);
+    color: var(--primary);
+    border: 1px solid var(--outline);
+}
+
+[data-theme="dark"] .session-tag-chip {
+    background-color: rgba(56, 189, 248, 0.1);
+    color: var(--accent-color);
+    border-color: rgba(56, 189, 248, 0.25);
+}

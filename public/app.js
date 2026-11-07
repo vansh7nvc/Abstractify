@@ -6,6 +6,7 @@ import { initShortcuts, openModal, closeModal } from './js/shortcuts.js';
 import { calculateReadingMetrics, formatReadingTimeBadge } from './js/reading-time.js';
 import { exportBibliography } from './js/export.js';
 import { exportPanelAsImage } from './js/screenshot.js';
+import { getSavedSessions, saveSession, deleteSession, clearAllSessions, formatSessionDate } from './js/sessions.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const $ = id => document.getElementById(id);
@@ -256,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === settingsModal) closeModal(settingsModal);
         if (commandPaletteModal && e.target === commandPaletteModal) closeModal(commandPaletteModal);
         if (shortcutsModal && e.target === shortcutsModal) closeModal(shortcutsModal);
+        if (sessionsModal && e.target === sessionsModal) closeModal(sessionsModal);
     });
 
     // ─── Keyboard Shortcuts & Accessibility (Issue #13) ───
@@ -577,6 +579,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // ══════════════════════════════════════════════════════
     //  CONSENSUS METER
     // ══════════════════════════════════════════════════════
+    function applyConsensusData(data) {
+        if (!data) return;
+        state.consensusData = data;
+
+        const score = data.consensusScore || 0;
+        if (papersSampledBadge) {
+            papersSampledBadge.innerText = `${state.searchResults.length} Papers · ${Math.round(score)}% Agreement`;
+        }
+
+        // Calculate percentage segments dynamically
+        const totalCount = (data.supportsCount || 0) + (data.neutralCount || 0) + (data.contradictsCount || 0);
+        if (totalCount > 0) {
+            const supportsPct = Math.round(((data.supportsCount || 0) / totalCount) * 100);
+            const neutralPct = Math.round(((data.neutralCount || 0) / totalCount) * 100);
+            const contradictsPct = 100 - supportsPct - neutralPct;
+
+            if (barSupports) barSupports.style.width = `${supportsPct}%`;
+            if (barNeutral) barNeutral.style.width = `${neutralPct}%`;
+            if (barContradicts) barContradicts.style.width = `${contradictsPct}%`;
+
+            if (statSupports) statSupports.innerText = `Supports (${supportsPct}%)`;
+            if (statNeutral) statNeutral.innerText = `Mixed (${neutralPct}%)`;
+            if (statContradicts) statContradicts.innerText = `Opposes (${contradictsPct}%)`;
+        } else {
+            if (barSupports) barSupports.style.width = '0%';
+            if (barNeutral) barNeutral.style.width = '0%';
+            if (barContradicts) barContradicts.style.width = '0%';
+        }
+
+        if (consensusProgressBox) consensusProgressBox.classList.remove('hidden');
+        if (consensusSummaryText) {
+            consensusSummaryText.innerText = data.summaryText || 'Synthesis complete.';
+            consensusSummaryText.classList.remove('hidden');
+        }
+
+        if (data.paperStances) {
+            state.searchResults.forEach(p => {
+                if (data.paperStances[p.id]) p.consensusStance = data.paperStances[p.id];
+            });
+            renderPaperCards();
+        }
+    }
+
     async function runConsensus(query) {
         try {
             const res = await fetch('/api/consensus', {
@@ -589,43 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errData.message || 'Consensus API failed');
             }
             const data = await res.json();
-            state.consensusData = data;
-
-            const score = data.consensusScore || 0;
-            if (papersSampledBadge) {
-                papersSampledBadge.innerText = `${state.searchResults.length} Papers · ${Math.round(score)}% Agreement`;
-            }
-
-            // Calculate percentage segments dynamically
-            const totalCount = (data.supportsCount || 0) + (data.neutralCount || 0) + (data.contradictsCount || 0);
-            if (totalCount > 0) {
-                const supportsPct = Math.round(((data.supportsCount || 0) / totalCount) * 100);
-                const neutralPct = Math.round(((data.neutralCount || 0) / totalCount) * 100);
-                const contradictsPct = 100 - supportsPct - neutralPct;
-
-                barSupports.style.width = `${supportsPct}%`;
-                barNeutral.style.width = `${neutralPct}%`;
-                barContradicts.style.width = `${contradictsPct}%`;
-
-                statSupports.innerText = `Supports (${supportsPct}%)`;
-                statNeutral.innerText = `Mixed (${neutralPct}%)`;
-                statContradicts.innerText = `Opposes (${contradictsPct}%)`;
-            } else {
-                barSupports.style.width = '0%';
-                barNeutral.style.width = '0%';
-                barContradicts.style.width = '0%';
-            }
-
-            consensusProgressBox.classList.remove('hidden');
-            consensusSummaryText.innerText = data.summaryText || 'Synthesis complete.';
-            consensusSummaryText.classList.remove('hidden');
-
-            if (data.paperStances) {
-                state.searchResults.forEach(p => {
-                    if (data.paperStances[p.id]) p.consensusStance = data.paperStances[p.id];
-                });
-                renderPaperCards();
-            }
+            applyConsensusData(data);
         } catch (err) {
             console.error('Consensus error:', err);
             consensusSummaryText.innerText = `Could not classify consensus. ${err.message}`;
@@ -636,6 +645,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // ══════════════════════════════════════════════════════
     //  STUDY COMPARISON MATRIX
     // ══════════════════════════════════════════════════════
+    function applyMatrixData(matrix) {
+        state.matrixData = Array.isArray(matrix) ? matrix : [];
+
+        const tabMatBadge = $('tab-badge-matrix');
+        if (tabMatBadge) {
+            tabMatBadge.innerText = `${state.matrixData.length}`;
+        }
+
+        if (!matrixBody) return;
+        matrixBody.innerHTML = '';
+        if (exportCsvBtn) exportCsvBtn.classList.remove('hidden');
+
+        state.matrixData.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b editorial-rule hover:bg-primary/[0.015] transition-colors';
+            tr.innerHTML = `
+                <td class="py-6 font-semibold text-primary text-sm max-w-xs"></td>
+                <td class="py-6 text-secondary italic text-sm"></td>
+                <td class="py-6 font-mono text-[11px] text-secondary max-w-xs"></td>
+                <td class="py-6 font-mono text-[11px] text-secondary max-w-xs"></td>
+                <td class="py-6 font-mono text-[11px] text-secondary max-w-xs"></td>
+            `;
+            const cells = tr.querySelectorAll('td');
+            if (cells[0]) cells[0].textContent = row.title || 'N/A';
+            if (cells[1]) cells[1].textContent = row.datasetSize || 'Unknown';
+            if (cells[2]) cells[2].textContent = row.methodology || 'N/A';
+            if (cells[3]) cells[3].textContent = row.outcomes || 'N/A';
+            if (cells[4]) cells[4].textContent = row.limitations || 'N/A';
+            matrixBody.appendChild(tr);
+        });
+    }
+
     /**
      * Executes study comparison extraction across search results, populating the comparison matrix.
      * Updates the matrix tab badge with total compared studies.
@@ -653,28 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errData.message || 'Comparison failed');
             }
             const data = await res.json();
-            state.matrixData = data.matrix || [];
-
-            const tabMatBadge = $('tab-badge-matrix');
-            if (tabMatBadge) {
-                tabMatBadge.innerText = `${state.matrixData.length}`;
-            }
-
-            matrixBody.innerHTML = '';
-            exportCsvBtn.classList.remove('hidden');
-
-            (data.matrix || []).forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = 'border-b editorial-rule hover:bg-primary/[0.015] transition-colors';
-                tr.innerHTML = `
-                    <td class="py-6 font-semibold text-primary text-sm max-w-xs">${row.title || 'N/A'}</td>
-                    <td class="py-6 text-secondary italic text-sm">${row.datasetSize || 'Unknown'}</td>
-                    <td class="py-6 font-mono text-[11px] text-secondary max-w-xs">${row.methodology || 'N/A'}</td>
-                    <td class="py-6 font-mono text-[11px] text-secondary max-w-xs">${row.outcomes || 'N/A'}</td>
-                    <td class="py-6 font-mono text-[11px] text-secondary max-w-xs">${row.limitations || 'N/A'}</td>
-                `;
-                matrixBody.appendChild(tr);
-            });
+            applyMatrixData(data.matrix || []);
         } catch (err) {
             console.error('Matrix error:', err);
             matrixBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-800 italic">Error extracting parameters: ${err.message}</td></tr>`;
@@ -1231,6 +1251,277 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerHTML = origContent;
         }
     });
+
+    // ══════════════════════════════════════════════════════
+    //  SAVED RESEARCH SESSIONS (Issue #18)
+    // ══════════════════════════════════════════════════════
+    const sessionsBtn            = $('sessions-btn');
+    const saveSessionBtn         = $('save-session-btn');
+    const sessionsModal          = $('sessions-modal');
+    const sessionsCloseBtn       = $('sessions-close-btn');
+    const sessionTitleInput      = $('session-title-input');
+    const sessionTagsInput       = $('session-tags-input');
+    const btnSaveCurrentSession  = $('btn-save-current-session');
+    const saveSessionStatus      = $('save-session-status');
+    const sessionsList           = $('sessions-list');
+    const clearAllSessionsBtn    = $('clear-all-sessions-btn');
+    const sessionsCountBadge     = $('sessions-count-badge');
+    const modalSessionsCount     = $('modal-sessions-count');
+    const sessionToast           = $('session-toast');
+    let sessionToastTimer        = null;
+
+    function showSessionToast(message = '✨ Session saved successfully!') {
+        if (!sessionToast) return;
+        const msgEl = $('session-toast-msg');
+        if (msgEl) msgEl.textContent = message;
+        sessionToast.classList.remove('opacity-0', 'pointer-events-none');
+        sessionToast.classList.add('opacity-100');
+        if (sessionToastTimer) clearTimeout(sessionToastTimer);
+        sessionToastTimer = setTimeout(() => {
+            sessionToast.classList.remove('opacity-100');
+            sessionToast.classList.add('opacity-0', 'pointer-events-none');
+        }, 3200);
+    }
+
+    function updateSessionsCountBadge() {
+        const count = getSavedSessions().length;
+        if (sessionsCountBadge) sessionsCountBadge.textContent = String(count);
+        if (modalSessionsCount) modalSessionsCount.textContent = `${count} / 10 Stored`;
+    }
+
+    function renderSessionsList() {
+        if (!sessionsList) return;
+        sessionsList.innerHTML = '';
+
+        const sessions = getSavedSessions();
+        if (sessions.length === 0) {
+            sessionsList.innerHTML = `
+                <div class="py-8 text-center text-secondary italic font-mono text-xs bg-surface border border-outline rounded-lg p-6">
+                    No saved research sessions yet. Run a search and click "Save Session" to preserve your inquiry.
+                </div>
+            `;
+            return;
+        }
+
+        sessions.forEach((session) => {
+            const card = document.createElement('div');
+            card.className = 'session-card flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+
+            const leftCol = document.createElement('div');
+            leftCol.className = 'space-y-1.5 flex-1 min-w-0';
+
+            const headerRow = document.createElement('div');
+            headerRow.className = 'flex items-center gap-2 flex-wrap';
+
+            const titleEl = document.createElement('h5');
+            titleEl.className = 'serif-heading text-sm font-bold text-on-surface truncate';
+            titleEl.textContent = session.title || 'Untitled Session';
+            headerRow.appendChild(titleEl);
+
+            const dateEl = document.createElement('span');
+            dateEl.className = 'font-mono text-[10px] text-secondary';
+            dateEl.textContent = `• ${formatSessionDate(session.date)}`;
+            headerRow.appendChild(dateEl);
+
+            leftCol.appendChild(headerRow);
+
+            if (session.query && session.query !== session.title) {
+                const queryEl = document.createElement('p');
+                queryEl.className = 'font-mono text-[11px] text-secondary truncate';
+                queryEl.textContent = `Inquiry: "${session.query}"`;
+                leftCol.appendChild(queryEl);
+            }
+
+            // Metrics & Tags
+            const metaRow = document.createElement('div');
+            metaRow.className = 'flex items-center gap-2 flex-wrap pt-0.5';
+
+            const papersBadge = document.createElement('span');
+            papersBadge.className = 'tab-badge text-[10px] font-mono';
+            papersBadge.textContent = `${session.paperCount || 0} Papers`;
+            metaRow.appendChild(papersBadge);
+
+            if (session.consensusScore !== null && session.consensusScore !== undefined) {
+                const scoreBadge = document.createElement('span');
+                scoreBadge.className = 'tab-badge text-[10px] font-mono text-primary font-semibold';
+                scoreBadge.textContent = `${Math.round(session.consensusScore)}% Consensus`;
+                metaRow.appendChild(scoreBadge);
+            }
+
+            (session.tags || []).forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'session-tag-chip';
+                tagEl.textContent = tag;
+                metaRow.appendChild(tagEl);
+            });
+
+            leftCol.appendChild(metaRow);
+            card.appendChild(leftCol);
+
+            // Action Buttons
+            const actionsCol = document.createElement('div');
+            actionsCol.className = 'flex items-center gap-2 self-end sm:self-center';
+
+            const restoreBtn = document.createElement('button');
+            restoreBtn.className = 'btn-restore-session secondary-btn text-xs py-1.5 px-3 flex items-center gap-1 cursor-pointer';
+            restoreBtn.setAttribute('data-id', session.id);
+            restoreBtn.title = 'Restore research session to workspace';
+            restoreBtn.innerHTML = `<span class="material-symbols-outlined text-sm">history</span><span>Restore</span>`;
+            actionsCol.appendChild(restoreBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn-delete-session text-secondary hover:text-red-700 p-1.5 rounded transition-colors cursor-pointer flex items-center';
+            deleteBtn.setAttribute('data-id', session.id);
+            deleteBtn.title = 'Delete saved session';
+            deleteBtn.innerHTML = `<span class="material-symbols-outlined text-base">delete</span>`;
+            actionsCol.appendChild(deleteBtn);
+
+            card.appendChild(actionsCol);
+            sessionsList.appendChild(card);
+        });
+    }
+
+    function restoreSavedSession(sessionId) {
+        const sessions = getSavedSessions();
+        const session = sessions.find(s => s.id === sessionId);
+        if (!session) {
+            alert('Selected research session could not be located.');
+            return;
+        }
+
+        // 1. Populate state
+        state.currentQuery    = session.query || session.title;
+        state.searchResults   = session.searchResults || [];
+        state.consensusData   = session.consensusData || null;
+        state.matrixData      = session.matrixData || [];
+        state.selectedPaperIds = new Set();
+        state.selectedPaperId = null;
+
+        // 2. Synchronize UI inputs and headers
+        if (searchInput) searchInput.value = state.currentQuery;
+        if (workspaceTitle) workspaceTitle.innerText = session.title || state.currentQuery;
+        if (welcomeMessage) welcomeMessage.classList.add('hidden');
+
+        // 3. Re-render views
+        renderPaperCards();
+
+        if (session.consensusData) {
+            applyConsensusData(session.consensusData);
+        } else if (papersSampledBadge) {
+            papersSampledBadge.innerText = `${state.searchResults.length} Papers Sampled`;
+        }
+
+        if (session.matrixData && session.matrixData.length > 0) {
+            applyMatrixData(session.matrixData);
+        }
+
+        if (state.searchResults.length > 0) {
+            runNetworkGraph(state.currentQuery);
+        }
+
+        switchToWorkspace();
+        switchWorkspaceTab('tab-consensus');
+        closeModal(sessionsModal);
+        showSessionToast(`✨ Restored session: "${session.title}"`);
+    }
+
+    if (sessionsBtn && sessionsModal) {
+        sessionsBtn.addEventListener('click', () => {
+            if (sessionTitleInput && !sessionTitleInput.value) {
+                sessionTitleInput.value = state.currentQuery || '';
+            }
+            renderSessionsList();
+            openModal(sessionsModal, sessionTitleInput);
+        });
+    }
+
+    if (saveSessionBtn && sessionsModal) {
+        saveSessionBtn.addEventListener('click', () => {
+            if (sessionTitleInput) {
+                sessionTitleInput.value = state.currentQuery || '';
+            }
+            renderSessionsList();
+            openModal(sessionsModal, sessionTitleInput);
+        });
+    }
+
+    if (sessionsCloseBtn && sessionsModal) {
+        sessionsCloseBtn.addEventListener('click', () => closeModal(sessionsModal));
+    }
+
+    if (btnSaveCurrentSession) {
+        btnSaveCurrentSession.addEventListener('click', () => {
+            if (state.searchResults.length === 0 && !state.currentQuery) {
+                alert('Please execute a search inquiry before saving a research session.');
+                return;
+            }
+
+            const title = (sessionTitleInput ? sessionTitleInput.value.trim() : '') || state.currentQuery || 'Research Inquiry';
+            const tags = sessionTagsInput ? sessionTagsInput.value : '';
+
+            const res = saveSession({
+                title,
+                query: state.currentQuery,
+                tags,
+                searchResults: state.searchResults,
+                consensusData: state.consensusData,
+                matrixData: state.matrixData
+            });
+
+            if (res.success) {
+                if (sessionTitleInput) sessionTitleInput.value = '';
+                if (sessionTagsInput) sessionTagsInput.value = '';
+                if (saveSessionStatus) {
+                    saveSessionStatus.textContent = 'Saved!';
+                    setTimeout(() => { if (saveSessionStatus) saveSessionStatus.textContent = ''; }, 2500);
+                }
+                updateSessionsCountBadge();
+                renderSessionsList();
+                showSessionToast(`✨ Session "${title}" saved!`);
+            } else {
+                alert(res.error || 'Failed to save session.');
+            }
+        });
+    }
+
+    if (clearAllSessionsBtn) {
+        clearAllSessionsBtn.addEventListener('click', () => {
+            const count = getSavedSessions().length;
+            if (count === 0) return;
+            if (confirm(`Are you sure you want to delete all ${count} saved research sessions?`)) {
+                clearAllSessions();
+                updateSessionsCountBadge();
+                renderSessionsList();
+                showSessionToast('All saved sessions cleared.');
+            }
+        });
+    }
+
+    if (sessionsList) {
+        sessionsList.addEventListener('click', (e) => {
+            const restoreBtn = e.target.closest('.btn-restore-session');
+            if (restoreBtn) {
+                const id = restoreBtn.getAttribute('data-id');
+                if (id) restoreSavedSession(id);
+                return;
+            }
+
+            const deleteBtn = e.target.closest('.btn-delete-session');
+            if (deleteBtn) {
+                const id = deleteBtn.getAttribute('data-id');
+                if (id) {
+                    deleteSession(id);
+                    updateSessionsCountBadge();
+                    renderSessionsList();
+                    showSessionToast('Session deleted.');
+                }
+            }
+        });
+    }
+
+    // Initialize Sessions badge on page load
+    updateSessionsCountBadge();
+
 
     // ══════════════════════════════════════════════════════
     //  PDF UPLOAD & INGESTION
