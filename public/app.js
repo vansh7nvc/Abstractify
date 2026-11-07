@@ -2,10 +2,54 @@
 // Fully handles: Search, Consensus, Matrix, Network Graph, PDF Ingestion, Chat Agent, Equation Explainer, and Transitions
 import { initTheme } from './js/theme.js';
 import { renderLatex, renderMathInContainer } from './js/katex-helper.js';
+import { initShortcuts, openModal, closeModal } from './js/shortcuts.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // ─── Theme System Initialization ───
     initTheme();
+
+    // ─── Keyboard Shortcuts & Accessibility (Issue #13) ───
+    const commandPaletteModal = $('command-palette-modal');
+    const paletteSearchInput  = $('palette-search-input');
+    const paletteSearchForm   = $('palette-search-form');
+    const paletteCloseBtn     = $('palette-close-btn');
+    const shortcutsModal      = $('shortcuts-modal');
+    const shortcutsBtn        = $('shortcuts-btn');
+    const landingShortcutsBtn = $('landing-shortcuts-btn');
+    const shortcutsCloseBtn   = $('shortcuts-close-btn');
+
+    initShortcuts({
+        onSwitchTab: (tabId) => switchWorkspaceTab(tabId)
+    });
+
+    if (paletteCloseBtn && commandPaletteModal) {
+        paletteCloseBtn.addEventListener('click', () => closeModal(commandPaletteModal));
+    }
+    if (shortcutsCloseBtn && shortcutsModal) {
+        shortcutsCloseBtn.addEventListener('click', () => closeModal(shortcutsModal));
+    }
+    if (shortcutsBtn && shortcutsModal) {
+        shortcutsBtn.addEventListener('click', () => openModal(shortcutsModal));
+    }
+    if (landingShortcutsBtn && shortcutsModal) {
+        landingShortcutsBtn.addEventListener('click', () => openModal(shortcutsModal));
+    }
+    if (paletteSearchForm && paletteSearchInput) {
+        paletteSearchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const q = paletteSearchInput.value.trim();
+            if (q) {
+                closeModal(commandPaletteModal);
+                showApp();
+                searchInput.value = q;
+                performSearch(q);
+            }
+        });
+    }
+    window.addEventListener('click', (e) => {
+        if (commandPaletteModal && e.target === commandPaletteModal) closeModal(commandPaletteModal);
+        if (shortcutsModal && e.target === shortcutsModal) closeModal(shortcutsModal);
+    });
 
     // ─── State Management ───
     let storedGeminiKey = localStorage.getItem('gemini_key') || '';

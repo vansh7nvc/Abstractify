@@ -77,6 +77,9 @@
                 <a class="hover:text-primary transition-colors" href="#features">Features</a>
             </nav>
             <div class="flex items-center gap-4">
+                <button id="landing-shortcuts-btn" class="secondary-btn text-xs py-2 px-3" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts">
+                    <span class="material-symbols-outlined text-sm">keyboard</span>
+                </button>
                 <button id="landing-theme-toggle" class="secondary-btn text-xs py-2 px-3 theme-toggle-btn" title="Switch to Dark Mode" aria-label="Toggle theme">
                     <span class="theme-toggle-icon text-sm">🌙</span>
                 </button>
@@ -205,6 +208,9 @@
                 </button>
                 <input type="file" id="pdf-file-input" accept="application/pdf" class="hidden">
                 
+                <button id="shortcuts-btn" class="secondary-btn text-xs py-2 px-3" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts">
+                    <span class="material-symbols-outlined text-base">keyboard</span>
+                </button>
                 <button id="theme-toggle" class="secondary-btn text-xs py-2 px-3 theme-toggle-btn" title="Switch to Dark Mode" aria-label="Toggle theme">
                     <span id="theme-toggle-icon" class="theme-toggle-icon text-sm">🌙</span>
                 </button>
@@ -560,10 +566,10 @@
     </div>
 
     <!-- Credentials & Settings Drawer Modal -->
-    <div id="settings-modal" class="modal hidden">
+    <div id="settings-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Credentials & Configuration</h3>
+                <h3 id="settings-modal-title">Credentials & Configuration</h3>
                 <button id="settings-close-btn" class="close-btn">&times;</button>
             </div>
             <div class="space-y-6 pt-4">
@@ -604,6 +610,82 @@
 
                 <div class="pt-4 flex justify-end gap-3 border-t editorial-rule">
                     <button id="save-settings-btn" class="oxford-btn w-full">Save Configuration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Command Palette / Quick Search Modal (Issue #13) -->
+    <div id="command-palette-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="palette-modal-title" aria-hidden="true">
+        <div class="modal-content max-w-xl">
+            <div class="modal-header border-b editorial-rule pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">search</span>
+                    <h3 id="palette-modal-title" class="text-base font-serif font-bold">Quick Command Palette</h3>
+                </div>
+                <button id="palette-close-btn" class="close-btn" aria-label="Close command palette">&times;</button>
+            </div>
+            <div class="pt-4 space-y-4">
+                <form id="palette-search-form" class="relative">
+                    <input id="palette-search-input" type="text" placeholder="Search academic topics, authors, or DOIs..." class="w-full px-4 py-3 bg-surface border border-outline rounded-lg text-sm font-sans focus:outline-none focus:border-primary pr-20" aria-label="Search query">
+                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 oxford-btn text-xs py-1.5 px-3">Search</button>
+                </form>
+                <div class="text-xs text-secondary font-mono flex flex-wrap items-center justify-between gap-2 pt-2 border-t editorial-rule">
+                    <span>Navigation Shortcuts:</span>
+                    <div class="flex items-center gap-2">
+                        <span class="flex items-center gap-1"><kbd class="kbd-badge">Alt</kbd>+<kbd class="kbd-badge">1</kbd> Consensus</span>
+                        <span class="flex items-center gap-1"><kbd class="kbd-badge">Alt</kbd>+<kbd class="kbd-badge">2</kbd> Matrix</span>
+                        <span class="flex items-center gap-1"><kbd class="kbd-badge">Alt</kbd>+<kbd class="kbd-badge">3</kbd> Graph</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Help Modal (Issue #13) -->
+    <div id="shortcuts-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-title" aria-hidden="true">
+        <div class="modal-content max-w-lg">
+            <div class="modal-header border-b editorial-rule pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">keyboard</span>
+                    <h3 id="shortcuts-modal-title" class="text-base font-serif font-bold">Keyboard Navigation Shortcuts</h3>
+                </div>
+                <button id="shortcuts-close-btn" class="close-btn" aria-label="Close keyboard shortcuts help">&times;</button>
+            </div>
+            <div class="space-y-4 pt-4 text-xs font-sans">
+                <div class="grid grid-cols-2 gap-y-3 gap-x-4">
+                    <div class="flex items-center justify-between py-1 border-b border-outline/50">
+                        <span class="text-secondary font-medium">Quick Command Palette</span>
+                        <div class="flex items-center gap-1"><kbd class="kbd-badge">Ctrl/⌘</kbd>+<kbd class="kbd-badge">K</kbd></div>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-outline/50">
+                        <span class="text-secondary font-medium">Focus Search Bar</span>
+                        <kbd class="kbd-badge">/</kbd>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-outline/50">
+                        <span class="text-secondary font-medium">Consensus Meter</span>
+                        <div class="flex items-center gap-1"><kbd class="kbd-badge">Alt</kbd>+<kbd class="kbd-badge">1</kbd></div>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-outline/50">
+                        <span class="text-secondary font-medium">Comparison Matrix</span>
+                        <div class="flex items-center gap-1"><kbd class="kbd-badge">Alt</kbd>+<kbd class="kbd-badge">2</kbd></div>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-outline/50">
+                        <span class="text-secondary font-medium">Citation Graph</span>
+                        <div class="flex items-center gap-1"><kbd class="kbd-badge">Alt</kbd>+<kbd class="kbd-badge">3</kbd></div>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-outline/50">
+                        <span class="text-secondary font-medium">Dismiss Active Modal</span>
+                        <kbd class="kbd-badge">Esc</kbd>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-outline/50">
+                        <span class="text-secondary font-medium">Keyboard Help</span>
+                        <kbd class="kbd-badge">?</kbd>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-outline/50">
+                        <span class="text-secondary font-medium">Toggle Dark Theme</span>
+                        <span class="text-primary font-mono text-[11px]">Header Icon</span>
+                    </div>
                 </div>
             </div>
         </div>
