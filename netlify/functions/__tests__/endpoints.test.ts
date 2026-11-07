@@ -263,6 +263,34 @@ describe('Netlify Endpoint Handlers', () => {
   </entry>
 </feed>`;
 
+            const mockCrossrefWorks = {
+                status: 'ok',
+                message: {
+                    items: [
+                        {
+                            DOI: '10.1000/transformer',
+                            title: ['Attention Transformer'],
+                            publisher: 'NeurIPS',
+                            'container-title': [
+                                'Advances in Neural Information Processing Systems',
+                            ],
+                            'is-referenced-by-count': 85000,
+                        },
+                        {
+                            DOI: '10.1000/crossref-unique',
+                            title: ['Crossref Unique Research'],
+                            author: [{ given: 'Alice', family: 'Smith' }],
+                            publisher: 'Oxford University Press',
+                            'container-title': ['Bioinformatics'],
+                            'published-print': { 'date-parts': [[2021, 5, 10]] },
+                            abstract: 'Crossref bibliographic and citation analysis.',
+                            'is-referenced-by-count': 50,
+                            'update-to': [{ type: 'correction', label: 'Erratum' }],
+                        },
+                    ],
+                },
+            };
+
             const fetchMock = vi.fn().mockImplementation(async (url: string) => {
                 const parsedUrl = new URL(url);
                 if (parsedUrl.hostname.includes('semanticscholar')) {
@@ -279,6 +307,9 @@ describe('Netlify Endpoint Handlers', () => {
                 }
                 if (parsedUrl.hostname === 'export.arxiv.org') {
                     return { ok: true, text: async () => mockArxivXml };
+                }
+                if (parsedUrl.hostname === 'api.crossref.org') {
+                    return { ok: true, json: async () => mockCrossrefWorks };
                 }
                 return { ok: false };
             });
@@ -314,6 +345,15 @@ describe('Netlify Endpoint Handlers', () => {
             const arxivPaper = body.papers.find((p: any) => p.id === 'arXiv:2305.99999v1');
             expect(arxivPaper).toBeDefined();
             expect(arxivPaper.primaryCategory).toBe('cs.AI');
+
+            // Verify Crossref enriched transformer paper
+            expect(transformerPaper.citations).toBe(85000);
+            expect(transformerPaper.publisher).toBe('NeurIPS');
+
+            // Verify Crossref unique paper was added
+            const crossrefPaper = body.papers.find((p: any) => p.doi === '10.1000/crossref-unique');
+            expect(crossrefPaper).toBeDefined();
+            expect(crossrefPaper.hasCorrections).toBe(true);
 
             process.env.CORE_API_KEY = originalCoreKey;
         });

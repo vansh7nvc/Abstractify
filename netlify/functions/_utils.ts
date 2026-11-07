@@ -12,6 +12,10 @@ export interface Paper {
     consensusStance?: string;
     downloadUrl?: string;
     primaryCategory?: string;
+    journal?: string;
+    publisher?: string;
+    isRetracted?: boolean;
+    hasCorrections?: boolean;
 }
 
 // Retrieve API keys from headers or environment

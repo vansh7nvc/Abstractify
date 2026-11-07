@@ -11,6 +11,7 @@ import { cacheGet, cacheSet } from './shared/redis.js';
 import { searchPubMed } from './search/sources/pubmed.js';
 import { searchCoreApi } from './search/sources/core-api.js';
 import { searchArxiv } from './search/sources/arxiv.js';
+import { searchCrossref } from './search/sources/crossref.js';
 
 export default async (req: Request, context: Context) => {
     // Enable CORS for localhost testing if needed (though Netlify takes care of routing)
@@ -203,13 +204,56 @@ export default async (req: Request, context: Context) => {
             console.warn('[Search] arXiv integration error:', arxivErr);
         }
 
+        // 5. Query Crossref API Connector (Issue #28)
+        try {
+            const crossrefPapers = await searchCrossref(query, 15);
+            if (crossrefPapers.length > 0) {
+                const seenDois = new Map(
+                    papers.filter((p) => p.doi).map((p) => [p.doi!.toLowerCase(), p]),
+                );
+                const seenTitles = new Map(papers.map((p) => [p.title.toLowerCase().trim(), p]));
+
+                for (const crPaper of crossrefPapers) {
+                    const existingByDoi = crPaper.doi
+                        ? seenDois.get(crPaper.doi.toLowerCase())
+                        : undefined;
+                    const existingByTitle = seenTitles.get(crPaper.title.toLowerCase().trim());
+                    const existing = existingByDoi || existingByTitle;
+
+                    if (existing) {
+                        if (crPaper.citations > existing.citations || existing.citations === 0) {
+                            existing.citations = crPaper.citations;
+                        }
+                        if (!existing.publisher && crPaper.publisher) {
+                            existing.publisher = crPaper.publisher;
+                        }
+                        if (!existing.journal && crPaper.journal) {
+                            existing.journal = crPaper.journal;
+                        }
+                        if (crPaper.isRetracted !== undefined) {
+                            existing.isRetracted = crPaper.isRetracted;
+                        }
+                        if (crPaper.hasCorrections !== undefined) {
+                            existing.hasCorrections = crPaper.hasCorrections;
+                        }
+                    } else {
+                        papers.push(crPaper);
+                        if (crPaper.doi) seenDois.set(crPaper.doi.toLowerCase(), crPaper);
+                        seenTitles.set(crPaper.title.toLowerCase().trim(), crPaper);
+                    }
+                }
+            }
+        } catch (crossrefErr) {
+            console.warn('[Search] Crossref integration error:', crossrefErr);
+        }
+
         if (papers.length === 0) {
             return new Response(JSON.stringify({ papers: [] }), {
                 headers: { 'Content-Type': 'application/json' },
             });
         }
 
-        // 2. Vector re-ranking if Gemini API key is available
+        // 6. Vector re-ranking if Gemini API key is available
         if (geminiKey) {
             try {
                 // Embed query
