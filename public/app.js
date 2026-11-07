@@ -1,6 +1,7 @@
 // AbstractiFy Frontend JavaScript Logic
 // Fully handles: Search, Consensus, Matrix, Network Graph, PDF Ingestion, Chat Agent, Equation Explainer, and Transitions
 import { initTheme } from './js/theme.js';
+import { renderLatex, renderMathInContainer } from './js/katex-helper.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // ─── Theme System Initialization ───
@@ -291,6 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         div.className = `message ${sender === 'User' ? 'user-message' : sender === 'System' ? 'system-message' : 'ai-message'}`;
         div.textContent = String(content || '');
         chatMessages.appendChild(div);
+        renderMathInContainer(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return div;
     }
@@ -1045,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.formulas.forEach((formula) => {
             const span = document.createElement('span');
             span.className = 'formula-item font-mono text-[9px] border border-primary/20 px-2 py-0.5 cursor-pointer hover:bg-primary/5';
-            span.innerText = formula.equation;
+            renderLatex(formula.equation, span, { displayMode: false });
             span.addEventListener('click', () => {
                 document.querySelectorAll('.formula-item').forEach(s => s.classList.remove('selected', 'solid-texture-fill', 'text-background'));
                 span.classList.add('selected', 'solid-texture-fill', 'text-background');
@@ -1057,7 +1059,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function explainEquation(formula) {
         formulaExplanation.classList.remove('hidden');
-        selectedFormulaText.innerText = formula.equation;
+        selectedFormulaText.innerHTML = '';
+        renderLatex(formula.equation, selectedFormulaText, { displayMode: true });
         selectedFormulaDesc.innerHTML = '<div class="spinner" style="margin:10px auto;"></div>';
 
         try {
@@ -1075,6 +1078,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <strong class="text-primary not-italic font-bold">Physical Analogy:</strong><br/>
                 <em>${data.analogy || 'N/A'}</em>
             `;
+            renderMathInContainer(selectedFormulaDesc);
         } catch {
             selectedFormulaDesc.innerText = 'Could not compile physical explanation. Verify credentials.';
         }

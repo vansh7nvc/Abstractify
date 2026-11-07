@@ -899,3 +899,51 @@ input[type="text"]:focus, input[type="password"]:focus, select:focus {
     transform: rotate(20deg) scale(1.15);
 }
 
+
+
+/* ==========================================================================
+   KaTeX Math Rendering Engine Integration (Issue #02)
+   ========================================================================== */
+.katex {
+    font-size: 1.05em;
+    line-height: 1.2;
+    text-rendering: auto;
+}
+
+.katex-display {
+    margin: 0.75em 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.35em 0;
+    text-align: center;
+}
+
+.formula-item .katex {
+    font-size: 0.95em;
+}
+
+#selected-formula-text .katex-display {
+    margin: 0.5em 0;
+}
+
+/* KaTeX Dark Mode Support */
+[data-theme="dark"] .katex {
+    color: var(--on-surface);
+}
+
+[data-theme="dark"] .katex .mord,
+[data-theme="dark"] .katex .mbin,
+[data-theme="dark"] .katex .mrel,
+[data-theme="dark"] .katex .mopen,
+[data-theme="dark"] .katex .mclose,
+[data-theme="dark"] .katex .mpunct,
+[data-theme="dark"] .katex .minner {
+    color: inherit;
+}
+
+[data-theme="dark"] .katex-error {
+    color: #f87171 !important;
+    background-color: rgba(239, 68, 68, 0.1);
+    padding: 2px 4px;
+    border-radius: 3px;
+}
