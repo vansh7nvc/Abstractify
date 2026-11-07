@@ -62,19 +62,32 @@ export interface ESummaryResponse {
 export function sanitizeTitle(rawTitle?: string): string {
     if (!rawTitle) return '';
 
-    let clean = rawTitle
-        // Remove XML/HTML tags (e.g. <i>, <b>, <sub>, <sup>, <title>, etc.)
-        .replace(/<[^>]+>/g, '')
-        // Decode common HTML/XML entities
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;|&apos;/g, "'")
-        .replace(/&nbsp;/g, ' ')
-        // Normalize multiple spaces and newlines
-        .replace(/\s+/g, ' ')
-        .trim();
+    // Iteratively remove XML/HTML tags until none remain (defeats nested tag bypasses)
+    let clean = rawTitle;
+    let previous: string;
+    do {
+        previous = clean;
+        clean = clean.replace(/<[^>]*>/g, '');
+    } while (clean !== previous);
+
+    // Single-pass entity replacement: prevents double unescaping vulnerabilities
+    const entityMap: Record<string, string> = {
+        '&lt;': '<',
+        '&gt;': '>',
+        '&quot;': '"',
+        '&#39;': "'",
+        '&apos;': "'",
+        '&nbsp;': ' ',
+        '&amp;': '&',
+    };
+
+    clean = clean.replace(
+        /&(?:lt|gt|quot|apos|#39|nbsp|amp);/g,
+        (match) => entityMap[match] || match,
+    );
+
+    // Normalize multiple spaces and newlines
+    clean = clean.replace(/\s+/g, ' ').trim();
 
     // Strip trailing period if present
     if (clean.endsWith('.')) {
