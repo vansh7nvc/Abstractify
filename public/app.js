@@ -3,6 +3,7 @@
 import { initTheme } from './js/theme.js';
 import { renderLatex, renderMathInContainer } from './js/katex-helper.js';
 import { initShortcuts, openModal, closeModal } from './js/shortcuts.js';
+import { calculateReadingMetrics, formatReadingTimeBadge } from './js/reading-time.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const $ = id => document.getElementById(id);
@@ -490,16 +491,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? (paper.abstract.length > 240 ? paper.abstract.substring(0, 240) + '...' : paper.abstract)
                 : 'No abstract available.';
 
+                    const readingMetrics = calculateReadingMetrics(paper.abstract || paper.title || '');
+            const readingBadgeHtml = formatReadingTimeBadge(readingMetrics);
+
             card.innerHTML = `
                 <div class="space-y-3">
                     <div class="flex items-center justify-between text-[11px] font-mono text-secondary">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <span class="stance-pill ${stance}">
                                 <span class="material-symbols-outlined text-[13px]">${stance === 'supports' ? 'check_circle' : stance === 'contradicts' ? 'cancel' : 'help'}</span>
                                 ${stance}
                             </span>
                             <span class="text-secondary-muted">•</span>
                             <span>${paper.year || 'N/A'}</span>
+                            <span class="text-secondary-muted">•</span>
+                            ${readingBadgeHtml}
                         </div>
                         <span class="font-semibold text-primary font-mono">#${idxStr}</span>
                     </div>
@@ -1058,7 +1064,17 @@ document.addEventListener('DOMContentLoaded', () => {
             state.pdfChunks = data.chunks || [];
             state.formulas  = data.formulas || [];
 
-            appendChat('AI', `✅ SUCCESSFULLY INGESTED <strong>${file.name}</strong><br/>distilled ${data.chunkCount || 0} semantic blocks, ${state.formulas.length} mathematical equations. You can now prompt the assistant about this document.`);
+            const combinedPdfText = (state.pdfChunks || []).map(c => c.text || '').join(' ');
+            const pdfMetrics = calculateReadingMetrics(combinedPdfText, { formulaCount: state.formulas.length });
+            const pdfBadgeHtml = formatReadingTimeBadge(pdfMetrics);
+
+            const folioBadge = $('folio-reading-badge');
+            if (folioBadge) {
+                folioBadge.innerHTML = pdfBadgeHtml;
+                folioBadge.classList.remove('hidden');
+            }
+
+            appendChat('AI', `✅ SUCCESSFULLY INGESTED <strong>${file.name}</strong><br/>distilled ${data.chunkCount || 0} semantic blocks, ${state.formulas.length} mathematical equations.<br/><div class="mt-2 flex items-center gap-2">${pdfBadgeHtml}</div>You can now prompt the assistant about this document.`);
             renderFormulas();
 
         } catch (err) {
