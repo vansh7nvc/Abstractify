@@ -157,7 +157,7 @@ export default async (req: Request, context: Context) => {
         const topPapers = papers.slice(0, 8);
         const fetchPromises = topPapers.map(async (paper) => {
             const paperId = paper.id;
-            let queryId = paperId;
+            let queryId: string;
 
             // Semantic Scholar accepts DOI:10.xxx or standard 40-char hashes
             if (paperId.includes('DOI:') || (!paperId.includes('/') && paperId.length >= 20)) {
