@@ -13,6 +13,7 @@ export interface Paper {
     downloadUrl?: string;
     primaryCategory?: string;
     journal?: string;
+    venue?: string;
     publisher?: string;
     isRetracted?: boolean;
     hasCorrections?: boolean;
