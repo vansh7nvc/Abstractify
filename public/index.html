@@ -514,13 +514,32 @@
                         </div>
                     </div>
                 </div>
-                <div class="graph-legend-bar rounded-lg">
-                    <div class="flex items-center gap-6">
-                        <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-primary"></span> Focus Study</span>
-                        <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-[#0284c7]"></span> Co-cited Reference</span>
-                        <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#94a3b8]"></span> Derivative Work</span>
+                <div class="graph-legend-bar rounded-lg flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-4 font-mono text-[11px]">
+                        <button type="button" class="legend-filter-btn px-2 py-1 rounded hover:bg-surface-muted transition-colors flex items-center gap-1.5" data-role="landmark" title="Filter by Landmark Studies">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span>
+                            <span>Landmark Study</span>
+                        </button>
+                        <button type="button" class="legend-filter-btn px-2 py-1 rounded hover:bg-surface-muted transition-colors flex items-center gap-1.5" data-role="focus" title="Filter by Focus Paper">
+                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/50"></span>
+                            <span>Focus Paper</span>
+                        </button>
+                        <button type="button" class="legend-filter-btn px-2 py-1 rounded hover:bg-surface-muted transition-colors flex items-center gap-1.5" data-role="foundation" title="Filter by Foundational Works">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-sm shadow-purple-500/50"></span>
+                            <span>Foundational Work</span>
+                        </button>
+                        <button type="button" class="legend-filter-btn px-2 py-1 rounded hover:bg-surface-muted transition-colors flex items-center gap-1.5" data-role="recent" title="Filter by Recent Breakthroughs">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
+                            <span>Recent Breakthrough</span>
+                        </button>
+                        <button type="button" class="legend-filter-btn px-2 py-1 rounded hover:bg-surface-muted transition-colors flex items-center gap-1.5" data-role="cocitation" title="Filter by Co-cited External Literature">
+                            <span class="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-sm shadow-sky-500/50"></span>
+                            <span>Co-cited External</span>
+                        </button>
                     </div>
-                    <span class="text-[10px] text-secondary-muted">Physics-stabilized • Draggable nodes • Click to inspect</span>
+                    <span id="network-stats-badge" class="font-mono text-[10px] text-secondary-muted bg-surface px-2.5 py-1 rounded border border-outline">
+                        Interactive Lineage Graph • Draggable Nodes • Click to Inspect
+                    </span>
                 </div>
             </div>
 

@@ -9,6 +9,7 @@ import { exportPanelAsImage } from './js/screenshot.js';
 import { getSavedSessions, saveSession, deleteSession, clearAllSessions, formatSessionDate } from './js/sessions.js';
 import { initHero3D } from './js/hero-3d.js';
 import { initTiltCards, initMagneticButtons } from './js/motion.js';
+import { createCitationVisualizer } from './js/network-visualizer.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const $ = id => document.getElementById(id);
@@ -827,10 +828,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ══════════════════════════════════════════════════════
-    //  CITATION NETWORK GRAPH (Vis.js)
+    //  CITATION NETWORK GRAPH (Interactive Lineage & Kinetic Engine)
     // ══════════════════════════════════════════════════════
     async function runNetworkGraph(query) {
         try {
+            if (state.citationVisualizer) {
+                state.citationVisualizer.destroy();
+                state.citationVisualizer = null;
+            }
+
             const res = await fetch('/api/network-graph', {
                 method: 'POST',
                 headers: getHeaders(),
@@ -850,56 +856,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
-
-            // Node visual options styled like an academic blueprint
-            const nodes = new vis.DataSet(data.nodes.map(n => ({
-                id: n.id,
-                label: n.title ? (n.title.length > 20 ? n.title.substring(0, 18) + '...' : n.title) : '?',
-                title: `${n.title} (${n.year || 'N/A'}, Citations: ${n.citations || 0})`,
-                value: n.citations || 4,
-                color: {
-                    background: isDark ? '#1E293B' : '#FDFAF6',
-                    border: isDark ? '#38BDF8' : '#002147',
-                    hover: { background: isDark ? '#334155' : '#E8F0F2', border: isDark ? '#38BDF8' : '#002147' },
-                    highlight: { background: isDark ? '#334155' : '#E8F0F2', border: isDark ? '#38BDF8' : '#002147' }
-                },
-                shape: 'dot',
-                borderWidth: 1.5,
-                font: { color: isDark ? '#F8FAFC' : '#1A1A1A', face: 'Times New Roman', size: 10 }
-            })));
-
-            const edges = new vis.DataSet(data.edges.map(e => ({
-                from: e.source,
-                to: e.target,
-                arrows: 'to',
-                color: { color: isDark ? '#334155' : '#D1CDC7', highlight: isDark ? '#38BDF8' : '#002147' }
-            })));
-
-            const options = {
-                nodes: { scaling: { min: 8, max: 24 } },
-                physics: {
-                    stabilization: { iterations: 80 },
-                    barnesHut: { gravitationalConstant: -2500, centralGravity: 0.25, springLength: 85 }
-                },
-                interaction: { hover: true, tooltipDelay: 150 }
-            };
-
-            state.networkInstance = new vis.Network(networkContainer, { nodes, edges }, options);
-
-            state.networkInstance.on('click', (params) => {
-                if (params.nodes.length > 0) {
-                    const paper = state.searchResults.find(p => p.id === params.nodes[0]);
+            state.citationVisualizer = createCitationVisualizer(networkContainer, {
+                onNodeClick: (node) => {
+                    const paper = state.searchResults.find(p => p.id === node.id);
                     if (paper) {
                         appendChat('System', `Focus Node selected: "${paper.title}"`);
                         loadCitationContext(paper);
                     }
                 }
             });
+
+            state.citationVisualizer.setData(data, state.searchResults);
+            state.networkInstance = state.citationVisualizer.getNetwork();
+
+            // Bind interactive legend filter buttons
+            const legendBtns = document.querySelectorAll('.legend-filter-btn');
+            legendBtns.forEach(btn => {
+                btn.onclick = () => {
+                    const role = btn.getAttribute('data-role');
+                    legendBtns.forEach(b => {
+                        if (b === btn) {
+                            b.classList.toggle('active');
+                        } else {
+                            b.classList.remove('active');
+                        }
+                    });
+                    if (state.citationVisualizer) {
+                        state.citationVisualizer.filterByRole(role);
+                    }
+                };
+            });
+
         } catch (err) {
             console.error('Network error:', err);
             networkContainer.innerHTML = `
-                <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-[10px] uppercase tracking-widest text-red-800 bg-[#FDFAF6]/90 z-10 pointer-events-none">
+                <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-[10px] uppercase tracking-widest text-red-800 bg-[#FDFAF6]/90 dark:bg-[#1E293B]/90 z-10 pointer-events-none">
                     Error compiling networks.
                 </div>
             `;
@@ -908,7 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dynamic theme update for citation graph
     window.addEventListener('themechange', () => {
-        if (state.networkInstance && state.currentQuery && state.searchResults && state.searchResults.length > 0) {
+        if (state.citationVisualizer && state.currentQuery && state.searchResults && state.searchResults.length > 0) {
             runNetworkGraph(state.currentQuery);
         }
     });
