@@ -4,6 +4,7 @@ import { initTheme } from './js/theme.js';
 import { renderLatex, renderMathInContainer } from './js/katex-helper.js';
 import { initShortcuts, openModal, closeModal } from './js/shortcuts.js';
 import { calculateReadingMetrics, formatReadingTimeBadge } from './js/reading-time.js';
+import { exportBibliography } from './js/export.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const $ = id => document.getElementById(id);
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         geminiKeyMode: localStorage.getItem('gemini_key_mode') || 'background', // 'background' or 'byok'
         activeModel: localStorage.getItem('active_model') || 'gemini-3.1-flash-lite',
         searchResults: [],
+        selectedPaperIds: new Set(),
         selectedPaperId: null,
         networkInstance: null,
         consensusData: null,
@@ -462,6 +464,18 @@ document.addEventListener('DOMContentLoaded', () => {
      * Updates the literature explorer tab count badge with current result size.
      * @returns {void}
      */
+    /**
+     * Derives a stable key for a paper entry distinguishing IDs from index fallbacks.
+     * @param {Object} paper
+     * @param {number} idx
+     * @returns {string}
+     */
+    function getPaperKey(paper, idx) {
+        return (paper && paper.id !== undefined && paper.id !== null && paper.id !== '')
+            ? `id:${paper.id}`
+            : `idx:${idx}`;
+    }
+
     function renderPaperCards() {
         resultsList.innerHTML = '';
 
@@ -498,6 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="space-y-3">
                     <div class="flex items-center justify-between text-[11px] font-mono text-secondary">
                         <div class="flex items-center gap-2 flex-wrap">
+                            <input type="checkbox" class="paper-select-checkbox cursor-pointer rounded border-outline text-primary focus:ring-primary/20" data-paper-id="${paper.id || idx}" title="Select for bibliography citation" aria-label="Select paper for bibliography">
                             <span class="stance-pill ${stance}">
                                 <span class="material-symbols-outlined text-[13px]">${stance === 'supports' ? 'check_circle' : stance === 'contradicts' ? 'cancel' : 'help'}</span>
                                 ${stance}
@@ -541,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (abstractEl) abstractEl.textContent = abstractExcerpt;
 
             card.addEventListener('click', (e) => {
-                if (e.target.closest('a')) return;
+                if (e.target.closest('a') || e.target.closest('.paper-select-checkbox')) return;
 
                 document.querySelectorAll('#results-list .paper-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
@@ -1021,6 +1036,137 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const stamp = new Date().toISOString().replace(/[:.]/g, '-');
             downloadFile(`abstractify_references_${stamp}.ris`, formatRIS(state.searchResults), 'application/x-research-info-systems');
+        });
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  BIBLIOGRAPHY GENERATOR MODAL (Issue #04)
+    // ══════════════════════════════════════════════════════
+    const bibModal              = $('bibliography-modal');
+    const exportBibBtn          = $('export-bib-btn');
+    const explorerExportBibBtn  = $('explorer-export-bib-btn');
+    const bibCloseBtn           = $('bib-close-btn');
+    const bibStyleSelect        = $('bib-style-select');
+    const bibPreviewText        = $('bib-preview-text');
+    const bibCountBadge         = $('bib-count-badge');
+    const bibCopyBtn            = $('bib-copy-btn');
+    const bibDownloadBtn        = $('bib-download-btn');
+    const bibDownloadLabel      = $('bib-download-label');
+    const bibToast              = $('bib-toast');
+
+    function getSelectedOrAllPapers() {
+        if (state.selectedPaperIds.size > 0) {
+            return (state.searchResults || []).filter((p, idx) =>
+                state.selectedPaperIds.has(getPaperKey(p, idx))
+            );
+        }
+        return state.searchResults || [];
+    }
+
+    function updateBibliographyModal() {
+        if (!bibModal) return;
+        const selectedPapers = getSelectedOrAllPapers();
+        const style = bibStyleSelect ? bibStyleSelect.value : 'apa';
+
+        if (selectedPapers.length === 0) {
+            if (bibPreviewText) bibPreviewText.value = 'No publications currently available to format. Enter a search query to load papers.';
+            if (bibCountBadge) bibCountBadge.innerText = '0 Papers Available';
+            return;
+        }
+
+        const checkedCount = state.selectedPaperIds.size;
+        if (bibCountBadge) {
+            bibCountBadge.innerText = checkedCount > 0
+                ? `${checkedCount} of ${state.searchResults.length} Selected`
+                : `All Papers (${state.searchResults.length})`;
+        }
+
+        const formatted = exportBibliography(selectedPapers, style);
+        if (bibPreviewText) bibPreviewText.value = formatted;
+
+        if (bibDownloadLabel) {
+            if (style === 'bibtex') bibDownloadLabel.innerText = 'Download (.bib)';
+            else if (style === 'ris') bibDownloadLabel.innerText = 'Download (.ris)';
+            else bibDownloadLabel.innerText = 'Download (.txt)';
+        }
+    }
+
+    function openBibModal() {
+        if (!bibModal) return;
+        updateBibliographyModal();
+        openModal(bibModal, bibStyleSelect);
+    }
+
+    if (exportBibBtn) exportBibBtn.addEventListener('click', openBibModal);
+    if (explorerExportBibBtn) explorerExportBibBtn.addEventListener('click', openBibModal);
+    if (bibCloseBtn) bibCloseBtn.addEventListener('click', () => closeModal(bibModal));
+    if (bibStyleSelect) bibStyleSelect.addEventListener('change', updateBibliographyModal);
+
+    // Update bibliography modal if open when checkbox changes
+    document.addEventListener('change', (e) => {
+        if (e.target && e.target.classList.contains('paper-select-checkbox')) {
+            if (bibModal && !bibModal.classList.contains('hidden')) {
+                updateBibliographyModal();
+            }
+        }
+    });
+
+    if (bibCopyBtn) {
+        bibCopyBtn.addEventListener('click', async () => {
+            const selectedPapers = getSelectedOrAllPapers();
+            if (selectedPapers.length === 0 || !bibPreviewText || !bibPreviewText.value.trim()) {
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(bibPreviewText.value);
+                if (bibToast) {
+                    bibToast.innerHTML = '<span class="material-symbols-outlined text-sm">check_circle</span><span>Citations copied to clipboard!</span>';
+                    bibToast.classList.remove('opacity-0');
+                    bibToast.classList.add('opacity-100');
+                    setTimeout(() => {
+                        bibToast.classList.remove('opacity-100');
+                        bibToast.classList.add('opacity-0');
+                    }, 2500);
+                }
+            } catch (err) {
+                console.error('Failed to copy bibliography to clipboard:', err);
+                bibPreviewText.focus();
+                bibPreviewText.select();
+                if (bibToast) {
+                    bibToast.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span><span>Press Ctrl+C (Cmd+C) to copy</span>';
+                    bibToast.classList.remove('opacity-0');
+                    bibToast.classList.add('opacity-100');
+                    setTimeout(() => {
+                        bibToast.classList.remove('opacity-100');
+                        bibToast.classList.add('opacity-0');
+                    }, 4000);
+                }
+            }
+        });
+    }
+
+    if (bibDownloadBtn) {
+        bibDownloadBtn.addEventListener('click', () => {
+            const selectedPapers = getSelectedOrAllPapers();
+            if (selectedPapers.length === 0) {
+                alert('No search results available to export.');
+                return;
+            }
+            const style = bibStyleSelect ? bibStyleSelect.value : 'apa';
+            const content = exportBibliography(selectedPapers, style);
+            const safeQuery = (state.currentQuery || 'references').replace(/[^a-zA-Z0-9]/g, '_');
+            
+            let ext = 'txt';
+            let mime = 'text/plain';
+            if (style === 'bibtex') {
+                ext = 'bib';
+                mime = 'application/x-bibtex';
+            } else if (style === 'ris') {
+                ext = 'ris';
+                mime = 'application/x-research-info-systems';
+            }
+
+            downloadFile(`AbstractiFy_${safeQuery}_${style}.${ext}`, content, mime);
         });
     }
 
