@@ -100,21 +100,45 @@ export function exportToJson(query, consensus, papers) {
  */
 export function exportToBibTeX(papers) {
     return (papers || []).map((p, idx) => {
-        const citeKey = p.id ? p.id.replace(/[^a-zA-Z0-9]/g, '') : `paper${idx + 1}`;
-        const firstAuthor = (p.authors && p.authors.length > 0) ? p.authors[0].split(' ').pop() : 'Anonymous';
+        const citeKey = p.id ? String(p.id).replace(/[^a-zA-Z0-9]/g, '') : `paper${idx + 1}`;
+        const firstAuthor = (p.authors && p.authors.length > 0)
+            ? (typeof p.authors[0] === 'string' ? p.authors[0] : (p.authors[0].name || '')).split(' ').pop()
+            : 'Anonymous';
         const year = p.year || new Date().getFullYear();
-        const bibKey = `${firstAuthor}${year}_${citeKey}`;
+        const bibKey = `${firstAuthor || 'Anonymous'}${year}_${citeKey}`;
+        const title = p.title || 'Untitled';
+        const journal = p.journal || p.venue;
 
         let entry = `@article{${bibKey},\n`;
-        entry += `  title = {${p.title}},\n`;
+        entry += `  title = {${title}},\n`;
         if (p.authors && p.authors.length > 0) {
-            entry += `  author = {${p.authors.join(' and ')}},\n`;
+            const authorList = p.authors
+                .map(a => typeof a === 'string' ? a : (a && a.name ? a.name : ''))
+                .filter(Boolean);
+            if (authorList.length > 0) {
+                entry += `  author = {${authorList.join(' and ')}},\n`;
+            }
+        }
+        if (journal) {
+            entry += `  journal = {${journal}},\n`;
+        }
+        if (p.volume) {
+            entry += `  volume = {${p.volume}},\n`;
+        }
+        if (p.issue || p.number) {
+            entry += `  number = {${p.issue || p.number}},\n`;
+        }
+        if (p.pages) {
+            entry += `  pages = {${p.pages}},\n`;
         }
         if (p.year) {
             entry += `  year = {${p.year}},\n`;
         }
         if (p.doi) {
             entry += `  doi = {${p.doi}},\n`;
+        }
+        if (p.url) {
+            entry += `  url = {${p.url}},\n`;
         }
         if (p.abstract) {
             const cleanAbstract = p.abstract.replace(/\n/g, ' ');
@@ -252,7 +276,22 @@ export function formatAPA(paper) {
     const yearStr = paper.year ? `(${paper.year}).` : '(n.d.).';
     const cleanTitle = (paper.title || 'Untitled').trim().replace(/\.$/, '');
     const titleStr = `${cleanTitle}.`;
-    const venueStr = paper.venue ? ` ${paper.venue}.` : '';
+
+    const venue = paper.venue || paper.journal;
+    let venueStr = '';
+    if (venue) {
+        venueStr = ` ${venue}`;
+        if (paper.volume) {
+            venueStr += `, ${paper.volume}`;
+            if (paper.issue || paper.number) {
+                venueStr += `(${paper.issue || paper.number})`;
+            }
+        }
+        if (paper.pages) {
+            venueStr += `, ${paper.pages}`;
+        }
+        venueStr += '.';
+    }
     const doiStr = paper.doi ? ` https://doi.org/${paper.doi}` : (paper.url ? ` ${paper.url}` : '');
 
     return `${authorStr} ${yearStr} ${titleStr}${venueStr}${doiStr}`.trim();
@@ -294,15 +333,22 @@ export function formatMLA(paper) {
 
     const cleanTitle = (paper.title || 'Untitled').trim().replace(/\.$/, '');
     const titleStr = `"${cleanTitle}."`;
-    const venueStr = paper.venue ? ` ${paper.venue},` : '';
-    const yearStr = paper.year ? ` ${paper.year}` : '';
-    const doiStr = paper.doi ? `, https://doi.org/${paper.doi}.` : (paper.url ? `, ${paper.url}.` : '');
 
-    let citation = `${authorStr} ${titleStr}${venueStr}${yearStr}${doiStr}`.trim();
-    if (!citation.endsWith('.')) {
-        citation = citation.replace(/,$/, '') + '.';
+    const parts = [];
+    const venue = paper.venue || paper.journal;
+    if (venue) parts.push(venue);
+    if (paper.volume) parts.push(`vol. ${paper.volume}`);
+    if (paper.issue || paper.number) parts.push(`no. ${paper.issue || paper.number}`);
+    if (paper.year) parts.push(String(paper.year));
+    if (paper.pages) parts.push(`pp. ${paper.pages}`);
+    if (paper.doi) parts.push(`https://doi.org/${paper.doi}`);
+    else if (paper.url) parts.push(paper.url);
+
+    if (parts.length === 0) {
+        return `${authorStr} ${titleStr}`.trim();
     }
-    return citation;
+
+    return `${authorStr} ${titleStr} ${parts.join(', ')}.`.trim();
 }
 
 /**
@@ -345,11 +391,23 @@ export function formatChicago(paper) {
 
     const cleanTitle = (paper.title || 'Untitled').trim().replace(/\.$/, '');
     const titleStr = `"${cleanTitle}."`;
-    const venueStr = paper.venue ? ` ${paper.venue}` : '';
-    const yearStr = paper.year ? ` (${paper.year}).` : ' (n.d.).';
-    const doiStr = paper.doi ? ` https://doi.org/${paper.doi}` : (paper.url ? ` ${paper.url}` : '');
 
-    return `${authorStr} ${titleStr}${venueStr}${yearStr}${doiStr}`.trim();
+    const venue = paper.venue || paper.journal;
+    let pubStr = venue ? ` ${venue}` : '';
+    if (venue && paper.volume) {
+        pubStr += ` ${paper.volume}`;
+        if (paper.issue || paper.number) {
+            pubStr += `, no. ${paper.issue || paper.number}`;
+        }
+    }
+    pubStr += paper.year ? ` (${paper.year})` : ' (n.d.)';
+    if (paper.pages) {
+        pubStr += `: ${paper.pages}`;
+    }
+    pubStr += '.';
+
+    const doiStr = paper.doi ? ` https://doi.org/${paper.doi}` : (paper.url ? ` ${paper.url}` : '');
+    return `${authorStr} ${titleStr}${pubStr}${doiStr}`.trim();
 }
 
 /**
@@ -396,11 +454,24 @@ export function formatIEEE(paper, index = 1) {
 
     const cleanTitle = (paper.title || 'Untitled').trim().replace(/[.,]$/, '');
     const titleStr = `"${cleanTitle},"`;
-    const venueStr = paper.venue ? ` ${paper.venue},` : '';
-    const yearStr = paper.year ? ` ${paper.year}.` : '';
-    const doiStr = paper.doi ? ` doi: ${paper.doi}.` : '';
 
-    return `[${index}] ${authorStr}, ${titleStr}${venueStr}${yearStr}${doiStr}`.trim();
+    const parts = [];
+    const venue = paper.venue || paper.journal;
+    if (venue) parts.push(venue);
+    if (paper.volume) parts.push(`vol. ${paper.volume}`);
+    if (paper.issue || paper.number) parts.push(`no. ${paper.issue || paper.number}`);
+    if (paper.pages) parts.push(`pp. ${paper.pages}`);
+    if (paper.year) parts.push(String(paper.year));
+
+    let citation = `[${index}] ${authorStr}, ${titleStr}`;
+    if (parts.length > 0) {
+        citation += ` ${parts.join(', ')}.`;
+    }
+    if (paper.doi) {
+        citation += ` doi: ${paper.doi}.`;
+    }
+
+    return citation.trim();
 }
 
 /**

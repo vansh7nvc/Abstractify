@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         geminiKeyMode: localStorage.getItem('gemini_key_mode') || 'background', // 'background' or 'byok'
         activeModel: localStorage.getItem('active_model') || 'gemini-3.1-flash-lite',
         searchResults: [],
+        selectedPaperIds: new Set(),
         selectedPaperId: null,
         networkInstance: null,
         consensusData: null,
@@ -463,6 +464,18 @@ document.addEventListener('DOMContentLoaded', () => {
      * Updates the literature explorer tab count badge with current result size.
      * @returns {void}
      */
+    /**
+     * Derives a stable key for a paper entry distinguishing IDs from index fallbacks.
+     * @param {Object} paper
+     * @param {number} idx
+     * @returns {string}
+     */
+    function getPaperKey(paper, idx) {
+        return (paper && paper.id !== undefined && paper.id !== null && paper.id !== '')
+            ? `id:${paper.id}`
+            : `idx:${idx}`;
+    }
+
     function renderPaperCards() {
         resultsList.innerHTML = '';
 
@@ -1042,11 +1055,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const bibToast              = $('bib-toast');
 
     function getSelectedOrAllPapers() {
-        const checkedBoxes = Array.from(document.querySelectorAll('.paper-select-checkbox:checked'));
-        if (checkedBoxes.length > 0) {
-            const selectedIds = new Set(checkedBoxes.map(cb => cb.dataset.paperId));
+        if (state.selectedPaperIds.size > 0) {
             return (state.searchResults || []).filter((p, idx) =>
-                selectedIds.has(String(p.id)) || selectedIds.has(String(idx))
+                state.selectedPaperIds.has(getPaperKey(p, idx))
             );
         }
         return state.searchResults || [];
@@ -1063,7 +1074,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const checkedCount = document.querySelectorAll('.paper-select-checkbox:checked').length;
+        const checkedCount = state.selectedPaperIds.size;
         if (bibCountBadge) {
             bibCountBadge.innerText = checkedCount > 0
                 ? `${checkedCount} of ${state.searchResults.length} Selected`
@@ -1102,10 +1113,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (bibCopyBtn) {
         bibCopyBtn.addEventListener('click', async () => {
-            if (!bibPreviewText || !bibPreviewText.value) return;
+            const selectedPapers = getSelectedOrAllPapers();
+            if (selectedPapers.length === 0 || !bibPreviewText || !bibPreviewText.value.trim()) {
+                return;
+            }
             try {
                 await navigator.clipboard.writeText(bibPreviewText.value);
                 if (bibToast) {
+                    bibToast.innerHTML = '<span class="material-symbols-outlined text-sm">check_circle</span><span>Citations copied to clipboard!</span>';
                     bibToast.classList.remove('opacity-0');
                     bibToast.classList.add('opacity-100');
                     setTimeout(() => {
@@ -1115,6 +1130,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (err) {
                 console.error('Failed to copy bibliography to clipboard:', err);
+                bibPreviewText.focus();
+                bibPreviewText.select();
+                if (bibToast) {
+                    bibToast.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span><span>Press Ctrl+C (Cmd+C) to copy</span>';
+                    bibToast.classList.remove('opacity-0');
+                    bibToast.classList.add('opacity-100');
+                    setTimeout(() => {
+                        bibToast.classList.remove('opacity-100');
+                        bibToast.classList.add('opacity-0');
+                    }, 4000);
+                }
             }
         });
     }

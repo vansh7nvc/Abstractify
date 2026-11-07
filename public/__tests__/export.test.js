@@ -355,8 +355,7 @@ describe('public/js/export.js', () => {
 
         it('formats two authors Chicago citation', () => {
             const formatted = formatChicago(p2);
-            expect(formatted).toBe('Vaswani, Ashish. "Attention Is All You Need." NeurIPS (2017). https://doi.org/10.48550/arXiv.1706.03762' !== '' ?
-                'He, Kaiming, and Xiangyu Zhang. "Deep Residual Learning." CVPR (2016).' : '');
+            expect(formatted).toBe('He, Kaiming, and Xiangyu Zhang. "Deep Residual Learning." CVPR (2016).');
         });
 
         it('exports collection to Chicago bibliography', () => {
@@ -418,6 +417,53 @@ describe('public/js/export.js', () => {
         it('defaults to APA when style is unknown or omitted', () => {
             expect(exportBibliography(papers)).toContain('Smith, A. (2024).');
             expect(exportBibliography(papers, 'unknown_style')).toContain('Smith, A. (2024).');
+        });
+    });
+    describe('Enhanced metadata handling (volume, issue, pages, journal)', () => {
+        const fullPaper = {
+            id: 'p-full',
+            title: 'Foundations of Modern AI',
+            authors: ['Alice Smith', 'Bob Jones'],
+            venue: 'Journal of Artificial Intelligence Research',
+            volume: '42',
+            issue: '3',
+            pages: '101-125',
+            year: 2024,
+            doi: '10.1016/j.ai.2024.01'
+        };
+
+        it('includes volume, issue, and pages in APA style', () => {
+            const res = formatAPA(fullPaper);
+            expect(res).toBe('Smith, A., & Jones, B. (2024). Foundations of Modern AI. Journal of Artificial Intelligence Research, 42(3), 101-125. https://doi.org/10.1016/j.ai.2024.01');
+        });
+
+        it('includes volume, issue, and pages in MLA style', () => {
+            const res = formatMLA(fullPaper);
+            expect(res).toBe('Smith, Alice, and Bob Jones. "Foundations of Modern AI." Journal of Artificial Intelligence Research, vol. 42, no. 3, 2024, pp. 101-125, https://doi.org/10.1016/j.ai.2024.01.');
+        });
+
+        it('includes volume, issue, and pages in Chicago style', () => {
+            const res = formatChicago(fullPaper);
+            expect(res).toBe('Smith, Alice, and Bob Jones. "Foundations of Modern AI." Journal of Artificial Intelligence Research 42, no. 3 (2024): 101-125. https://doi.org/10.1016/j.ai.2024.01');
+        });
+
+        it('includes volume, issue, and pages in IEEE style', () => {
+            const res = formatIEEE(fullPaper, 1);
+            expect(res).toBe('[1] A. Smith and B. Jones, "Foundations of Modern AI," Journal of Artificial Intelligence Research, vol. 42, no. 3, pp. 101-125, 2024. doi: 10.1016/j.ai.2024.01.');
+        });
+
+        it('includes volume, number, pages, and journal in BibTeX', () => {
+            const bib = exportToBibTeX([fullPaper]);
+            expect(bib).toContain('journal = {Journal of Artificial Intelligence Research}');
+            expect(bib).toContain('volume = {42}');
+            expect(bib).toContain('number = {3}');
+            expect(bib).toContain('pages = {101-125}');
+            expect(bib).toContain('title = {Foundations of Modern AI}');
+        });
+
+        it('handles missing title in BibTeX gracefully', () => {
+            const bib = exportToBibTeX([{ id: 'notitle1', year: 2025 }]);
+            expect(bib).toContain('title = {Untitled}');
         });
     });
 });
