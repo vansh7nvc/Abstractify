@@ -167,13 +167,13 @@ export function parseArxivAtomFeed(xml: string): ArxivEntry[] {
             undefined;
 
         // DOI if present: <arxiv:doi>10.48550/arXiv.2310.06825</arxiv:doi>
-        const doi = extractXmlTagContent(entryXml, 'arxiv:doi') || undefined;
-        if (doi) {
-            doi = doi
-                .replace(/^https?:\/\/doi\.org\//i, '')
-                .replace(/^doi:\s*/i, '')
-                .trim();
-        }
+        const rawDoi = extractXmlTagContent(entryXml, 'arxiv:doi') || undefined;
+        const doi = rawDoi
+            ? rawDoi
+                  .replace(/^https?:\/\/doi\.org\//i, '')
+                  .replace(/^doi:\s*/i, '')
+                  .trim()
+            : undefined;
 
         entries.push({
             id: formattedId,
