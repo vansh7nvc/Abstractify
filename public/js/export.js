@@ -183,3 +183,257 @@ export function exportToRis(papers) {
         return entry;
     }).join('\r\n');
 }
+
+/**
+ * Normalizes an author string or object into constituent parts (first, last, initials).
+ * @param {string|Object} author
+ * @returns {{ first: string, last: string, initials: string, full: string }}
+ */
+export function parseAuthorName(author) {
+    const raw = typeof author === 'string'
+        ? author
+        : (author && typeof author === 'object' && author.name ? author.name : '');
+    const clean = raw.replace(/\s+/g, ' ').trim();
+    if (!clean) return { first: '', last: '', initials: '', full: '' };
+
+    if (clean.includes(',')) {
+        const [last, ...rest] = clean.split(',').map(s => s.trim());
+        const first = rest.join(' ');
+        const initials = first.split(/\s+/).filter(Boolean).map(n => n[0].toUpperCase() + '.').join(' ');
+        return { first, last, initials, full: clean };
+    }
+
+    const parts = clean.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) {
+        return { first: '', last: parts[0], initials: '', full: parts[0] };
+    }
+    const last = parts[parts.length - 1];
+    const first = parts.slice(0, -1).join(' ');
+    const initials = parts.slice(0, -1).map(n => n[0].toUpperCase() + '.').join(' ');
+    return { first, last, initials, full: clean };
+}
+
+/**
+ * Format a single publication in APA 7th style.
+ * @param {Object} paper
+ * @returns {string}
+ */
+export function formatAPA(paper) {
+    if (!paper) return '';
+    const authors = paper.authors || [];
+    let authorStr = 'Unknown Author';
+
+    if (authors.length === 1) {
+        const a = parseAuthorName(authors[0]);
+        authorStr = a.initials ? `${a.last}, ${a.initials}` : a.last || 'Unknown Author';
+    } else if (authors.length === 2) {
+        const a1 = parseAuthorName(authors[0]);
+        const a2 = parseAuthorName(authors[1]);
+        const s1 = a1.initials ? `${a1.last}, ${a1.initials}` : a1.last;
+        const s2 = a2.initials ? `${a2.last}, ${a2.initials}` : a2.last;
+        authorStr = `${s1}, & ${s2}`;
+    } else if (authors.length >= 3 && authors.length <= 20) {
+        const formatted = authors.map(author => {
+            const a = parseAuthorName(author);
+            return a.initials ? `${a.last}, ${a.initials}` : a.last;
+        });
+        const lastAuthor = formatted.pop();
+        authorStr = `${formatted.join(', ')}, & ${lastAuthor}`;
+    } else if (authors.length > 20) {
+        const first19 = authors.slice(0, 19).map(author => {
+            const a = parseAuthorName(author);
+            return a.initials ? `${a.last}, ${a.initials}` : a.last;
+        });
+        const lastAuthor = parseAuthorName(authors[authors.length - 1]);
+        const lastStr = lastAuthor.initials ? `${lastAuthor.last}, ${lastAuthor.initials}` : lastAuthor.last;
+        authorStr = `${first19.join(', ')}, ... ${lastStr}`;
+    }
+
+    const yearStr = paper.year ? `(${paper.year}).` : '(n.d.).';
+    const cleanTitle = (paper.title || 'Untitled').trim().replace(/\.$/, '');
+    const titleStr = `${cleanTitle}.`;
+    const venueStr = paper.venue ? ` ${paper.venue}.` : '';
+    const doiStr = paper.doi ? ` https://doi.org/${paper.doi}` : (paper.url ? ` ${paper.url}` : '');
+
+    return `${authorStr} ${yearStr} ${titleStr}${venueStr}${doiStr}`.trim();
+}
+
+/**
+ * Format paper collection as APA 7th bibliography.
+ * @param {Array<Object>} papers
+ * @returns {string}
+ */
+export function exportToAPA(papers) {
+    return (papers || []).map(p => formatAPA(p)).join('\n\n');
+}
+
+/**
+ * Format a single publication in MLA 9th style.
+ * @param {Object} paper
+ * @returns {string}
+ */
+export function formatMLA(paper) {
+    if (!paper) return '';
+    const authors = paper.authors || [];
+    let authorStr = 'Unknown Author.';
+
+    if (authors.length === 1) {
+        const a = parseAuthorName(authors[0]);
+        authorStr = a.first ? `${a.last}, ${a.first}.` : `${a.last}.`;
+    } else if (authors.length === 2) {
+        const a1 = parseAuthorName(authors[0]);
+        const a2 = parseAuthorName(authors[1]);
+        const s1 = a1.first ? `${a1.last}, ${a1.first}` : a1.last;
+        const s2 = a2.first ? `${a2.first} ${a2.last}` : a2.last;
+        authorStr = `${s1}, and ${s2}.`;
+    } else if (authors.length >= 3) {
+        const a1 = parseAuthorName(authors[0]);
+        const s1 = a1.first ? `${a1.last}, ${a1.first}` : a1.last;
+        authorStr = `${s1}, et al.`;
+    }
+
+    const cleanTitle = (paper.title || 'Untitled').trim().replace(/\.$/, '');
+    const titleStr = `"${cleanTitle}."`;
+    const venueStr = paper.venue ? ` ${paper.venue},` : '';
+    const yearStr = paper.year ? ` ${paper.year}` : '';
+    const doiStr = paper.doi ? `, https://doi.org/${paper.doi}.` : (paper.url ? `, ${paper.url}.` : '');
+
+    let citation = `${authorStr} ${titleStr}${venueStr}${yearStr}${doiStr}`.trim();
+    if (!citation.endsWith('.')) {
+        citation = citation.replace(/,$/, '') + '.';
+    }
+    return citation;
+}
+
+/**
+ * Format paper collection as MLA 9th bibliography.
+ * @param {Array<Object>} papers
+ * @returns {string}
+ */
+export function exportToMLA(papers) {
+    return (papers || []).map(p => formatMLA(p)).join('\n\n');
+}
+
+/**
+ * Format a single publication in Chicago 17th style.
+ * @param {Object} paper
+ * @returns {string}
+ */
+export function formatChicago(paper) {
+    if (!paper) return '';
+    const authors = paper.authors || [];
+    let authorStr = 'Unknown Author.';
+
+    if (authors.length === 1) {
+        const a = parseAuthorName(authors[0]);
+        authorStr = a.first ? `${a.last}, ${a.first}.` : `${a.last}.`;
+    } else if (authors.length === 2) {
+        const a1 = parseAuthorName(authors[0]);
+        const a2 = parseAuthorName(authors[1]);
+        const s1 = a1.first ? `${a1.last}, ${a1.first}` : a1.last;
+        const s2 = a2.first ? `${a2.first} ${a2.last}` : a2.last;
+        authorStr = `${s1}, and ${s2}.`;
+    } else if (authors.length >= 3) {
+        const formatted = authors.map((author, idx) => {
+            const a = parseAuthorName(author);
+            if (idx === 0) return a.first ? `${a.last}, ${a.first}` : a.last;
+            return a.first ? `${a.first} ${a.last}` : a.last;
+        });
+        const lastAuthor = formatted.pop();
+        authorStr = `${formatted.join(', ')}, and ${lastAuthor}.`;
+    }
+
+    const cleanTitle = (paper.title || 'Untitled').trim().replace(/\.$/, '');
+    const titleStr = `"${cleanTitle}."`;
+    const venueStr = paper.venue ? ` ${paper.venue}` : '';
+    const yearStr = paper.year ? ` (${paper.year}).` : ' (n.d.).';
+    const doiStr = paper.doi ? ` https://doi.org/${paper.doi}` : (paper.url ? ` ${paper.url}` : '');
+
+    return `${authorStr} ${titleStr}${venueStr}${yearStr}${doiStr}`.trim();
+}
+
+/**
+ * Format paper collection as Chicago 17th bibliography.
+ * @param {Array<Object>} papers
+ * @returns {string}
+ */
+export function exportToChicago(papers) {
+    return (papers || []).map(p => formatChicago(p)).join('\n\n');
+}
+
+/**
+ * Format a single publication in IEEE style.
+ * @param {Object} paper
+ * @param {number} [index=1]
+ * @returns {string}
+ */
+export function formatIEEE(paper, index = 1) {
+    if (!paper) return '';
+    const authors = paper.authors || [];
+    let authorStr = 'Unknown Author';
+
+    if (authors.length === 1) {
+        const a = parseAuthorName(authors[0]);
+        authorStr = a.initials ? `${a.initials} ${a.last}` : a.last || 'Unknown Author';
+    } else if (authors.length === 2) {
+        const a1 = parseAuthorName(authors[0]);
+        const a2 = parseAuthorName(authors[1]);
+        const s1 = a1.initials ? `${a1.initials} ${a1.last}` : a1.last;
+        const s2 = a2.initials ? `${a2.initials} ${a2.last}` : a2.last;
+        authorStr = `${s1} and ${s2}`;
+    } else if (authors.length >= 3 && authors.length <= 6) {
+        const formatted = authors.map(author => {
+            const a = parseAuthorName(author);
+            return a.initials ? `${a.initials} ${a.last}` : a.last;
+        });
+        const lastAuthor = formatted.pop();
+        authorStr = `${formatted.join(', ')}, and ${lastAuthor}`;
+    } else if (authors.length > 6) {
+        const a1 = parseAuthorName(authors[0]);
+        const s1 = a1.initials ? `${a1.initials} ${a1.last}` : a1.last;
+        authorStr = `${s1} et al.`;
+    }
+
+    const cleanTitle = (paper.title || 'Untitled').trim().replace(/[.,]$/, '');
+    const titleStr = `"${cleanTitle},"`;
+    const venueStr = paper.venue ? ` ${paper.venue},` : '';
+    const yearStr = paper.year ? ` ${paper.year}.` : '';
+    const doiStr = paper.doi ? ` doi: ${paper.doi}.` : '';
+
+    return `[${index}] ${authorStr}, ${titleStr}${venueStr}${yearStr}${doiStr}`.trim();
+}
+
+/**
+ * Format paper collection as IEEE numbered bibliography.
+ * @param {Array<Object>} papers
+ * @returns {string}
+ */
+export function exportToIEEE(papers) {
+    return (papers || []).map((p, idx) => formatIEEE(p, idx + 1)).join('\n\n');
+}
+
+/**
+ * Formats publications according to selected citation style.
+ * @param {Array<Object>} papers
+ * @param {string} [style='apa'] 'apa' | 'mla' | 'chicago' | 'ieee' | 'bibtex' | 'ris'
+ * @returns {string}
+ */
+export function exportBibliography(papers, style = 'apa') {
+    const normStyle = String(style || 'apa').toLowerCase();
+    switch (normStyle) {
+        case 'apa':
+            return exportToAPA(papers);
+        case 'mla':
+            return exportToMLA(papers);
+        case 'chicago':
+            return exportToChicago(papers);
+        case 'ieee':
+            return exportToIEEE(papers);
+        case 'bibtex':
+            return exportToBibTeX(papers);
+        case 'ris':
+            return exportToRis(papers);
+        default:
+            return exportToAPA(papers);
+    }
+}

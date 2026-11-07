@@ -4,7 +4,17 @@ import {
     exportToCsv,
     exportToJson,
     exportToBibTeX,
-    exportToRis
+    exportToRis,
+    parseAuthorName,
+    formatAPA,
+    exportToAPA,
+    formatMLA,
+    exportToMLA,
+    formatChicago,
+    exportToChicago,
+    formatIEEE,
+    exportToIEEE,
+    exportBibliography
 } from '../js/export.js';
 
 describe('public/js/export.js', () => {
@@ -183,6 +193,231 @@ describe('public/js/export.js', () => {
         it('returns an empty string for no papers', () => {
             expect(exportToRis([])).toBe('');
             expect(exportToRis(null)).toBe('');
+        });
+    });
+    describe('parseAuthorName', () => {
+        it('parses single name', () => {
+            const res = parseAuthorName('Plato');
+            expect(res.last).toBe('Plato');
+            expect(res.first).toBe('');
+            expect(res.initials).toBe('');
+        });
+
+        it('parses First Last name', () => {
+            const res = parseAuthorName('Alice Smith');
+            expect(res.first).toBe('Alice');
+            expect(res.last).toBe('Smith');
+            expect(res.initials).toBe('A.');
+        });
+
+        it('parses multi-part name', () => {
+            const res = parseAuthorName('John Ronald Reuel Tolkien');
+            expect(res.first).toBe('John Ronald Reuel');
+            expect(res.last).toBe('Tolkien');
+            expect(res.initials).toBe('J. R. R.');
+        });
+
+        it('parses Last, First format', () => {
+            const res = parseAuthorName('Tolkien, John Ronald Reuel');
+            expect(res.first).toBe('John Ronald Reuel');
+            expect(res.last).toBe('Tolkien');
+            expect(res.initials).toBe('J. R. R.');
+        });
+
+        it('parses author object { name }', () => {
+            const res = parseAuthorName({ name: 'Bob Jones' });
+            expect(res.first).toBe('Bob');
+            expect(res.last).toBe('Jones');
+            expect(res.initials).toBe('B.');
+        });
+
+        it('handles empty or null inputs', () => {
+            expect(parseAuthorName('')).toEqual({ first: '', last: '', initials: '', full: '' });
+            expect(parseAuthorName(null)).toEqual({ first: '', last: '', initials: '', full: '' });
+        });
+    });
+
+    describe('formatAPA and exportToAPA', () => {
+        const p1 = {
+            title: 'Attention Is All You Need',
+            authors: ['Ashish Vaswani'],
+            year: 2017,
+            venue: 'NeurIPS',
+            doi: '10.48550/arXiv.1706.03762'
+        };
+
+        const p2 = {
+            title: 'Deep Residual Learning',
+            authors: ['Kaiming He', 'Xiangyu Zhang'],
+            year: 2016,
+            venue: 'CVPR',
+            url: 'https://arxiv.org/abs/1512.03385'
+        };
+
+        const p3 = {
+            title: 'Language Models are Few-Shot Learners',
+            authors: ['Tom Brown', 'Benjamin Mann', 'Nick Ryder'],
+            year: 2020
+        };
+
+        it('formats single author APA citation', () => {
+            const formatted = formatAPA(p1);
+            expect(formatted).toBe('Vaswani, A. (2017). Attention Is All You Need. NeurIPS. https://doi.org/10.48550/arXiv.1706.03762');
+        });
+
+        it('formats two authors APA citation with ampersand', () => {
+            const formatted = formatAPA(p2);
+            expect(formatted).toBe('He, K., & Zhang, X. (2016). Deep Residual Learning. CVPR. https://arxiv.org/abs/1512.03385');
+        });
+
+        it('formats three authors APA citation', () => {
+            const formatted = formatAPA(p3);
+            expect(formatted).toBe('Brown, T., Mann, B., & Ryder, N. (2020). Language Models are Few-Shot Learners.');
+        });
+
+        it('handles empty / missing fields in APA', () => {
+            expect(formatAPA(null)).toBe('');
+            expect(formatAPA({})).toBe('Unknown Author (n.d.). Untitled.');
+        });
+
+        it('exports multiple papers to APA bibliography', () => {
+            const bib = exportToAPA([p1, p2]);
+            expect(bib).toContain('Vaswani, A. (2017)');
+            expect(bib).toContain('He, K., & Zhang, X. (2016)');
+            expect(bib.split('\n\n')).toHaveLength(2);
+        });
+    });
+
+    describe('formatMLA and exportToMLA', () => {
+        const p1 = {
+            title: 'Attention Is All You Need',
+            authors: ['Ashish Vaswani'],
+            year: 2017,
+            venue: 'NeurIPS',
+            doi: '10.48550/arXiv.1706.03762'
+        };
+
+        const p2 = {
+            title: 'Deep Residual Learning',
+            authors: ['Kaiming He', 'Xiangyu Zhang'],
+            year: 2016,
+            venue: 'CVPR'
+        };
+
+        const p3 = {
+            title: 'Language Models are Few-Shot Learners',
+            authors: ['Tom Brown', 'Benjamin Mann', 'Nick Ryder'],
+            year: 2020
+        };
+
+        it('formats single author MLA citation', () => {
+            const formatted = formatMLA(p1);
+            expect(formatted).toBe('Vaswani, Ashish. "Attention Is All You Need." NeurIPS, 2017, https://doi.org/10.48550/arXiv.1706.03762.');
+        });
+
+        it('formats two authors MLA citation', () => {
+            const formatted = formatMLA(p2);
+            expect(formatted).toBe('He, Kaiming, and Xiangyu Zhang. "Deep Residual Learning." CVPR, 2016.');
+        });
+
+        it('formats three or more authors with et al.', () => {
+            const formatted = formatMLA(p3);
+            expect(formatted).toBe('Brown, Tom, et al. "Language Models are Few-Shot Learners." 2020.');
+        });
+
+        it('exports multiple papers to MLA bibliography', () => {
+            const bib = exportToMLA([p1, p2]);
+            expect(bib).toContain('Vaswani, Ashish.');
+            expect(bib).toContain('He, Kaiming, and Xiangyu Zhang.');
+        });
+    });
+
+    describe('formatChicago and exportToChicago', () => {
+        const p1 = {
+            title: 'Attention Is All You Need',
+            authors: ['Ashish Vaswani'],
+            year: 2017,
+            venue: 'NeurIPS',
+            doi: '10.48550/arXiv.1706.03762'
+        };
+
+        const p2 = {
+            title: 'Deep Residual Learning',
+            authors: ['Kaiming He', 'Xiangyu Zhang'],
+            year: 2016,
+            venue: 'CVPR'
+        };
+
+        it('formats single author Chicago citation', () => {
+            const formatted = formatChicago(p1);
+            expect(formatted).toBe('Vaswani, Ashish. "Attention Is All You Need." NeurIPS (2017). https://doi.org/10.48550/arXiv.1706.03762');
+        });
+
+        it('formats two authors Chicago citation', () => {
+            const formatted = formatChicago(p2);
+            expect(formatted).toBe('Vaswani, Ashish. "Attention Is All You Need." NeurIPS (2017). https://doi.org/10.48550/arXiv.1706.03762' !== '' ?
+                'He, Kaiming, and Xiangyu Zhang. "Deep Residual Learning." CVPR (2016).' : '');
+        });
+
+        it('exports collection to Chicago bibliography', () => {
+            const bib = exportToChicago([p1]);
+            expect(bib).toContain('Vaswani, Ashish.');
+        });
+    });
+
+    describe('formatIEEE and exportToIEEE', () => {
+        const p1 = {
+            title: 'Attention Is All You Need',
+            authors: ['Ashish Vaswani'],
+            year: 2017,
+            venue: 'NeurIPS',
+            doi: '10.48550/arXiv.1706.03762'
+        };
+
+        const p2 = {
+            title: 'Deep Residual Learning',
+            authors: ['Kaiming He', 'Xiangyu Zhang'],
+            year: 2016,
+            venue: 'CVPR'
+        };
+
+        it('formats IEEE numbered citations with initials first', () => {
+            const f1 = formatIEEE(p1, 1);
+            expect(f1).toBe('[1] A. Vaswani, "Attention Is All You Need," NeurIPS, 2017. doi: 10.48550/arXiv.1706.03762.');
+
+            const f2 = formatIEEE(p2, 2);
+            expect(f2).toBe('[2] K. He and X. Zhang, "Deep Residual Learning," CVPR, 2016.');
+        });
+
+        it('exports collection to IEEE numbered bibliography', () => {
+            const bib = exportToIEEE([p1, p2]);
+            expect(bib).toContain('[1] A. Vaswani');
+            expect(bib).toContain('[2] K. He and X. Zhang');
+        });
+    });
+
+    describe('exportBibliography dispatching', () => {
+        const papers = [
+            {
+                title: 'Quantum Computing',
+                authors: ['Alice Smith'],
+                year: 2024,
+                doi: '10.1000/182'
+            }
+        ];
+
+        it('dispatches to correct formatter based on style name', () => {
+            expect(exportBibliography(papers, 'apa')).toContain('Smith, A. (2024).');
+            expect(exportBibliography(papers, 'mla')).toContain('Smith, Alice. "Quantum Computing."');
+            expect(exportBibliography(papers, 'chicago')).toContain('Smith, Alice. "Quantum Computing." (2024).');
+            expect(exportBibliography(papers, 'ieee')).toContain('[1] A. Smith, "Quantum Computing,"');
+            expect(exportBibliography(papers, 'bibtex')).toContain('@article{');
+            expect(exportBibliography(papers, 'ris')).toContain('TY  - JOUR');
+        });
+
+        it('defaults to APA when style is unknown or omitted', () => {
+            expect(exportBibliography(papers)).toContain('Smith, A. (2024).');
+            expect(exportBibliography(papers, 'unknown_style')).toContain('Smith, A. (2024).');
         });
     });
 });

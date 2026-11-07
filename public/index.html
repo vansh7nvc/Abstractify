@@ -202,6 +202,10 @@
 
             <!-- Workspace Action Toolbar -->
             <div class="flex items-center gap-3">
+                <button id="export-bib-btn" class="secondary-btn text-xs py-2 px-3.5" title="Export Bibliography" aria-label="Export Bibliography">
+                    <span class="material-symbols-outlined text-base">format_quote</span>
+                    <span class="hidden md:inline">Bibliography</span>
+                </button>
                 <button id="upload-pdf-btn" class="secondary-btn text-xs py-2 px-3.5">
                     <span class="material-symbols-outlined text-base">upload_file</span>
                     <span class="hidden md:inline">Upload Folio</span>
@@ -467,10 +471,18 @@
             <!-- TAB 4: LITERATURE EXPLORER PANE                           -->
             <!-- ========================================================= -->
             <div id="tab-literature" class="workspace-tab-pane space-y-6">
-                <div>
-                    <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Global Repository Ingestion</span>
-                    <h2 class="serif-heading text-2xl font-bold text-on-surface">Literature Explorer</h2>
-                    <p class="text-xs text-secondary mt-1">Directly explore ingested publications from Semantic Scholar and OpenAlex with citation intent tags.</p>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Global Repository Ingestion</span>
+                        <h2 class="serif-heading text-2xl font-bold text-on-surface">Literature Explorer</h2>
+                        <p class="text-xs text-secondary mt-1">Directly explore ingested publications from Semantic Scholar and OpenAlex with citation intent tags.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="explorer-export-bib-btn" class="secondary-btn text-xs py-2 px-3.5 flex items-center gap-2" title="Export Bibliography" aria-label="Export Bibliography">
+                            <span class="material-symbols-outlined text-base">format_quote</span>
+                            <span>Export Bibliography</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Papers Container -->
@@ -688,6 +700,56 @@
                     <div class="flex items-center justify-between py-1 border-b border-outline/50">
                         <span class="text-secondary font-medium">Toggle Dark Theme</span>
                         <span class="text-primary font-mono text-[11px]">Header Icon</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bibliography Generator Modal (Issue #04) -->
+    <div id="bibliography-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="bib-modal-title" aria-hidden="true">
+        <div class="modal-content max-w-2xl">
+            <div class="modal-header border-b editorial-rule pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-xl">format_quote</span>
+                    <h3 id="bib-modal-title" class="text-base font-serif font-bold">Bibliography Generator</h3>
+                </div>
+                <button id="bib-close-btn" class="close-btn" aria-label="Close bibliography modal">&times;</button>
+            </div>
+            <div class="space-y-4 pt-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-sans">
+                    <div class="flex items-center gap-2">
+                        <label for="bib-style-select" class="font-mono text-secondary uppercase tracking-wider text-[11px]">Citation Style:</label>
+                        <select id="bib-style-select" class="bg-surface border border-outline rounded px-2.5 py-1.5 text-xs font-mono focus:border-primary focus:outline-none cursor-pointer">
+                            <option value="apa" selected>APA 7th Edition</option>
+                            <option value="mla">MLA 9th Edition</option>
+                            <option value="chicago">Chicago 17th Edition</option>
+                            <option value="ieee">IEEE</option>
+                            <option value="bibtex">BibTeX (.bib)</option>
+                            <option value="ris">RIS / EndNote / Zotero (.ris)</option>
+                        </select>
+                    </div>
+                    <span id="bib-count-badge" class="tab-badge text-[11px] font-mono self-start sm:self-auto">All Papers Selected</span>
+                </div>
+
+                <div class="relative">
+                    <textarea id="bib-preview-text" class="w-full h-64 p-3 bg-surface border border-outline rounded-lg font-mono text-xs text-on-surface leading-relaxed resize-y focus:outline-none focus:border-primary" readonly aria-label="Formatted bibliography preview"></textarea>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 pt-2 border-t editorial-rule">
+                    <div id="bib-toast" class="text-xs font-mono text-emerald-600 dark:text-emerald-400 opacity-0 transition-opacity duration-300 flex items-center gap-1" role="status" aria-live="polite">
+                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                        <span>Citations copied to clipboard!</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="bib-copy-btn" class="secondary-btn text-xs py-2 px-3.5 flex items-center gap-1.5 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                            <span>Copy to Clipboard</span>
+                        </button>
+                        <button id="bib-download-btn" class="oxford-btn text-xs py-2 px-3.5 flex items-center gap-1.5 cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">download</span>
+                            <span id="bib-download-label">Download (.txt)</span>
+                        </button>
                     </div>
                 </div>
             </div>
