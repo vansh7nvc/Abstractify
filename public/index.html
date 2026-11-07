@@ -64,7 +64,10 @@
     <!-- ========================================== -->
     <!--          LANDING PAGE VIEW                 -->
     <!-- ========================================== -->
-    <div id="landing-view" class="w-full">
+    <div id="landing-view" class="w-full relative overflow-hidden">
+        <!-- Interactive 3D Three.js Universe Canvas & Aurora Mesh -->
+        <canvas id="hero-3d-canvas" class="fixed inset-0 pointer-events-none z-0 transition-opacity duration-1000"></canvas>
+        <div class="hero-aurora-glow fixed inset-0 pointer-events-none z-0" aria-hidden="true"></div>
         <!-- Global Top Nav -->
         <header class="fixed top-0 w-full h-20 z-50 flex justify-between items-center px-8 md:px-12 bg-background/90 backdrop-blur-md border-b editorial-rule">
             <div class="flex items-center gap-3">
@@ -125,6 +128,21 @@
                         <span class="material-symbols-outlined text-base">tune</span>
                         <span>Configure API Keys</span>
                     </button>
+                </div>
+                <!-- Floating Kinetic Highlights -->
+                <div class="hidden lg:flex justify-center items-center gap-4 pt-4">
+                    <div class="shimmer-badge animate-float-slow inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-surface/80 backdrop-blur-sm text-xs font-mono text-primary shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>200M+ Academic Citations</span>
+                    </div>
+                    <div class="shimmer-badge animate-float-delayed inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-surface/80 backdrop-blur-sm text-xs font-mono text-primary shadow-sm">
+                        <span class="material-symbols-outlined text-xs text-primary">science</span>
+                        <span>Consensus Synthesizer</span>
+                    </div>
+                    <div class="shimmer-badge animate-float-slow inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/20 bg-surface/80 backdrop-blur-sm text-xs font-mono text-primary shadow-sm">
+                        <span class="material-symbols-outlined text-xs text-primary">functions</span>
+                        <span>KaTeX Mathematical Verification</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -861,6 +879,9 @@
 
     <!-- html2canvas Screenshot Capture Library (Issue #03) -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <!-- Three.js 3D WebGL Library for Hero Constellation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <!-- Script Entrypoint -->
     <script type="module" src="app.js"></script>

@@ -7,11 +7,30 @@ import { calculateReadingMetrics, formatReadingTimeBadge } from './js/reading-ti
 import { exportBibliography } from './js/export.js';
 import { exportPanelAsImage } from './js/screenshot.js';
 import { getSavedSessions, saveSession, deleteSession, clearAllSessions, formatSessionDate } from './js/sessions.js';
+import { initHero3D } from './js/hero-3d.js';
+import { initTiltCards, initMagneticButtons } from './js/motion.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const $ = id => document.getElementById(id);
     // ─── Theme System Initialization ───
     initTheme();
+
+    // ─── 3D Universe & Kinetic Motion Suite ───
+    let hero3DController = null;
+    try {
+        hero3DController = initHero3D('hero-3d-canvas');
+    } catch (e) {
+        console.warn('3D hero initialization skipped:', e);
+    }
+
+    window.addEventListener('themechange', (e) => {
+        if (hero3DController && typeof hero3DController.setTheme === 'function') {
+            hero3DController.setTheme(e.detail && e.detail.theme === 'dark');
+        }
+    });
+
+    initTiltCards('.folio-card, .paper-card');
+    initMagneticButtons('.oxford-btn');
 
     // ─── State Management ───
     let storedGeminiKey = localStorage.getItem('gemini_key') || '';
@@ -134,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {void}
      */
     function switchToWorkspace() {
+        if (hero3DController) hero3DController.pause();
         document.body.classList.remove('show-landing');
         document.body.classList.add('show-app');
         landingView.classList.add('hidden');
@@ -153,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {void}
      */
     function switchToLanding() {
+        if (hero3DController) hero3DController.resume();
         document.body.classList.remove('show-app');
         document.body.classList.add('show-landing');
         appView.classList.add('hidden');
