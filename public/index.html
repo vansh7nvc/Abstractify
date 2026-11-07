@@ -293,22 +293,32 @@
                             <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Consensus Meter</span>
                             <h2 class="serif-heading text-3xl font-bold text-on-surface">Scientific Synthesis</h2>
                         </div>
-                        <!-- Export Consensus Dropdown -->
-                        <div class="relative inline-block text-left">
-                            <button id="export-consensus-btn" class="secondary-btn text-xs py-1.5 px-3">
-                                <span class="material-symbols-outlined text-sm">download</span>
-                                <span>Export Synthesis</span>
-                                <span class="material-symbols-outlined text-sm">expand_more</span>
+                        <div class="flex items-center gap-2">
+                            <button id="screenshot-consensus-btn" class="secondary-btn text-xs py-1.5 px-3 btn-export-screenshot flex items-center gap-1.5" title="Export Consensus as PNG" aria-label="Export Consensus as PNG" data-target="tab-consensus" data-filename="AbstractiFy_Consensus">
+                                <span class="material-symbols-outlined text-sm">photo_camera</span>
+                                <span class="hidden sm:inline">Export Image</span>
                             </button>
-                            <div id="export-consensus-menu" class="hidden absolute right-0 mt-2 w-48 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
-                                <button id="export-consensus-md" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
-                                    <span>Markdown (.md)</span>
-                                    <span class="material-symbols-outlined text-xs">description</span>
+                            <!-- Export Consensus Dropdown -->
+                            <div class="relative inline-block text-left">
+                                <button id="export-consensus-btn" class="secondary-btn text-xs py-1.5 px-3">
+                                    <span class="material-symbols-outlined text-sm">download</span>
+                                    <span>Export Synthesis</span>
+                                    <span class="material-symbols-outlined text-sm">expand_more</span>
                                 </button>
-                                <button id="export-consensus-json" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
-                                    <span>JSON Data (.json)</span>
-                                    <span class="material-symbols-outlined text-xs">code</span>
-                                </button>
+                                <div id="export-consensus-menu" class="hidden absolute right-0 mt-2 w-48 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
+                                    <button id="export-consensus-md" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                        <span>Markdown (.md)</span>
+                                        <span class="material-symbols-outlined text-xs">description</span>
+                                    </button>
+                                    <button id="export-consensus-json" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                        <span>JSON Data (.json)</span>
+                                        <span class="material-symbols-outlined text-xs">code</span>
+                                    </button>
+                                    <button id="menu-screenshot-consensus" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between btn-export-screenshot" data-target="tab-consensus" data-filename="AbstractiFy_Consensus">
+                                        <span>Share as Image (.png)</span>
+                                        <span class="material-symbols-outlined text-xs">photo_camera</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -373,22 +383,32 @@
                         <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Structured Extraction</span>
                         <h2 class="serif-heading text-2xl font-bold text-on-surface">Study Comparison Matrix</h2>
                     </div>
-                    <!-- Export Matrix Dropdown -->
-                    <div class="relative inline-block text-left">
-                        <button id="export-matrix-menu-btn" class="secondary-btn text-xs py-1.5 px-3">
-                            <span class="material-symbols-outlined text-sm">download</span>
-                            <span>Export Matrix</span>
-                            <span class="material-symbols-outlined text-sm">expand_more</span>
+                    <div class="flex items-center gap-2">
+                        <button id="screenshot-matrix-btn" class="secondary-btn text-xs py-1.5 px-3 btn-export-screenshot flex items-center gap-1.5" title="Export Matrix as PNG" aria-label="Export Matrix as PNG" data-target="tab-matrix" data-filename="AbstractiFy_Matrix">
+                            <span class="material-symbols-outlined text-sm">photo_camera</span>
+                            <span class="hidden sm:inline">Export Image</span>
                         </button>
-                        <div id="export-matrix-menu" class="hidden absolute right-0 mt-2 w-52 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
-                            <button id="export-csv-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
-                                <span>CSV Spreadsheet (.csv)</span>
-                                <span class="material-symbols-outlined text-xs">table_chart</span>
+                        <!-- Export Matrix Dropdown -->
+                        <div class="relative inline-block text-left">
+                            <button id="export-matrix-menu-btn" class="secondary-btn text-xs py-1.5 px-3">
+                                <span class="material-symbols-outlined text-sm">download</span>
+                                <span>Export Matrix</span>
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
                             </button>
-                            <button id="export-matrix-md-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
-                                <span>Markdown Table (.md)</span>
-                                <span class="material-symbols-outlined text-xs">grid_on</span>
-                            </button>
+                            <div id="export-matrix-menu" class="hidden absolute right-0 mt-2 w-52 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
+                                <button id="export-csv-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                    <span>CSV Spreadsheet (.csv)</span>
+                                    <span class="material-symbols-outlined text-xs">table_chart</span>
+                                </button>
+                                <button id="export-matrix-md-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                    <span>Markdown Table (.md)</span>
+                                    <span class="material-symbols-outlined text-xs">grid_on</span>
+                                </button>
+                                <button id="menu-screenshot-matrix" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between btn-export-screenshot" data-target="tab-matrix" data-filename="AbstractiFy_Matrix">
+                                    <span>Share as Image (.png)</span>
+                                    <span class="material-symbols-outlined text-xs">photo_camera</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -425,26 +445,36 @@
                         <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/70">Citation Topology</span>
                         <h2 class="serif-heading text-2xl font-bold text-on-surface">Interactive Citation Lineage</h2>
                     </div>
-                    <!-- Export Graph Dropdown -->
-                    <div class="relative inline-block text-left">
-                        <button id="export-graph-menu-btn" class="secondary-btn text-xs py-1.5 px-3">
-                            <span class="material-symbols-outlined text-sm">download</span>
-                            <span>Export Graph</span>
-                            <span class="material-symbols-outlined text-sm">expand_more</span>
+                    <div class="flex items-center gap-2">
+                        <button id="screenshot-graph-btn" class="secondary-btn text-xs py-1.5 px-3 btn-export-screenshot flex items-center gap-1.5" title="Export Graph as PNG" aria-label="Export Graph as PNG" data-target="tab-graph" data-filename="AbstractiFy_Graph">
+                            <span class="material-symbols-outlined text-sm">photo_camera</span>
+                            <span class="hidden sm:inline">Export Image</span>
                         </button>
-                        <div id="export-graph-menu" class="hidden absolute right-0 mt-2 w-56 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
-                            <button id="export-graph-json-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
-                                <span>Obsidian Graph (.json)</span>
-                                <span class="material-symbols-outlined text-xs">share</span>
+                        <!-- Export Graph Dropdown -->
+                        <div class="relative inline-block text-left">
+                            <button id="export-graph-menu-btn" class="secondary-btn text-xs py-1.5 px-3">
+                                <span class="material-symbols-outlined text-sm">download</span>
+                                <span>Export Graph</span>
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
                             </button>
-                            <button id="export-graph-bibtex-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
-                                <span>BibTeX References (.bib)</span>
-                                <span class="material-symbols-outlined text-xs">book</span>
-                            </button>
-                            <button id="export-graph-ris-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
-                                <span>Zotero / Mendeley (.ris)</span>
-                                <span class="material-symbols-outlined text-xs">library_books</span>
-                            </button>
+                            <div id="export-graph-menu" class="hidden absolute right-0 mt-2 w-56 bg-surface border border-outline rounded-lg shadow-lg z-50 py-1 font-mono text-[11px]">
+                                <button id="export-graph-json-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                    <span>Obsidian Graph (.json)</span>
+                                    <span class="material-symbols-outlined text-xs">share</span>
+                                </button>
+                                <button id="export-graph-bibtex-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                    <span>BibTeX References (.bib)</span>
+                                    <span class="material-symbols-outlined text-xs">book</span>
+                                </button>
+                                <button id="export-graph-ris-btn" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between">
+                                    <span>Zotero / Mendeley (.ris)</span>
+                                    <span class="material-symbols-outlined text-xs">library_books</span>
+                                </button>
+                                <button id="menu-screenshot-graph" class="w-full text-left px-4 py-2 hover:bg-surface-muted text-primary flex items-center justify-between btn-export-screenshot" data-target="tab-graph" data-filename="AbstractiFy_Graph">
+                                    <span>Share as Image (.png)</span>
+                                    <span class="material-symbols-outlined text-xs">photo_camera</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -755,6 +785,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Screenshot Export Toast Notification (Issue #03) -->
+    <div id="screenshot-toast" class="fixed bottom-6 right-6 z-50 px-4 py-3 bg-surface border border-outline rounded-lg shadow-xl font-mono text-xs text-primary flex items-center gap-2 pointer-events-none opacity-0 transition-opacity duration-300" role="status" aria-live="polite">
+        <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-base">photo_camera</span>
+        <span id="screenshot-toast-msg">✨ Screenshot exported as PNG!</span>
+    </div>
+
+    <!-- html2canvas Screenshot Capture Library (Issue #03) -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
     <!-- Script Entrypoint -->
     <script type="module" src="app.js"></script>
