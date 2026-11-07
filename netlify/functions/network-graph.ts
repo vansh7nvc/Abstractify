@@ -375,3 +375,7 @@ export default async (req: Request, context: Context) => {
         });
     }
 };
+
+export const config = {
+    path: '/api/network-graph',
+};

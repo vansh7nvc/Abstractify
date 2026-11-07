@@ -6,13 +6,19 @@ import { initShortcuts, openModal, closeModal } from './js/shortcuts.js';
 import { calculateReadingMetrics, formatReadingTimeBadge } from './js/reading-time.js';
 import { exportBibliography } from './js/export.js';
 import { exportPanelAsImage } from './js/screenshot.js';
-import { getSavedSessions, saveSession, deleteSession, clearAllSessions, formatSessionDate } from './js/sessions.js';
+import {
+    getSavedSessions,
+    saveSession,
+    deleteSession,
+    clearAllSessions,
+    formatSessionDate,
+} from './js/sessions.js';
 import { initHero3D } from './js/hero-3d.js';
 import { initTiltCards, initMagneticButtons } from './js/motion.js';
-import { createCitationVisualizer } from './js/network-visualizer.js';
+import { createCitationVisualizer, synthesizeClientNetworkData } from './js/network-visualizer.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const $ = id => document.getElementById(id);
+    const $ = (id) => document.getElementById(id);
     // ─── Theme System Initialization ───
     initTheme();
 
@@ -44,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const state = {
         apiKeys: {
             gemini: storedGeminiKey,
-            groq: localStorage.getItem('groq_key') || ''
+            groq: localStorage.getItem('groq_key') || '',
         },
         geminiKeyMode: localStorage.getItem('gemini_key_mode') || 'background', // 'background' or 'byok'
         activeModel: localStorage.getItem('active_model') || 'gemini-3.1-flash-lite',
@@ -55,70 +61,70 @@ document.addEventListener('DOMContentLoaded', () => {
         consensusData: null,
         matrixData: [],
         currentQuery: '',
-        pdfChunks: [],       // stored in memory after PDF upload
+        pdfChunks: [], // stored in memory after PDF upload
         formulas: [],
-        selectedFormula: null
+        selectedFormula: null,
     };
 
     // ─── DOM References ───
 
-    const landingView       = $('landing-view');
-    const appView           = $('app-view');
+    const landingView = $('landing-view');
+    const appView = $('app-view');
 
     // Transitions & Navigation
     const accessWorkspaceBtns = document.querySelectorAll('.access-workspace-btn');
-    const landingSettingsBtn  = $('landing-settings-btn');
-    const navLandingLink      = $('nav-landing-link');
-    const navBrandBtn         = $('nav-brand-btn');
-    const navSettingsLink     = $('nav-settings-link');
+    const landingSettingsBtn = $('landing-settings-btn');
+    const navLandingLink = $('nav-landing-link');
+    const navBrandBtn = $('nav-brand-btn');
+    const navSettingsLink = $('nav-settings-link');
 
     // Settings Modal elements
-    const settingsBtn             = $('settings-btn');
-    const settingsModal             = $('settings-modal');
-    const settingsCloseBtn          = $('settings-close-btn');
-    const saveSettingsBtn           = $('save-settings-btn');
-    const geminiKeyModeBackground   = $('gemini-key-mode-background');
-    const geminiKeyModeByok         = $('gemini-key-mode-byok');
-    const geminiKeyInputContainer   = $('gemini-key-input-container');
-    const geminiKeyInput            = $('gemini-key-input');
-    const groqKeyInput              = $('groq-key-input');
-    const modelSelect               = $('model-select');
+    const settingsBtn = $('settings-btn');
+    const settingsModal = $('settings-modal');
+    const settingsCloseBtn = $('settings-close-btn');
+    const saveSettingsBtn = $('save-settings-btn');
+    const geminiKeyModeBackground = $('gemini-key-mode-background');
+    const geminiKeyModeByok = $('gemini-key-mode-byok');
+    const geminiKeyInputContainer = $('gemini-key-input-container');
+    const geminiKeyInput = $('gemini-key-input');
+    const groqKeyInput = $('groq-key-input');
+    const modelSelect = $('model-select');
 
     // Search and Core Workspace elements
-    const landingSearchForm   = $('landing-search-form');
-    const landingSearchInput  = $('landing-search-input');
-    const searchForm        = $('search-form');
-    const searchInput       = $('search-input');
-    const workspaceTitle    = $('workspace-title');
-    const welcomeMessage    = $('welcome-message');
-    const loader            = $('loader');
-    const resultsList       = $('results-list'); // Cited Publications Container
+    const landingSearchForm = $('landing-search-form');
+    const landingSearchInput = $('landing-search-input');
+    const searchForm = $('search-form');
+    const searchInput = $('search-input');
+    const workspaceTitle = $('workspace-title');
+    const welcomeMessage = $('welcome-message');
+    const loader = $('loader');
+    const resultsList = $('results-list'); // Cited Publications Container
 
     // Consensus elements
     const papersSampledBadge = $('papers-sampled-badge');
     const consensusProgressBox = $('consensus-progress-box');
-    const barSupports       = $('consensus-bar-supports');
-    const barNeutral        = $('consensus-bar-neutral');
-    const barContradicts    = $('consensus-bar-contradicts');
-    const statSupports      = $('stat-supports');
-    const statNeutral       = $('stat-neutral');
-    const statContradicts   = $('stat-contradicts');
+    const barSupports = $('consensus-bar-supports');
+    const barNeutral = $('consensus-bar-neutral');
+    const barContradicts = $('consensus-bar-contradicts');
+    const statSupports = $('stat-supports');
+    const statNeutral = $('stat-neutral');
+    const statContradicts = $('stat-contradicts');
     const consensusSummaryText = $('consensus-summary-text');
 
     // Matrix & Network Graph
-    const matrixBody        = $('matrix-body');
-    const exportCsvBtn      = $('export-csv-btn');
-    const networkContainer  = $('network-container');
+    const matrixBody = $('matrix-body');
+    const exportCsvBtn = $('export-csv-btn');
+    const networkContainer = $('network-container');
 
     // PDF Ingestion & Chat
-    const uploadPdfBtn      = $('upload-pdf-btn');
-    const pdfFileInput      = $('pdf-file-input');
-    const chatForm          = $('chat-form');
-    const chatInput         = $('chat-input');
-    const chatMessages      = $('chat-messages');
+    const uploadPdfBtn = $('upload-pdf-btn');
+    const pdfFileInput = $('pdf-file-input');
+    const chatForm = $('chat-form');
+    const chatInput = $('chat-input');
+    const chatMessages = $('chat-messages');
 
     // Equation Explainer
-    const formulaList       = $('formula-list');
+    const formulaList = $('formula-list');
     const formulaExplanation = $('formula-explanation');
     const selectedFormulaText = $('selected-formula-text');
     const selectedFormulaDesc = $('selected-formula-desc');
@@ -144,7 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
             geminiKeyInputContainer.classList.add('hidden');
         }
     };
-    if (geminiKeyModeBackground) geminiKeyModeBackground.addEventListener('change', updateGeminiKeyModeUI);
+    if (geminiKeyModeBackground)
+        geminiKeyModeBackground.addEventListener('change', updateGeminiKeyModeUI);
     if (geminiKeyModeByok) geminiKeyModeByok.addEventListener('change', updateGeminiKeyModeUI);
 
     // ─── View Transition Helpers ───
@@ -159,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('show-app');
         landingView.classList.add('hidden');
         appView.classList.remove('hidden');
-        
+
         // Trigger Vis Network resize recalculations
         setTimeout(() => {
             if (state.networkInstance) {
@@ -192,14 +199,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {void}
      */
     function switchWorkspaceTab(targetTabId) {
-        tabBtns.forEach(btn => {
+        tabBtns.forEach((btn) => {
             const isMatch = btn.getAttribute('data-tab') === targetTabId;
             btn.classList.toggle('active', isMatch);
             btn.setAttribute('aria-selected', isMatch ? 'true' : 'false');
             btn.setAttribute('tabindex', isMatch ? '0' : '-1');
         });
 
-        tabPanes.forEach(pane => {
+        tabPanes.forEach((pane) => {
             const isMatch = pane.id === targetTabId;
             pane.classList.toggle('active', isMatch);
             if (isMatch) {
@@ -219,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Set initial roving tabindex on tabs
-    tabBtns.forEach(btn => {
+    tabBtns.forEach((btn) => {
         const isActive = btn.classList.contains('active');
         btn.setAttribute('tabindex', isActive ? '0' : '-1');
     });
@@ -255,16 +262,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Bind transition triggers
-    accessWorkspaceBtns.forEach(btn => {
+    accessWorkspaceBtns.forEach((btn) => {
         btn.addEventListener('click', switchToWorkspace);
     });
 
     if (navLandingLink) navLandingLink.addEventListener('click', switchToLanding);
     if (navBrandBtn) navBrandBtn.addEventListener('click', switchToLanding);
-    
+
     // Bind Settings open triggers
     if (landingSettingsBtn) {
-        landingSettingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+        landingSettingsBtn.addEventListener('click', () =>
+            settingsModal.classList.remove('hidden'),
+        );
     }
     if (navSettingsLink) {
         navSettingsLink.addEventListener('click', () => settingsModal.classList.remove('hidden'));
@@ -277,23 +286,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.addEventListener('click', (e) => {
         if (e.target === settingsModal) closeModal(settingsModal);
-        if (commandPaletteModal && e.target === commandPaletteModal) closeModal(commandPaletteModal);
+        if (commandPaletteModal && e.target === commandPaletteModal)
+            closeModal(commandPaletteModal);
         if (shortcutsModal && e.target === shortcutsModal) closeModal(shortcutsModal);
         if (sessionsModal && e.target === sessionsModal) closeModal(sessionsModal);
     });
 
     // ─── Keyboard Shortcuts & Accessibility (Issue #13) ───
     const commandPaletteModal = $('command-palette-modal');
-    const paletteSearchInput  = $('palette-search-input');
-    const paletteSearchForm   = $('palette-search-form');
-    const paletteCloseBtn     = $('palette-close-btn');
-    const shortcutsModal      = $('shortcuts-modal');
-    const shortcutsBtn        = $('shortcuts-btn');
+    const paletteSearchInput = $('palette-search-input');
+    const paletteSearchForm = $('palette-search-form');
+    const paletteCloseBtn = $('palette-close-btn');
+    const shortcutsModal = $('shortcuts-modal');
+    const shortcutsBtn = $('shortcuts-btn');
     const landingShortcutsBtn = $('landing-shortcuts-btn');
-    const shortcutsCloseBtn   = $('shortcuts-close-btn');
+    const shortcutsCloseBtn = $('shortcuts-close-btn');
 
     initShortcuts({
-        onSwitchTab: (tabId) => switchWorkspaceTab(tabId)
+        onSwitchTab: (tabId) => switchWorkspaceTab(tabId),
     });
 
     if (paletteCloseBtn && commandPaletteModal) {
@@ -327,8 +337,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const isByok = geminiKeyModeByok && geminiKeyModeByok.checked;
             state.geminiKeyMode = isByok ? 'byok' : 'background';
             state.apiKeys.gemini = isByok ? geminiKeyInput.value.trim() : '';
-            state.apiKeys.groq   = groqKeyInput.value.trim();
-            state.activeModel    = modelSelect.value;
+            state.apiKeys.groq = groqKeyInput.value.trim();
+            state.activeModel = modelSelect.value;
 
             localStorage.setItem('gemini_key_mode', state.geminiKeyMode);
             if (isByok) {
@@ -339,7 +349,10 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('groq_key', state.apiKeys.groq);
             localStorage.setItem('active_model', state.activeModel);
 
-            appendChat('System', `Settings saved. Active model: <strong>${state.activeModel}</strong>. Key mode: <strong>${state.geminiKeyMode === 'byok' ? 'BYOK (Custom Key)' : 'System Background Key'}</strong>`);
+            appendChat(
+                'System',
+                `Settings saved. Active model: <strong>${state.activeModel}</strong>. Key mode: <strong>${state.geminiKeyMode === 'byok' ? 'BYOK (Custom Key)' : 'System Background Key'}</strong>`,
+            );
             settingsModal.classList.add('hidden');
         });
     }
@@ -395,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ══════════════════════════════════════════════════════
     //  SEARCH HANDLERS
     // ══════════════════════════════════════════════════════
-    
+
     // Quick search from Landing Page
     if (landingSearchForm) {
         landingSearchForm.addEventListener('submit', (e) => {
@@ -432,12 +445,13 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsList.innerHTML = '';
         loader.classList.remove('hidden');
         consensusProgressBox.classList.add('hidden');
-        
+
         if (papersSampledBadge) {
             papersSampledBadge.innerText = 'Analyzing Query...';
         }
 
-        matrixBody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-secondary italic">Extracting study parameters...</td></tr>';
+        matrixBody.innerHTML =
+            '<tr><td colspan="5" class="py-8 text-center text-secondary italic">Extracting study parameters...</td></tr>';
         networkContainer.innerHTML = `
             <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-[10px] uppercase tracking-widest text-secondary bg-[#FDFAF6]/90 z-10 pointer-events-none">
                 Graphizing citation networks...
@@ -448,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/search', {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify({ query })
+                body: JSON.stringify({ query }),
             });
 
             if (!res.ok) {
@@ -461,12 +475,14 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.classList.add('hidden');
 
             if (state.searchResults.length === 0) {
-                resultsList.innerHTML = '<div class="text-sm italic text-secondary p-4">No matching papers found. Try another query.</div>';
+                resultsList.innerHTML =
+                    '<div class="text-sm italic text-secondary p-4">No matching papers found. Try another query.</div>';
                 if (papersSampledBadge) papersSampledBadge.innerText = '0 Papers Sampled';
                 return;
             }
 
-            if (papersSampledBadge) papersSampledBadge.innerText = `${state.searchResults.length} Papers Sampled`;
+            if (papersSampledBadge)
+                papersSampledBadge.innerText = `${state.searchResults.length} Papers Sampled`;
 
             renderPaperCards();
 
@@ -474,7 +490,6 @@ document.addEventListener('DOMContentLoaded', () => {
             runConsensus(query);
             runComparison();
             runNetworkGraph(query);
-
         } catch (error) {
             console.error('Search error:', error);
             loader.classList.add('hidden');
@@ -496,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {string}
      */
     function getPaperKey(paper, idx) {
-        return (paper && paper.id !== undefined && paper.id !== null && paper.id !== '')
+        return paper && paper.id !== undefined && paper.id !== null && paper.id !== ''
             ? `id:${paper.id}`
             : `idx:${idx}`;
     }
@@ -533,9 +548,12 @@ document.addEventListener('DOMContentLoaded', () => {
             paper.isRetracted = true;
             if (metaContainer && !metaContainer.querySelector('.retraction-badge')) {
                 const badgeSpan = document.createElement('span');
-                badgeSpan.className = 'retraction-badge px-2 py-0.5 rounded text-[10px] font-mono font-bold flex items-center gap-1 shadow-sm animate-pulse';
-                badgeSpan.title = 'This publication has been RETRACTED according to Crossref metadata';
-                badgeSpan.innerHTML = '<span class="material-symbols-outlined text-[12px] text-rose-500">warning</span><span>RETRACTED</span>';
+                badgeSpan.className =
+                    'retraction-badge px-2 py-0.5 rounded text-[10px] font-mono font-bold flex items-center gap-1 shadow-sm animate-pulse';
+                badgeSpan.title =
+                    'This publication has been RETRACTED according to Crossref metadata';
+                badgeSpan.innerHTML =
+                    '<span class="material-symbols-outlined text-[12px] text-rose-500">warning</span><span>RETRACTED</span>';
 
                 const dot = document.createElement('span');
                 dot.className = 'text-secondary-muted';
@@ -547,17 +565,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (contentContainer && !contentContainer.querySelector('.retraction-banner')) {
                 const banner = document.createElement('div');
-                banner.className = 'retraction-banner text-xs font-mono flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-rose-500/30';
-                banner.innerHTML = '<span class="material-symbols-outlined text-sm text-rose-500">gpp_maybe</span><span><strong>CRITICAL WARNING:</strong> Retracted in Crossmark metadata.</span>';
+                banner.className =
+                    'retraction-banner text-xs font-mono flex items-center gap-1.5 py-1.5 px-2.5 rounded-lg border border-rose-500/30';
+                banner.innerHTML =
+                    '<span class="material-symbols-outlined text-sm text-rose-500">gpp_maybe</span><span><strong>CRITICAL WARNING:</strong> Retracted in Crossmark metadata.</span>';
                 contentContainer.insertBefore(banner, contentContainer.firstChild);
             }
         } else if (data.hasCorrections) {
             paper.hasCorrections = true;
-            if (metaContainer && !metaContainer.querySelector('.correction-badge') && !metaContainer.querySelector('.retraction-badge')) {
+            if (
+                metaContainer &&
+                !metaContainer.querySelector('.correction-badge') &&
+                !metaContainer.querySelector('.retraction-badge')
+            ) {
                 const badgeSpan = document.createElement('span');
-                badgeSpan.className = 'correction-badge px-2 py-0.5 rounded text-[10px] font-mono flex items-center gap-1';
+                badgeSpan.className =
+                    'correction-badge px-2 py-0.5 rounded text-[10px] font-mono flex items-center gap-1';
                 badgeSpan.title = 'This publication has formal corrections or errata';
-                badgeSpan.innerHTML = '<span class="material-symbols-outlined text-[12px] text-amber-500">edit_note</span><span>CORRECTED</span>';
+                badgeSpan.innerHTML =
+                    '<span class="material-symbols-outlined text-[12px] text-amber-500">edit_note</span><span>CORRECTED</span>';
 
                 const dot = document.createElement('span');
                 dot.className = 'text-secondary-muted';
@@ -616,15 +642,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             const stance = paper.consensusStance || 'neutral';
             const idxStr = String(idx + 1).padStart(2, '0');
-            
+
             card.className = `paper-card ${state.selectedPaperId === paper.id ? 'selected' : ''}`;
-            
+
             const authorsStr = (paper.authors || []).join(', ') || 'Unknown Authors';
-            const abstractExcerpt = paper.abstract 
-                ? (paper.abstract.length > 240 ? paper.abstract.substring(0, 240) + '...' : paper.abstract)
+            const abstractExcerpt = paper.abstract
+                ? paper.abstract.length > 240
+                    ? paper.abstract.substring(0, 240) + '...'
+                    : paper.abstract
                 : 'No abstract available.';
 
-                    const readingMetrics = calculateReadingMetrics(paper.abstract || paper.title || '');
+            const readingMetrics = calculateReadingMetrics(paper.abstract || paper.title || '');
             const readingBadgeHtml = formatReadingTimeBadge(readingMetrics);
             const retractionBadgeHtml = getRetractionBadgeHtml(paper);
             const retractionBannerHtml = paper.isRetracted
@@ -686,7 +714,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.addEventListener('click', (e) => {
                 if (e.target.closest('a') || e.target.closest('.paper-select-checkbox')) return;
 
-                document.querySelectorAll('#results-list .paper-card').forEach(c => c.classList.remove('selected'));
+                document
+                    .querySelectorAll('#results-list .paper-card')
+                    .forEach((c) => c.classList.remove('selected'));
                 card.classList.add('selected');
                 state.selectedPaperId = paper.id;
                 appendChat('System', `Publication #${idxStr} selected: "${paper.title}"`);
@@ -715,7 +745,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Calculate percentage segments dynamically
-        const totalCount = (data.supportsCount || 0) + (data.neutralCount || 0) + (data.contradictsCount || 0);
+        const totalCount =
+            (data.supportsCount || 0) + (data.neutralCount || 0) + (data.contradictsCount || 0);
         if (totalCount > 0) {
             const supportsPct = Math.round(((data.supportsCount || 0) / totalCount) * 100);
             const neutralPct = Math.round(((data.neutralCount || 0) / totalCount) * 100);
@@ -741,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (data.paperStances) {
-            state.searchResults.forEach(p => {
+            state.searchResults.forEach((p) => {
                 if (data.paperStances[p.id]) p.consensusStance = data.paperStances[p.id];
             });
             renderPaperCards();
@@ -753,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/consensus', {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify({ query, papers: state.searchResults })
+                body: JSON.stringify({ query, papers: state.searchResults }),
             });
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
@@ -783,7 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         matrixBody.innerHTML = '';
         if (exportCsvBtn) exportCsvBtn.classList.remove('hidden');
 
-        state.matrixData.forEach(row => {
+        state.matrixData.forEach((row) => {
             const tr = document.createElement('tr');
             tr.className = 'border-b editorial-rule hover:bg-primary/[0.015] transition-colors';
             tr.innerHTML = `
@@ -813,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/compare', {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify({ papers: state.searchResults })
+                body: JSON.stringify({ papers: state.searchResults }),
             });
             if (!res.ok) {
                 const errData = await res.json().catch(() => ({}));
@@ -837,17 +868,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.citationVisualizer = null;
             }
 
-            const res = await fetch('/api/network-graph', {
-                method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ query, papers: state.searchResults })
-            });
-            if (!res.ok) throw new Error('Network graph failed');
-            const data = await res.json();
+            let data = null;
+            try {
+                let res = await fetch('/api/network-graph', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ query, papers: state.searchResults }),
+                });
+
+                if (!res.ok) {
+                    res = await fetch('/.netlify/functions/network-graph', {
+                        method: 'POST',
+                        headers: getHeaders(),
+                        body: JSON.stringify({ query, papers: state.searchResults }),
+                    }).catch(() => null);
+                }
+
+                if (res && res.ok) {
+                    data = await res.json().catch(() => null);
+                }
+            } catch (fetchErr) {
+                console.warn(
+                    'Network graph API endpoint unavailable, falling back to client synthesis:',
+                    fetchErr,
+                );
+            }
+
+            // Client-side lineage synthesis fallback if API is unavailable or returns 0 nodes
+            if (
+                (!data || !data.nodes || data.nodes.length === 0) &&
+                state.searchResults &&
+                state.searchResults.length > 0
+            ) {
+                data = synthesizeClientNetworkData(state.searchResults);
+            }
 
             networkContainer.innerHTML = '';
 
-            if (!data.nodes || data.nodes.length === 0) {
+            if (!data || !data.nodes || data.nodes.length === 0) {
                 networkContainer.innerHTML = `
                     <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-[10px] uppercase tracking-widest text-secondary">
                         No citation connections found.
@@ -858,12 +916,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             state.citationVisualizer = createCitationVisualizer(networkContainer, {
                 onNodeClick: (node) => {
-                    const paper = state.searchResults.find(p => p.id === node.id);
+                    const paper = state.searchResults.find((p) => p.id === node.id);
                     if (paper) {
                         appendChat('System', `Focus Node selected: "${paper.title}"`);
                         loadCitationContext(paper);
                     }
-                }
+                },
             });
 
             state.citationVisualizer.setData(data, state.searchResults);
@@ -871,10 +929,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Bind interactive legend filter buttons
             const legendBtns = document.querySelectorAll('.legend-filter-btn');
-            legendBtns.forEach(btn => {
+            legendBtns.forEach((btn) => {
                 btn.onclick = () => {
                     const role = btn.getAttribute('data-role');
-                    legendBtns.forEach(b => {
+                    legendBtns.forEach((b) => {
                         if (b === btn) {
                             b.classList.toggle('active');
                         } else {
@@ -886,7 +944,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
             });
-
         } catch (err) {
             console.error('Network error:', err);
             networkContainer.innerHTML = `
@@ -899,7 +956,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dynamic theme update for citation graph
     window.addEventListener('themechange', () => {
-        if (state.citationVisualizer && state.currentQuery && state.searchResults && state.searchResults.length > 0) {
+        if (
+            state.citationVisualizer &&
+            state.currentQuery &&
+            state.searchResults &&
+            state.searchResults.length > 0
+        ) {
             runNetworkGraph(state.currentQuery);
         }
     });
@@ -912,19 +974,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/citation-context', {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify({ doi: paper.doi, title: paper.title })
+                body: JSON.stringify({ doi: paper.doi, title: paper.title }),
             });
             if (!res.ok) throw new Error();
             const data = await res.json();
 
             let html = `<strong>GENEALOGICAL CITATION INTENTS:</strong><br/>"${paper.title}"<br/><br/>`;
-            
+
             html += `<strong>Supports (${data.supporting.length}):</strong><br/>`;
-            (data.supporting || []).slice(0, 2).forEach(s => html += `— <em>"${s.context}"</em><br/>`);
+            (data.supporting || [])
+                .slice(0, 2)
+                .forEach((s) => (html += `— <em>"${s.context}"</em><br/>`));
             if (!data.supporting.length) html += '— None annotated.<br/>';
 
             html += `<br/><strong>Contradicts (${data.contradicting.length}):</strong><br/>`;
-            (data.contradicting || []).slice(0, 2).forEach(s => html += `— <em>"${s.context}"</em><br/>`);
+            (data.contradicting || [])
+                .slice(0, 2)
+                .forEach((s) => (html += `— <em>"${s.context}"</em><br/>`));
             if (!data.contradicting.length) html += '— None annotated.<br/>';
 
             html += `<br/><strong>Mentioning (${data.mentioning.length}):</strong><br/>`;
@@ -933,7 +999,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             appendChat('AI', html);
         } catch {
-            appendChat('AI', `<strong>${paper.title}</strong> (${paper.year || 'N/A'})<br/><br/>Abstract: ${paper.abstract || 'No abstract available.'}`);
+            appendChat(
+                'AI',
+                `<strong>${paper.title}</strong> (${paper.year || 'N/A'})<br/><br/>Abstract: ${paper.abstract || 'No abstract available.'}`,
+            );
         }
     }
 
@@ -956,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropdowns = [
         { btn: 'export-consensus-btn', menu: 'export-consensus-menu' },
         { btn: 'export-matrix-menu-btn', menu: 'export-matrix-menu' },
-        { btn: 'export-graph-menu-btn', menu: 'export-graph-menu' }
+        { btn: 'export-graph-menu-btn', menu: 'export-graph-menu' },
     ];
 
     dropdowns.forEach(({ btn, menu }) => {
@@ -965,7 +1034,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnEl && menuEl) {
             btnEl.addEventListener('click', (e) => {
                 e.stopPropagation();
-                dropdowns.forEach(d => {
+                dropdowns.forEach((d) => {
                     if (d.menu !== menu) {
                         const otherMenu = $(d.menu);
                         if (otherMenu) otherMenu.classList.add('hidden');
@@ -992,7 +1061,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const consensus = state.consensusData || {};
             const score = consensus.consensusScore || 0;
             const summary = consensus.summaryText || 'No summary text generated.';
-            
+
             const safeQuery = String(query).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
             let md = `---\n`;
             md += `title: "AbstractiFy Scientific Consensus Summary"\n`;
@@ -1008,12 +1077,16 @@ document.addEventListener('DOMContentLoaded', () => {
             md += `| Paper Title | Year | Venue | Stance | Citations |\n`;
             md += `|---|---|---|---|---|\n`;
 
-            state.searchResults.forEach(p => {
+            state.searchResults.forEach((p) => {
                 const stance = p.consensusStance || 'Neutral';
                 md += `| ${(p.title || 'N/A').replace(/\|/g, '-')} | ${p.year || 'N/A'} | ${p.venue || 'Journal'} | **${stance}** | ${p.citationCount || 0} |\n`;
             });
 
-            downloadFile(`AbstractiFy_Consensus_${query.replace(/[^a-zA-Z0-9]/g, '_')}.md`, md, 'text/markdown');
+            downloadFile(
+                `AbstractiFy_Consensus_${query.replace(/[^a-zA-Z0-9]/g, '_')}.md`,
+                md,
+                'text/markdown',
+            );
         });
     }
 
@@ -1022,13 +1095,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (exportConsensusJsonBtn) {
         exportConsensusJsonBtn.addEventListener('click', () => {
             const data = {
-                generator: "AbstractiFy Academic Portal",
+                generator: 'AbstractiFy Academic Portal',
                 timestamp: new Date().toISOString(),
                 query: state.currentQuery,
                 consensus: state.consensusData,
-                papers: state.searchResults
+                papers: state.searchResults,
             };
-            downloadFile(`AbstractiFy_Consensus_${(state.currentQuery || 'analysis').replace(/[^a-zA-Z0-9]/g, '_')}.json`, JSON.stringify(data, null, 2), 'application/json');
+            downloadFile(
+                `AbstractiFy_Consensus_${(state.currentQuery || 'analysis').replace(/[^a-zA-Z0-9]/g, '_')}.json`,
+                JSON.stringify(data, null, 2),
+                'application/json',
+            );
         });
     }
 
@@ -1059,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             md += `|---|---|---|---|---|\n`;
 
             if (state.matrixData && state.matrixData.length > 0) {
-                state.matrixData.forEach(row => {
+                state.matrixData.forEach((row) => {
                     md += `| **${(row.title || 'N/A').replace(/\|/g, '-')}** | ${row.datasetSize || 'N/A'} | ${row.methodology || 'N/A'} | ${row.outcomes || 'N/A'} | ${row.limitations || 'N/A'} |\n`;
                 });
             } else {
@@ -1074,25 +1151,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportGraphJsonBtn = $('export-graph-json-btn');
     if (exportGraphJsonBtn) {
         exportGraphJsonBtn.addEventListener('click', () => {
-            const nodes = state.searchResults.map(p => ({
+            const nodes = state.searchResults.map((p) => ({
                 id: p.id,
                 label: p.title,
                 year: p.year,
                 citationCount: p.citationCount,
-                authors: (p.authors || []).map(a => a.name),
+                authors: (p.authors || []).map((a) => a.name),
                 doi: p.doi || null,
-                url: p.url || null
+                url: p.url || null,
             }));
 
             const graphData = {
-                generator: "AbstractiFy Obsidian Graph Exporter",
+                generator: 'AbstractiFy Obsidian Graph Exporter',
                 query: state.currentQuery,
                 exportedAt: new Date().toISOString(),
                 nodesCount: nodes.length,
-                nodes: nodes
+                nodes: nodes,
             };
 
-            downloadFile(`AbstractiFy_Citation_Graph_${(state.currentQuery || 'network').replace(/[^a-zA-Z0-9]/g, '_')}.json`, JSON.stringify(graphData, null, 2), 'application/json');
+            downloadFile(
+                `AbstractiFy_Citation_Graph_${(state.currentQuery || 'network').replace(/[^a-zA-Z0-9]/g, '_')}.json`,
+                JSON.stringify(graphData, null, 2),
+                'application/json',
+            );
         });
     }
 
@@ -1109,10 +1190,13 @@ document.addEventListener('DOMContentLoaded', () => {
             bib += `% Query: ${state.currentQuery || 'Academic Search'}\n\n`;
 
             state.searchResults.forEach((p, idx) => {
-                const firstAuthor = (p.authors && p.authors[0]) ? p.authors[0].name.split(' ').pop().toLowerCase() : 'author';
+                const firstAuthor =
+                    p.authors && p.authors[0]
+                        ? p.authors[0].name.split(' ').pop().toLowerCase()
+                        : 'author';
                 const year = p.year || '2026';
                 const citationKey = `${firstAuthor}${year}paper${idx + 1}`;
-                const authorList = (p.authors || []).map(a => a.name).join(' and ');
+                const authorList = (p.authors || []).map((a) => a.name).join(' and ');
 
                 bib += `@article{${citationKey},\n`;
                 bib += `  author = {${authorList || 'Unknown Author'}},\n`;
@@ -1124,7 +1208,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 bib += `}\n\n`;
             });
 
-            downloadFile(`AbstractiFy_References_${(state.currentQuery || 'bib').replace(/[^a-zA-Z0-9]/g, '_')}.bib`, bib, 'text/plain');
+            downloadFile(
+                `AbstractiFy_References_${(state.currentQuery || 'bib').replace(/[^a-zA-Z0-9]/g, '_')}.bib`,
+                bib,
+                'text/plain',
+            );
         });
     }
 
@@ -1132,14 +1220,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function formatRIS(papers) {
         const risField = (tag, value) => {
             if (value === undefined || value === null || value === '') return '';
-            const oneLine = String(value).replace(/\s*\r?\n\s*/g, ' ').trim();
+            const oneLine = String(value)
+                .replace(/\s*\r?\n\s*/g, ' ')
+                .trim();
             return oneLine ? `${tag}  - ${oneLine}\r\n` : '';
         };
 
         const risAuthorName = (author) => {
-            const rawName = typeof author === 'string'
-                ? author
-                : (author && typeof author === 'object' && author.name ? author.name : '');
+            const rawName =
+                typeof author === 'string'
+                    ? author
+                    : author && typeof author === 'object' && author.name
+                      ? author.name
+                      : '';
             const clean = rawName.replace(/\s+/g, ' ').trim();
             if (!clean || clean.includes(',')) return clean;
             const parts = clean.split(' ');
@@ -1147,20 +1240,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return `${parts[parts.length - 1]}, ${parts.slice(0, -1).join(' ')}`;
         };
 
-        return (papers || []).map(p => {
-            let entry = 'TY  - JOUR\r\n';
-            entry += risField('TI', p.title);
-            (p.authors || []).forEach(a => {
-                entry += risField('AU', risAuthorName(a));
-            });
-            entry += risField('PY', p.year);
-            entry += risField('JO', p.venue);
-            entry += risField('DO', p.doi);
-            entry += risField('UR', p.url);
-            entry += risField('AB', p.abstract);
-            entry += 'ER  - \r\n';
-            return entry;
-        }).join('\r\n');
+        return (papers || [])
+            .map((p) => {
+                let entry = 'TY  - JOUR\r\n';
+                entry += risField('TI', p.title);
+                (p.authors || []).forEach((a) => {
+                    entry += risField('AU', risAuthorName(a));
+                });
+                entry += risField('PY', p.year);
+                entry += risField('JO', p.venue);
+                entry += risField('DO', p.doi);
+                entry += risField('UR', p.url);
+                entry += risField('AB', p.abstract);
+                entry += 'ER  - \r\n';
+                return entry;
+            })
+            .join('\r\n');
     }
 
     const exportGraphRisBtn = $('export-graph-ris-btn');
@@ -1172,29 +1267,33 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-            downloadFile(`abstractify_references_${stamp}.ris`, formatRIS(state.searchResults), 'application/x-research-info-systems');
+            downloadFile(
+                `abstractify_references_${stamp}.ris`,
+                formatRIS(state.searchResults),
+                'application/x-research-info-systems',
+            );
         });
     }
 
     // ══════════════════════════════════════════════════════
     //  BIBLIOGRAPHY GENERATOR MODAL (Issue #04)
     // ══════════════════════════════════════════════════════
-    const bibModal              = $('bibliography-modal');
-    const exportBibBtn          = $('export-bib-btn');
-    const explorerExportBibBtn  = $('explorer-export-bib-btn');
-    const bibCloseBtn           = $('bib-close-btn');
-    const bibStyleSelect        = $('bib-style-select');
-    const bibPreviewText        = $('bib-preview-text');
-    const bibCountBadge         = $('bib-count-badge');
-    const bibCopyBtn            = $('bib-copy-btn');
-    const bibDownloadBtn        = $('bib-download-btn');
-    const bibDownloadLabel      = $('bib-download-label');
-    const bibToast              = $('bib-toast');
+    const bibModal = $('bibliography-modal');
+    const exportBibBtn = $('export-bib-btn');
+    const explorerExportBibBtn = $('explorer-export-bib-btn');
+    const bibCloseBtn = $('bib-close-btn');
+    const bibStyleSelect = $('bib-style-select');
+    const bibPreviewText = $('bib-preview-text');
+    const bibCountBadge = $('bib-count-badge');
+    const bibCopyBtn = $('bib-copy-btn');
+    const bibDownloadBtn = $('bib-download-btn');
+    const bibDownloadLabel = $('bib-download-label');
+    const bibToast = $('bib-toast');
 
     function getSelectedOrAllPapers() {
         if (state.selectedPaperIds.size > 0) {
             return (state.searchResults || []).filter((p, idx) =>
-                state.selectedPaperIds.has(getPaperKey(p, idx))
+                state.selectedPaperIds.has(getPaperKey(p, idx)),
             );
         }
         return state.searchResults || [];
@@ -1206,16 +1305,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const style = bibStyleSelect ? bibStyleSelect.value : 'apa';
 
         if (selectedPapers.length === 0) {
-            if (bibPreviewText) bibPreviewText.value = 'No publications currently available to format. Enter a search query to load papers.';
+            if (bibPreviewText)
+                bibPreviewText.value =
+                    'No publications currently available to format. Enter a search query to load papers.';
             if (bibCountBadge) bibCountBadge.innerText = '0 Papers Available';
             return;
         }
 
         const checkedCount = state.selectedPaperIds.size;
         if (bibCountBadge) {
-            bibCountBadge.innerText = checkedCount > 0
-                ? `${checkedCount} of ${state.searchResults.length} Selected`
-                : `All Papers (${state.searchResults.length})`;
+            bibCountBadge.innerText =
+                checkedCount > 0
+                    ? `${checkedCount} of ${state.searchResults.length} Selected`
+                    : `All Papers (${state.searchResults.length})`;
         }
 
         const formatted = exportBibliography(selectedPapers, style);
@@ -1257,7 +1359,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 await navigator.clipboard.writeText(bibPreviewText.value);
                 if (bibToast) {
-                    bibToast.innerHTML = '<span class="material-symbols-outlined text-sm">check_circle</span><span>Citations copied to clipboard!</span>';
+                    bibToast.innerHTML =
+                        '<span class="material-symbols-outlined text-sm">check_circle</span><span>Citations copied to clipboard!</span>';
                     bibToast.classList.remove('opacity-0');
                     bibToast.classList.add('opacity-100');
                     setTimeout(() => {
@@ -1270,7 +1373,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 bibPreviewText.focus();
                 bibPreviewText.select();
                 if (bibToast) {
-                    bibToast.innerHTML = '<span class="material-symbols-outlined text-sm">content_copy</span><span>Press Ctrl+C (Cmd+C) to copy</span>';
+                    bibToast.innerHTML =
+                        '<span class="material-symbols-outlined text-sm">content_copy</span><span>Press Ctrl+C (Cmd+C) to copy</span>';
                     bibToast.classList.remove('opacity-0');
                     bibToast.classList.add('opacity-100');
                     setTimeout(() => {
@@ -1292,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const style = bibStyleSelect ? bibStyleSelect.value : 'apa';
             const content = exportBibliography(selectedPapers, style);
             const safeQuery = (state.currentQuery || 'references').replace(/[^a-zA-Z0-9]/g, '_');
-            
+
             let ext = 'txt';
             let mime = 'text/plain';
             if (style === 'bibtex') {
@@ -1358,8 +1462,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 onError: (err) => {
                     console.error('Screenshot export error:', err);
-                    alert('Failed to generate panel screenshot. Ensure all external assets are loaded.');
-                }
+                    alert(
+                        'Failed to generate panel screenshot. Ensure all external assets are loaded.',
+                    );
+                },
             });
         } finally {
             btn.disabled = false;
@@ -1371,20 +1477,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // ══════════════════════════════════════════════════════
     //  SAVED RESEARCH SESSIONS (Issue #18)
     // ══════════════════════════════════════════════════════
-    const sessionsBtn            = $('sessions-btn');
-    const saveSessionBtn         = $('save-session-btn');
-    const sessionsModal          = $('sessions-modal');
-    const sessionsCloseBtn       = $('sessions-close-btn');
-    const sessionTitleInput      = $('session-title-input');
-    const sessionTagsInput       = $('session-tags-input');
-    const btnSaveCurrentSession  = $('btn-save-current-session');
-    const saveSessionStatus      = $('save-session-status');
-    const sessionsList           = $('sessions-list');
-    const clearAllSessionsBtn    = $('clear-all-sessions-btn');
-    const sessionsCountBadge     = $('sessions-count-badge');
-    const modalSessionsCount     = $('modal-sessions-count');
-    const sessionToast           = $('session-toast');
-    let sessionToastTimer        = null;
+    const sessionsBtn = $('sessions-btn');
+    const saveSessionBtn = $('save-session-btn');
+    const sessionsModal = $('sessions-modal');
+    const sessionsCloseBtn = $('sessions-close-btn');
+    const sessionTitleInput = $('session-title-input');
+    const sessionTagsInput = $('session-tags-input');
+    const btnSaveCurrentSession = $('btn-save-current-session');
+    const saveSessionStatus = $('save-session-status');
+    const sessionsList = $('sessions-list');
+    const clearAllSessionsBtn = $('clear-all-sessions-btn');
+    const sessionsCountBadge = $('sessions-count-badge');
+    const modalSessionsCount = $('modal-sessions-count');
+    const sessionToast = $('session-toast');
+    let sessionToastTimer = null;
 
     function showSessionToast(message = '✨ Session saved successfully!') {
         if (!sessionToast) return;
@@ -1421,7 +1527,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sessions.forEach((session) => {
             const card = document.createElement('div');
-            card.className = 'session-card flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+            card.className =
+                'session-card flex flex-col sm:flex-row sm:items-center justify-between gap-3';
 
             const leftCol = document.createElement('div');
             leftCol.className = 'space-y-1.5 flex-1 min-w-0';
@@ -1464,7 +1571,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 metaRow.appendChild(scoreBadge);
             }
 
-            (session.tags || []).forEach(tag => {
+            (session.tags || []).forEach((tag) => {
                 const tagEl = document.createElement('span');
                 tagEl.className = 'session-tag-chip';
                 tagEl.textContent = tag;
@@ -1479,14 +1586,16 @@ document.addEventListener('DOMContentLoaded', () => {
             actionsCol.className = 'flex items-center gap-2 self-end sm:self-center';
 
             const restoreBtn = document.createElement('button');
-            restoreBtn.className = 'btn-restore-session secondary-btn text-xs py-1.5 px-3 flex items-center gap-1 cursor-pointer';
+            restoreBtn.className =
+                'btn-restore-session secondary-btn text-xs py-1.5 px-3 flex items-center gap-1 cursor-pointer';
             restoreBtn.setAttribute('data-id', session.id);
             restoreBtn.title = 'Restore research session to workspace';
             restoreBtn.innerHTML = `<span class="material-symbols-outlined text-sm">history</span><span>Restore</span>`;
             actionsCol.appendChild(restoreBtn);
 
             const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'btn-delete-session text-secondary hover:text-red-700 p-1.5 rounded transition-colors cursor-pointer flex items-center';
+            deleteBtn.className =
+                'btn-delete-session text-secondary hover:text-red-700 p-1.5 rounded transition-colors cursor-pointer flex items-center';
             deleteBtn.setAttribute('data-id', session.id);
             deleteBtn.title = 'Delete saved session';
             deleteBtn.innerHTML = `<span class="material-symbols-outlined text-base">delete</span>`;
@@ -1499,17 +1608,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function restoreSavedSession(sessionId) {
         const sessions = getSavedSessions();
-        const session = sessions.find(s => s.id === sessionId);
+        const session = sessions.find((s) => s.id === sessionId);
         if (!session) {
             alert('Selected research session could not be located.');
             return;
         }
 
         // 1. Populate state
-        state.currentQuery    = session.query || session.title;
-        state.searchResults   = session.searchResults || [];
-        state.consensusData   = session.consensusData || null;
-        state.matrixData      = session.matrixData || [];
+        state.currentQuery = session.query || session.title;
+        state.searchResults = session.searchResults || [];
+        state.consensusData = session.consensusData || null;
+        state.matrixData = session.matrixData || [];
         state.selectedPaperIds = new Set();
         state.selectedPaperId = null;
 
@@ -1572,7 +1681,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const title = (sessionTitleInput ? sessionTitleInput.value.trim() : '') || state.currentQuery || 'Research Inquiry';
+            const title =
+                (sessionTitleInput ? sessionTitleInput.value.trim() : '') ||
+                state.currentQuery ||
+                'Research Inquiry';
             const tags = sessionTagsInput ? sessionTagsInput.value : '';
 
             const res = saveSession({
@@ -1581,7 +1693,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tags,
                 searchResults: state.searchResults,
                 consensusData: state.consensusData,
-                matrixData: state.matrixData
+                matrixData: state.matrixData,
             });
 
             if (res.success) {
@@ -1589,7 +1701,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (sessionTagsInput) sessionTagsInput.value = '';
                 if (saveSessionStatus) {
                     saveSessionStatus.textContent = 'Saved!';
-                    setTimeout(() => { if (saveSessionStatus) saveSessionStatus.textContent = ''; }, 2500);
+                    setTimeout(() => {
+                        if (saveSessionStatus) saveSessionStatus.textContent = '';
+                    }, 2500);
                 }
                 updateSessionsCountBadge();
                 renderSessionsList();
@@ -1638,7 +1752,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Sessions badge on page load
     updateSessionsCountBadge();
 
-
     // ══════════════════════════════════════════════════════
     //  PDF UPLOAD & INGESTION
     // ══════════════════════════════════════════════════════
@@ -1669,7 +1782,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/pdf-upload', {
                 method: 'POST',
                 headers: headers,
-                body: formData
+                body: formData,
             });
 
             if (!res.ok) throw new Error('Upload failed');
@@ -1677,10 +1790,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Store chunks in client-side state for chat RAG
             state.pdfChunks = data.chunks || [];
-            state.formulas  = data.formulas || [];
+            state.formulas = data.formulas || [];
 
-            const combinedPdfText = (state.pdfChunks || []).map(c => c.text || '').join(' ');
-            const pdfMetrics = calculateReadingMetrics(combinedPdfText, { formulaCount: state.formulas.length });
+            const combinedPdfText = (state.pdfChunks || []).map((c) => c.text || '').join(' ');
+            const pdfMetrics = calculateReadingMetrics(combinedPdfText, {
+                formulaCount: state.formulas.length,
+            });
             const pdfBadgeHtml = formatReadingTimeBadge(pdfMetrics);
 
             const folioBadge = $('folio-reading-badge');
@@ -1689,9 +1804,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 folioBadge.classList.remove('hidden');
             }
 
-            appendChat('AI', `✅ SUCCESSFULLY INGESTED <strong>${file.name}</strong><br/>distilled ${data.chunkCount || 0} semantic blocks, ${state.formulas.length} mathematical equations.<br/><div class="mt-2 flex items-center gap-2">${pdfBadgeHtml}</div>You can now prompt the assistant about this document.`);
+            appendChat(
+                'AI',
+                `✅ SUCCESSFULLY INGESTED <strong>${file.name}</strong><br/>distilled ${data.chunkCount || 0} semantic blocks, ${state.formulas.length} mathematical equations.<br/><div class="mt-2 flex items-center gap-2">${pdfBadgeHtml}</div>You can now prompt the assistant about this document.`,
+            );
             renderFormulas();
-
         } catch (err) {
             console.error('PDF upload error:', err);
             appendChat('System', `Failed to ingest PDF. Please select an alternate publication.`);
@@ -1704,7 +1821,8 @@ document.addEventListener('DOMContentLoaded', () => {
         state.pdfChunks = [];
         state.formulas = [];
         state.selectedFormula = null;
-        formulaList.innerHTML = '<span class="text-[11px] text-secondary italic">Upload a PDF to extract math formulas automatically</span>';
+        formulaList.innerHTML =
+            '<span class="text-[11px] text-secondary italic">Upload a PDF to extract math formulas automatically</span>';
         formulaExplanation.classList.add('hidden');
     }
 
@@ -1714,15 +1832,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderFormulas() {
         formulaList.innerHTML = '';
         if (state.formulas.length === 0) {
-            formulaList.innerHTML = '<span class="text-[11px] text-secondary italic">No mathematical foundations detected in PDF.</span>';
+            formulaList.innerHTML =
+                '<span class="text-[11px] text-secondary italic">No mathematical foundations detected in PDF.</span>';
             return;
         }
         state.formulas.forEach((formula) => {
             const span = document.createElement('span');
-            span.className = 'formula-item font-mono text-[9px] border border-primary/20 px-2 py-0.5 cursor-pointer hover:bg-primary/5';
+            span.className =
+                'formula-item font-mono text-[9px] border border-primary/20 px-2 py-0.5 cursor-pointer hover:bg-primary/5';
             renderLatex(formula.equation, span, { displayMode: false });
             span.addEventListener('click', () => {
-                document.querySelectorAll('.formula-item').forEach(s => s.classList.remove('selected', 'solid-texture-fill', 'text-background'));
+                document
+                    .querySelectorAll('.formula-item')
+                    .forEach((s) =>
+                        s.classList.remove('selected', 'solid-texture-fill', 'text-background'),
+                    );
                 span.classList.add('selected', 'solid-texture-fill', 'text-background');
                 explainEquation(formula);
             });
@@ -1740,7 +1864,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/pdf-explain-math', {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify({ equation: formula.equation, context: formula.context })
+                body: JSON.stringify({ equation: formula.equation, context: formula.context }),
             });
             if (!res.ok) throw new Error();
             const data = await res.json();
@@ -1753,7 +1877,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             renderMathInContainer(selectedFormulaDesc);
         } catch {
-            selectedFormulaDesc.innerText = 'Could not compile physical explanation. Verify credentials.';
+            selectedFormulaDesc.innerText =
+                'Could not compile physical explanation. Verify credentials.';
         }
     }
 
@@ -1776,8 +1901,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message: userMsg,
                     chunks: state.pdfChunks,
-                    searchResults: state.searchResults
-                })
+                    searchResults: state.searchResults,
+                }),
             });
 
             removeTypingIndicator();
@@ -1790,11 +1915,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Append execution logs as system notifications
             if (data.logs && data.logs.length > 0) {
-                data.logs.forEach(log => appendChat('System', `🔧 ${log}`));
+                data.logs.forEach((log) => appendChat('System', `🔧 ${log}`));
             }
 
             appendChat('AI', data.reply || 'No response generated.');
-
         } catch (err) {
             removeTypingIndicator();
             appendChat('AI', `System Failure: ${err.message}`);

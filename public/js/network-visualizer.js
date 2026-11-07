@@ -65,8 +65,14 @@ export function getNodeThemeColors(isDark, role) {
             return {
                 background: isDark ? '#1E293B' : '#F8FAFC',
                 border: isDark ? '#64748B' : '#94A3B8',
-                highlight: { background: isDark ? '#334155' : '#E2E8F0', border: isDark ? '#38BDF8' : '#002147' },
-                hover: { background: isDark ? '#334155' : '#E2E8F0', border: isDark ? '#38BDF8' : '#002147' },
+                highlight: {
+                    background: isDark ? '#334155' : '#E2E8F0',
+                    border: isDark ? '#38BDF8' : '#002147',
+                },
+                hover: {
+                    background: isDark ? '#334155' : '#E2E8F0',
+                    border: isDark ? '#38BDF8' : '#002147',
+                },
                 particleColor: isDark ? '#38BDF8' : '#0284C7',
                 haloColor: 'rgba(56, 189, 248, 0.35)',
             };
@@ -117,6 +123,141 @@ export function calculateNodeSize(citations) {
 }
 
 /**
+ * Synthesizes client-side citation network graph data from paper objects.
+ * Guarantees a connected DAG topology with landmark, foundation, and recent nodes.
+ * @param {Array<Object>} papers
+ * @returns {{ nodes: Array<Object>, edges: Array<Object> }}
+ */
+export function synthesizeClientNetworkData(papers) {
+    if (!papers || papers.length === 0) {
+        return { nodes: [], edges: [] };
+    }
+
+    const currentYear = new Date().getFullYear();
+    const years = papers.map((p) => p.year || currentYear).filter((y) => y > 1950);
+    const minYear = years.length > 0 ? Math.min(...years) : 2020;
+    const maxYear = years.length > 0 ? Math.max(...years) : currentYear;
+    const maxCitations = Math.max(...papers.map((p) => p.citations || p.citationCount || 0), 0);
+
+    const nodes = papers.map((p, index) => {
+        const citations = p.citations || p.citationCount || 0;
+        const year = p.year || 2020;
+        let nodeType = 'standard';
+
+        if (index === 0) {
+            nodeType = 'focus';
+        } else if (citations > 0 && citations === maxCitations && citations >= 20) {
+            nodeType = 'landmark';
+        } else if (year <= minYear + 1 && citations > 5) {
+            nodeType = 'foundation';
+        } else if (year >= maxYear - 1) {
+            nodeType = 'recent';
+        }
+
+        const authorNames = Array.isArray(p.authors)
+            ? p.authors.map((a) => (typeof a === 'string' ? a : a.name || 'Unknown'))
+            : [];
+
+        return {
+            id: String(p.id),
+            title: p.title || 'Untitled Publication',
+            authors: authorNames,
+            citations,
+            year,
+            doi: p.doi,
+            venue: p.venue || p.journal || 'Academic Publication',
+            abstract: p.abstract ? p.abstract.substring(0, 280) + '...' : undefined,
+            nodeType,
+        };
+    });
+
+    if (maxCitations > 15 && !nodes.some((n) => n.nodeType === 'landmark')) {
+        const candidates = nodes.filter((n) => n.nodeType !== 'focus');
+        if (candidates.length > 0) {
+            const nextHighest = candidates.reduce(
+                (max, n) => (n.citations > max.citations ? n : max),
+                candidates[0],
+            );
+            if (nextHighest && nextHighest.citations >= 10) {
+                nextHighest.nodeType = 'landmark';
+            }
+        }
+    }
+
+    // Connect chronological DAG lineage
+    const edges = [];
+    const edgeMap = new Set();
+    const sorted = [...nodes].sort((a, b) => a.year - b.year || b.citations - a.citations);
+
+    for (let i = 0; i < sorted.length; i++) {
+        const src = sorted[i];
+        for (let j = i + 1; j < sorted.length; j++) {
+            const tgt = sorted[j];
+            const key = `${src.id}->${tgt.id}`;
+            const reverseKey = `${tgt.id}->${src.id}`;
+            if (edgeMap.has(key) || edgeMap.has(reverseKey)) continue;
+
+            const isLandmark =
+                src.nodeType === 'landmark' ||
+                src.nodeType === 'foundation' ||
+                src.nodeType === 'focus';
+            if (j <= i + 2 || isLandmark) {
+                edgeMap.add(key);
+                edges.push({
+                    source: src.id,
+                    target: tgt.id,
+                    type: 'lineage',
+                    weight: isLandmark ? 0.9 : 0.6,
+                });
+            }
+        }
+    }
+
+    // Ensure all nodes are connected
+    const connected = new Set();
+    edges.forEach((e) => {
+        connected.add(e.source);
+        connected.add(e.target);
+    });
+
+    nodes.forEach((n) => {
+        if (!connected.has(n.id) && nodes.length > 1) {
+            const parent =
+                nodes.find(
+                    (p) => p.id !== n.id && (p.nodeType === 'landmark' || p.year <= n.year),
+                ) || nodes[0];
+            if (parent && parent.id !== n.id) {
+                const key = `${parent.id}->${n.id}`;
+                if (!edgeMap.has(key)) {
+                    edgeMap.add(key);
+                    edges.push({
+                        source: parent.id,
+                        target: n.id,
+                        type: 'lineage',
+                        weight: 0.5,
+                    });
+                    connected.add(n.id);
+                }
+            }
+        }
+    });
+
+    const inDegreeMap = {};
+    const outDegreeMap = {};
+    edges.forEach((e) => {
+        outDegreeMap[e.source] = (outDegreeMap[e.source] || 0) + 1;
+        inDegreeMap[e.target] = (inDegreeMap[e.target] || 0) + 1;
+    });
+
+    nodes.forEach((n) => {
+        n.inDegree = inDegreeMap[n.id] || 0;
+        n.outDegree = outDegreeMap[n.id] || 0;
+    });
+
+    return { nodes, edges };
+}
+
+/**
  * Creates and manages an interactive, kinetic Citation Network visualizer.
  * @param {HTMLElement} container
  * @param {Object} [options]
@@ -143,7 +284,8 @@ export function createCitationVisualizer(container, options = {}) {
     let inspectorHud = null;
     let activeFilter = 'all';
 
-    const isDarkMode = () => (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
+    const isDarkMode = () =>
+        (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
 
     /**
      * Initializes the overlay UI controls inside container.
@@ -349,8 +491,18 @@ export function createCitationVisualizer(container, options = {}) {
                     ctx.stroke();
 
                     // Subtle golden background aura
-                    const glowGrad = ctx.createRadialGradient(pos.x, pos.y, baseRadius * 0.5, pos.x, pos.y, haloRadius);
-                    glowGrad.addColorStop(0, dark ? 'rgba(245, 158, 11, 0.18)' : 'rgba(254, 243, 199, 0.35)');
+                    const glowGrad = ctx.createRadialGradient(
+                        pos.x,
+                        pos.y,
+                        baseRadius * 0.5,
+                        pos.x,
+                        pos.y,
+                        haloRadius,
+                    );
+                    glowGrad.addColorStop(
+                        0,
+                        dark ? 'rgba(245, 158, 11, 0.18)' : 'rgba(254, 243, 199, 0.35)',
+                    );
                     glowGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
                     ctx.fillStyle = glowGrad;
                     ctx.fill();
@@ -388,8 +540,10 @@ export function createCitationVisualizer(container, options = {}) {
                 const ctrlY = (srcPos.y + tgtPos.y) / 2 + normalY * dist * curvature;
 
                 const t = p.progress;
-                const px = (1 - t) * (1 - t) * srcPos.x + 2 * (1 - t) * t * ctrlX + t * t * tgtPos.x;
-                const py = (1 - t) * (1 - t) * srcPos.y + 2 * (1 - t) * t * ctrlY + t * t * tgtPos.y;
+                const px =
+                    (1 - t) * (1 - t) * srcPos.x + 2 * (1 - t) * t * ctrlX + t * t * tgtPos.x;
+                const py =
+                    (1 - t) * (1 - t) * srcPos.y + 2 * (1 - t) * t * ctrlY + t * t * tgtPos.y;
 
                 // Particle glow
                 const grad = ctx.createRadialGradient(px, py, 0, px, py, p.size * 2.2);
@@ -558,7 +712,15 @@ export function createCitationVisualizer(container, options = {}) {
                     background: isConnected ? colors.background : dark ? '#0F172A' : '#F1F5F9',
                     border: isConnected ? colors.border : dark ? '#1E293B' : '#E2E8F0',
                 },
-                font: { color: isConnected ? (dark ? '#F8FAFC' : '#1A1A1A') : dark ? '#475569' : '#94A3B8' },
+                font: {
+                    color: isConnected
+                        ? dark
+                            ? '#F8FAFC'
+                            : '#1A1A1A'
+                        : dark
+                          ? '#475569'
+                          : '#94A3B8',
+                },
             };
         });
 
@@ -568,7 +730,13 @@ export function createCitationVisualizer(container, options = {}) {
             return {
                 id: edgeId,
                 color: {
-                    color: isConnected ? (dark ? '#38BDF8' : '#0284C7') : dark ? 'rgba(71, 85, 105, 0.1)' : 'rgba(203, 213, 225, 0.15)',
+                    color: isConnected
+                        ? dark
+                            ? '#38BDF8'
+                            : '#0284C7'
+                        : dark
+                          ? 'rgba(71, 85, 105, 0.1)'
+                          : 'rgba(203, 213, 225, 0.15)',
                     opacity: isConnected ? 1.0 : 0.08,
                 },
                 width: isConnected ? 2.5 : 1,
@@ -591,17 +759,22 @@ export function createCitationVisualizer(container, options = {}) {
         }
 
         const roleBadges = {
-            landmark: '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 font-semibold border border-amber-300 dark:border-amber-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Landmark Study</span>',
+            landmark:
+                '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 font-semibold border border-amber-300 dark:border-amber-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Landmark Study</span>',
             focus: '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 font-semibold border border-indigo-300 dark:border-indigo-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>Focus Paper</span>',
-            foundation: '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-semibold border border-purple-300 dark:border-purple-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>Foundational Work</span>',
+            foundation:
+                '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-semibold border border-purple-300 dark:border-purple-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>Foundational Work</span>',
             recent: '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-semibold border border-emerald-300 dark:border-emerald-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Recent Breakthrough</span>',
-            cocitation: '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 font-semibold border border-sky-300 dark:border-sky-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>Co-cited External</span>',
-            standard: '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 font-semibold border border-slate-300 dark:border-slate-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Domain Literature</span>',
+            cocitation:
+                '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 font-semibold border border-sky-300 dark:border-sky-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>Co-cited External</span>',
+            standard:
+                '<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 font-semibold border border-slate-300 dark:border-slate-700 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Domain Literature</span>',
         };
 
-        const authorText = node.authors && node.authors.length > 0
-            ? node.authors.slice(0, 3).join(', ') + (node.authors.length > 3 ? ' et al.' : '')
-            : 'Academic Authors';
+        const authorText =
+            node.authors && node.authors.length > 0
+                ? node.authors.slice(0, 3).join(', ') + (node.authors.length > 3 ? ' et al.' : '')
+                : 'Academic Authors';
 
         const doiLink = node.doi
             ? `<a href="https://doi.org/${encodeURIComponent(node.doi.replace(/^https?:\/\/doi\.org\//i, ''))}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-mono hover:underline flex items-center gap-1">
@@ -668,7 +841,8 @@ export function createCitationVisualizer(container, options = {}) {
      */
     function focusLandmarkNode() {
         if (!network || !rawGraphData.nodes || rawGraphData.nodes.length === 0) return;
-        const landmark = rawGraphData.nodes.find((n) => n.nodeType === 'landmark') || rawGraphData.nodes[0];
+        const landmark =
+            rawGraphData.nodes.find((n) => n.nodeType === 'landmark') || rawGraphData.nodes[0];
         if (landmark) {
             selectedNodeId = landmark.id;
             network.focus(landmark.id, {
@@ -690,7 +864,9 @@ export function createCitationVisualizer(container, options = {}) {
         }
 
         const matchingNode = rawGraphData.nodes.find(
-            (n) => n.title.toLowerCase().includes(term) || (n.authors && n.authors.some((a) => a.toLowerCase().includes(term)))
+            (n) =>
+                n.title.toLowerCase().includes(term) ||
+                (n.authors && n.authors.some((a) => a.toLowerCase().includes(term))),
         );
 
         if (matchingNode) {
@@ -781,13 +957,28 @@ export function createCitationVisualizer(container, options = {}) {
                 dashes: isLineage,
                 width: e.weight && e.weight > 0.8 ? 2.2 : 1.5,
                 color: {
-                    color: isLineage ? (dark ? '#475569' : '#94A3B8') : dark ? '#64748B' : '#CBD5E1',
+                    color: isLineage
+                        ? dark
+                            ? '#475569'
+                            : '#94A3B8'
+                        : dark
+                          ? '#64748B'
+                          : '#CBD5E1',
                     highlight: dark ? '#38BDF8' : '#0284C7',
                     hover: dark ? '#38BDF8' : '#0284C7',
                     opacity: 0.85,
                 },
             };
         });
+
+        if (typeof vis === 'undefined' || !vis.DataSet || !vis.Network) {
+            container.innerHTML = `
+                <div class="absolute inset-0 flex items-center justify-center text-center p-8 font-mono text-xs uppercase tracking-widest text-secondary">
+                    Graph visualization library unavailable.
+                </div>
+            `;
+            return;
+        }
 
         nodesDataSet = new vis.DataSet(nodesList);
         edgesDataSet = new vis.DataSet(edgesList);
@@ -816,7 +1007,11 @@ export function createCitationVisualizer(container, options = {}) {
         };
 
         // Create vis.Network instance
-        network = new vis.Network(container, { nodes: nodesDataSet, edges: edgesDataSet }, networkOptions);
+        network = new vis.Network(
+            container,
+            { nodes: nodesDataSet, edges: edgesDataSet },
+            networkOptions,
+        );
 
         // Kinetic Canvas Hooks
         network.on('afterDrawing', (ctx) => {
@@ -909,7 +1104,9 @@ export function createCitationVisualizer(container, options = {}) {
                     background: matches ? colors.background : dark ? '#0F172A' : '#F1F5F9',
                     border: matches ? colors.border : dark ? '#1E293B' : '#E2E8F0',
                 },
-                font: { color: matches ? (dark ? '#F8FAFC' : '#1A1A1A') : dark ? '#475569' : '#94A3B8' },
+                font: {
+                    color: matches ? (dark ? '#F8FAFC' : '#1A1A1A') : dark ? '#475569' : '#94A3B8',
+                },
             };
         });
 
@@ -939,4 +1136,3 @@ export function createCitationVisualizer(container, options = {}) {
         getNetwork: () => network,
     };
 }
-
