@@ -11,6 +11,7 @@ export interface Paper {
     citations: number;
     consensusStance?: string;
     downloadUrl?: string;
+    primaryCategory?: string;
 }
 
 // Retrieve API keys from headers or environment

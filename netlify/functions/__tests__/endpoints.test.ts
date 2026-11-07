@@ -178,6 +178,176 @@ describe('Netlify Endpoint Handlers', () => {
             const body = await res.json();
             expect(body.papers.length).toBe(2);
         });
+
+        it('aggregates and deduplicates papers from PubMed, CORE API, and arXiv', async () => {
+            const originalCoreKey = process.env.CORE_API_KEY;
+            process.env.CORE_API_KEY = 'test-core-token';
+
+            const mockSemanticScholar = [
+                {
+                    paperId: 'ss1',
+                    title: 'Attention Transformer',
+                    authors: [{ name: 'A. Vaswani' }],
+                    year: 2017,
+                    abstract:
+                        'The dominant sequence transduction models are based on complex recurrent or convolutional neural networks.',
+                    citationCount: 500,
+                    externalIds: { DOI: '10.1000/transformer' },
+                },
+            ];
+
+            const mockPubMedSearch = {
+                esearchresult: { idlist: ['33445566'] },
+            };
+
+            const mockPubMedSummary = {
+                result: {
+                    uids: ['33445566'],
+                    '33445566': {
+                        uid: '33445566',
+                        title: 'Biomedical Applications of Deep Learning',
+                        authors: [{ name: 'Dr. Bio' }],
+                        pubdate: '2022',
+                        articleids: [{ idtype: 'doi', value: '10.1000/biomed' }],
+                        abstract:
+                            'Comprehensive analysis of deep neural networks in clinical diagnosis and genomics.',
+                    },
+                },
+            };
+
+            const mockCoreWorks = {
+                results: [
+                    {
+                        id: 'core-1',
+                        title: 'Attention Transformer',
+                        authors: ['A. Vaswani'],
+                        yearPublished: 2017,
+                        abstract:
+                            'The dominant sequence transduction models are based on complex recurrent networks.',
+                        doi: '10.1000/transformer',
+                        downloadUrl: 'https://core.ac.uk/download/pdf/core-1.pdf',
+                    },
+                    {
+                        id: 'core-2',
+                        title: 'Unique Open Access Paper',
+                        authors: ['Open Researcher'],
+                        yearPublished: 2023,
+                        abstract:
+                            'Novel findings published exclusively in open access institutional repository.',
+                        doi: '10.1000/openaccess',
+                        downloadUrl: 'https://core.ac.uk/download/pdf/core-2.pdf',
+                    },
+                ],
+            };
+
+            const mockArxivXml = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <entry>
+    <id>http://arxiv.org/abs/2305.99999v1</id>
+    <published>2023-05-15T00:00:00Z</published>
+    <title>Cutting Edge arXiv Preprint</title>
+    <summary>Pioneering study in generative multimodal artificial intelligence architecture.</summary>
+    <author><name>AI Scientist</name></author>
+    <link title="pdf" href="http://arxiv.org/pdf/2305.99999v1" rel="related"/>
+    <arxiv:primary_category term="cs.AI"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/1706.03762v7</id>
+    <published>2017-06-12T00:00:00Z</published>
+    <title>Attention Transformer</title>
+    <summary>The dominant sequence transduction models are based on complex recurrent networks.</summary>
+    <author><name>A. Vaswani</name></author>
+    <arxiv:doi>10.1000/transformer</arxiv:doi>
+    <link title="pdf" href="http://arxiv.org/pdf/1706.03762v7" rel="related"/>
+    <arxiv:primary_category term="cs.CL"/>
+  </entry>
+</feed>`;
+
+            const fetchMock = vi.fn().mockImplementation(async (url: string) => {
+                const parsedUrl = new URL(url);
+                if (parsedUrl.hostname.includes('semanticscholar')) {
+                    return { ok: true, json: async () => ({ data: mockSemanticScholar }) };
+                }
+                if (parsedUrl.pathname.endsWith('esearch.fcgi')) {
+                    return { ok: true, json: async () => mockPubMedSearch };
+                }
+                if (parsedUrl.pathname.endsWith('esummary.fcgi')) {
+                    return { ok: true, json: async () => mockPubMedSummary };
+                }
+                if (parsedUrl.hostname === 'api.core.ac.uk') {
+                    return { ok: true, json: async () => mockCoreWorks };
+                }
+                if (parsedUrl.hostname === 'export.arxiv.org') {
+                    return { ok: true, text: async () => mockArxivXml };
+                }
+                return { ok: false };
+            });
+            vi.stubGlobal('fetch', fetchMock);
+
+            const req = new Request('http://localhost/api/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: 'Deep Learning' }),
+            });
+
+            const res = await searchHandler(req, {} as any);
+            expect(res.status).toBe(200);
+            const body = await res.json();
+
+            // Verify papers list has aggregated records
+            expect(body.papers.length).toBeGreaterThanOrEqual(3);
+
+            // Verify that the existing transformer paper was enriched with downloadUrl from CORE/arXiv
+            const transformerPaper = body.papers.find((p: any) => p.doi === '10.1000/transformer');
+            expect(transformerPaper).toBeDefined();
+            expect(transformerPaper.downloadUrl).toBeDefined();
+
+            // Verify PubMed paper was added
+            const pubmedPaper = body.papers.find((p: any) => p.doi === '10.1000/biomed');
+            expect(pubmedPaper).toBeDefined();
+
+            // Verify unique CORE paper was added
+            const corePaper = body.papers.find((p: any) => p.doi === '10.1000/openaccess');
+            expect(corePaper).toBeDefined();
+
+            // Verify unique arXiv paper was added with primary category
+            const arxivPaper = body.papers.find((p: any) => p.id === 'arXiv:2305.99999v1');
+            expect(arxivPaper).toBeDefined();
+            expect(arxivPaper.primaryCategory).toBe('cs.AI');
+
+            process.env.CORE_API_KEY = originalCoreKey;
+        });
+
+        it('handles search errors from external source integrations gracefully', async () => {
+            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+            const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+            const fetchMock = vi.fn().mockImplementation(async (url: string) => {
+                const parsedUrl = new URL(url);
+                if (
+                    parsedUrl.hostname.includes('semanticscholar') ||
+                    parsedUrl.hostname.includes('openalex')
+                ) {
+                    return { ok: false, status: 500, statusText: 'Server Error' };
+                }
+                throw new Error('Network failure in source integration');
+            });
+            vi.stubGlobal('fetch', fetchMock);
+
+            const req = new Request('http://localhost/api/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: 'Failing Search' }),
+            });
+
+            const res = await searchHandler(req, {} as any);
+            expect(res.status).toBe(200);
+            const body = await res.json();
+            expect(body.papers).toEqual([]);
+
+            warnSpy.mockRestore();
+            errorSpy.mockRestore();
+        });
     });
 
     describe('consensus.ts endpoint', () => {
