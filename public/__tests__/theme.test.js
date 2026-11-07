@@ -301,6 +301,24 @@ describe('public/js/theme.js - Dynamic Theme System', () => {
             expect(localStorage.getItem(THEME_KEY)).toBe('dark');
         });
 
+        it('clicks a rendered toggle once and verifies that root theme changes once and stored value matches it', () => {
+            localStorage.setItem(THEME_KEY, 'light');
+            initTheme();
+
+            const landingToggle = document.getElementById('landing-theme-toggle');
+            expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+
+            landingToggle.click();
+
+            expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+            expect(localStorage.getItem(THEME_KEY)).toBe('dark');
+
+            // Click again to confirm clean toggling back
+            landingToggle.click();
+            expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+            expect(localStorage.getItem(THEME_KEY)).toBe('light');
+        });
+
         it('responds to system media query change when user has not saved an override', () => {
             localStorage.removeItem(THEME_KEY);
             initTheme();

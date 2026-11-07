@@ -1,6 +1,6 @@
 // AbstractiFy Frontend JavaScript Logic
 // Fully handles: Search, Consensus, Matrix, Network Graph, PDF Ingestion, Chat Agent, Equation Explainer, and Transitions
-import { initTheme, toggleTheme } from './js/theme.js';
+import { initTheme } from './js/theme.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // ─── Theme System Initialization ───
@@ -41,23 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Transitions & Navigation
     const accessWorkspaceBtns = document.querySelectorAll('.access-workspace-btn');
     const landingSettingsBtn  = $('landing-settings-btn');
-    const landingThemeToggleBtn = $('landing-theme-toggle');
-    const themeToggleBtn      = $('theme-toggle');
     const navLandingLink      = $('nav-landing-link');
     const navBrandBtn         = $('nav-brand-btn');
     const navSettingsLink     = $('nav-settings-link');
-
-    // Wire up theme toggles
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
-            toggleTheme();
-        });
-    }
-    if (landingThemeToggleBtn) {
-        landingThemeToggleBtn.addEventListener('click', () => {
-            toggleTheme();
-        });
-    }
 
     // Settings Modal elements
     const settingsBtn             = $('settings-btn');
