@@ -30,16 +30,16 @@ This document categorizes all 39 issue specifications in the `issues/` directory
 *Architectural Layer*: Serverless backend (`netlify/functions/search/`)
 *Technical Prerequisites*: Normalized `Paper` type in `_utils.ts`.
 
-| Issue | Title | Type / Labels | Target Files | Key Technical Scope |
-|---|---|---|---|---|
-| **ISSUE_25** | 🌐 PubMed & MEDLINE Biomedical Search Integration | `Easy`, `backend`, `api` | `netlify/functions/search/sources/pubmed.ts`, `search.ts` | NCBI E-Utilities integration, MeSH headings, biomedical query translation. |
-| **ISSUE_26** | 📚 CORE API Open-Access Full-Text Search Integration | `Easy`, `backend`, `api` | `netlify/functions/search/sources/core-api.ts`, `search.ts` | CORE v3 API client for open-access repositories and full-text downloads. |
-| **ISSUE_27** | 🔬 arXiv Preprint Server Search Integration | `Easy`, `backend`, `api` | `netlify/functions/search/sources/arxiv.ts`, `search.ts` | arXiv Atom XML API feed parser, category filtering, preprint links. |
-| **ISSUE_28** | 🔗 Crossref DOI Resolution & Retraction Status Check | `Easy`, `backend`, `api` | `netlify/functions/search/sources/crossref.ts`, `doi-check.ts` | Canonical Crossref metadata lookup, Crossmark status check, polite pool headers. |
-| **ISSUE_29** | 🧪 Europe PMC & bioRxiv Life Sciences Search Integration | `Easy`, `backend`, `api` | `netlify/functions/search/sources/europe-pmc.ts`, `biorxiv.ts` | Europe PMC REST API & bioRxiv/medRxiv preprint servers. |
-| **ISSUE_30** | 🔭 NASA ADS, DBLP & DOAJ Domain Search Integrations | `Medium`, `backend`, `api` | `netlify/functions/search/sources/nasa-ads.ts`, `dblp.ts`, `doaj.ts` | Astrophysics, Computer Science, and Directory of Open Access Journals adapters. |
-| **ISSUE_31** | 🔓 Unpaywall Real-Time Open Access PDF Link Resolver | `Easy`, `backend`, `api` | `netlify/functions/search/sources/unpaywall.ts`, `oa-resolver.ts` | Resolves DOIs to legal open-access full-text PDF URLs with 14-day caching. |
-| **ISSUE_35** | 🧩 Multi-Source Paper Deduplicator & Hybrid Cross-Ranker | `Medium`, `backend`, `ai` | `netlify/functions/search/deduplicator.ts`, `ranker.ts` | Reciprocal Rank Fusion (RRF) and fuzzy title deduplication across all sources. |
+| Issue | Title | Type / Labels | Target Files | Key Technical Scope | Status | PR |
+|---|---|---|---|---|---|---|
+| **ISSUE_25** | 🌐 PubMed & MEDLINE Biomedical Search Integration | `Easy`, `backend`, `api` | `netlify/functions/search/sources/pubmed.ts`, `search.ts` | NCBI E-Utilities integration, MeSH headings, biomedical query translation. | **MERGED** | [#126](https://github.com/vansh7nvc/Abstractify/pull/126) |
+| **ISSUE_26** | 📚 CORE API Open-Access Full-Text Search Integration | `Easy`, `backend`, `api` | `netlify/functions/search/sources/core-api.ts`, `search.ts` | CORE v3 API client for open-access repositories and full-text downloads. | Planned | |
+| **ISSUE_27** | 🔬 arXiv Preprint Server Search Integration | `Easy`, `backend`, `api` | `netlify/functions/search/sources/arxiv.ts`, `search.ts` | arXiv Atom XML API feed parser, category filtering, preprint links. | Planned | |
+| **ISSUE_28** | 🔗 Crossref DOI Resolution & Retraction Status Check | `Easy`, `backend`, `api` | `netlify/functions/search/sources/crossref.ts`, `doi-check.ts` | Canonical Crossref metadata lookup, Crossmark status check, polite pool headers. | Planned | |
+| **ISSUE_29** | 🧪 Europe PMC & bioRxiv Life Sciences Search Integration | `Easy`, `backend`, `api` | `netlify/functions/search/sources/europe-pmc.ts`, `biorxiv.ts` | Europe PMC REST API & bioRxiv/medRxiv preprint servers. | Planned | |
+| **ISSUE_30** | 🔭 NASA ADS, DBLP & DOAJ Domain Search Integrations | `Medium`, `backend`, `api` | `netlify/functions/search/sources/nasa-ads.ts`, `dblp.ts`, `doaj.ts` | Astrophysics, Computer Science, and Directory of Open Access Journals adapters. | Planned | |
+| **ISSUE_31** | 🔓 Unpaywall Real-Time Open Access PDF Link Resolver | `Easy`, `backend`, `api` | `netlify/functions/search/sources/unpaywall.ts`, `oa-resolver.ts` | Resolves DOIs to legal open-access full-text PDF URLs with 14-day caching. | Planned | |
+| **ISSUE_35** | 🧩 Multi-Source Paper Deduplicator & Hybrid Cross-Ranker | `Medium`, `backend`, `ai` | `netlify/functions/search/deduplicator.ts`, `ranker.ts` | Reciprocal Rank Fusion (RRF) and fuzzy title deduplication across all sources. | Planned | |
 
 ---
 
