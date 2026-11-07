@@ -11,6 +11,7 @@ import { cacheGet, cacheSet } from './shared/redis.js';
 import { upsertVectors } from './shared/vector.js';
 import { searchPubMed } from './search/sources/pubmed.js';
 import { searchCoreApi } from './search/sources/core-api.js';
+import { searchArxiv } from './search/sources/arxiv.js';
 
 export default async (req: Request, context: Context) => {
     // Enable CORS for localhost testing if needed (though Netlify takes care of routing)
@@ -167,6 +168,40 @@ export default async (req: Request, context: Context) => {
             }
         } catch (coreErr) {
             console.warn('[Search] CORE API integration error:', coreErr);
+        }
+
+        // 4. Query arXiv Preprint Server (Issue #27)
+        try {
+            const arxivPapers = await searchArxiv(query, 15);
+            if (arxivPapers.length > 0) {
+                const seenDois = new Map(
+                    papers.filter((p) => p.doi).map((p) => [p.doi!.toLowerCase(), p]),
+                );
+                const seenTitles = new Map(papers.map((p) => [p.title.toLowerCase().trim(), p]));
+
+                for (const axPaper of arxivPapers) {
+                    const existingByDoi = axPaper.doi
+                        ? seenDois.get(axPaper.doi.toLowerCase())
+                        : undefined;
+                    const existingByTitle = seenTitles.get(axPaper.title.toLowerCase().trim());
+                    const existing = existingByDoi || existingByTitle;
+
+                    if (existing) {
+                        if (!existing.downloadUrl && axPaper.downloadUrl) {
+                            existing.downloadUrl = axPaper.downloadUrl;
+                        }
+                        if (!existing.primaryCategory && axPaper.primaryCategory) {
+                            existing.primaryCategory = axPaper.primaryCategory;
+                        }
+                    } else {
+                        papers.push(axPaper);
+                        if (axPaper.doi) seenDois.set(axPaper.doi.toLowerCase(), axPaper);
+                        seenTitles.set(axPaper.title.toLowerCase().trim(), axPaper);
+                    }
+                }
+            }
+        } catch (arxivErr) {
+            console.warn('[Search] arXiv integration error:', arxivErr);
         }
 
         if (papers.length === 0) {
