@@ -111,7 +111,7 @@ export function extractYearFromPubDate(pubdate?: string): number {
 export async function searchPubMed(
     query: string,
     limit = 25,
-    options: PubMedOptions = {}
+    options: PubMedOptions = {},
 ): Promise<Paper[]> {
     const trimmed = (query || '').trim();
     if (!trimmed) return [];
@@ -124,7 +124,7 @@ export async function searchPubMed(
     const baseParams = new URLSearchParams({
         tool,
         email,
-        ...(apiKey ? { api_key: apiKey } : {})
+        ...(apiKey ? { api_key: apiKey } : {}),
     });
 
     try {
@@ -136,7 +136,7 @@ export async function searchPubMed(
             retmode: 'json',
             retmax: String(limit),
             sort: 'relevance',
-            ...Object.fromEntries(baseParams)
+            ...Object.fromEntries(baseParams),
         }).toString();
 
         const searchController = new AbortController();
@@ -146,7 +146,7 @@ export async function searchPubMed(
         try {
             esearchRes = await fetch(esearchUrl.toString(), {
                 signal: searchController.signal,
-                headers: { 'User-Agent': 'AbstractiFy/1.0 (Biomedical Intelligence)' }
+                headers: { 'User-Agent': 'AbstractiFy/1.0 (Biomedical Intelligence)' },
             });
         } finally {
             clearTimeout(searchTimer);
@@ -170,7 +170,7 @@ export async function searchPubMed(
             db: 'pubmed',
             id: idList.join(','),
             retmode: 'json',
-            ...Object.fromEntries(baseParams)
+            ...Object.fromEntries(baseParams),
         }).toString();
 
         const summaryController = new AbortController();
@@ -180,7 +180,7 @@ export async function searchPubMed(
         try {
             esummaryRes = await fetch(esummaryUrl.toString(), {
                 signal: summaryController.signal,
-                headers: { 'User-Agent': 'AbstractiFy/1.0 (Biomedical Intelligence)' }
+                headers: { 'User-Agent': 'AbstractiFy/1.0 (Biomedical Intelligence)' },
             });
         } finally {
             clearTimeout(summaryTimer);
@@ -206,21 +206,21 @@ export async function searchPubMed(
 
             // Extract Authors
             const authors = (item.authors || [])
-                .map(a => (a.name || '').trim())
-                .filter(name => name.length > 0);
+                .map((a) => (a.name || '').trim())
+                .filter((name) => name.length > 0);
 
             // Extract Publication Year
             const year = extractYearFromPubDate(item.pubdate || item.epubdate);
 
             // Extract DOI if available
-            const doiObj = item.articleids?.find(
-                aid => aid.idtype?.toLowerCase() === 'doi'
-            );
+            const doiObj = item.articleids?.find((aid) => aid.idtype?.toLowerCase() === 'doi');
             const doi = doiObj?.value?.trim() || undefined;
 
             // Extract Abstract or synthesize informative scholarly abstract
             const sourceJournal = item.source ? ` Journal: ${item.source}.` : '';
-            const abstract = item.abstract?.trim() || `${title}.${sourceJournal} Indexed in MEDLINE/PubMed under PMID: ${uid}.`;
+            const abstract =
+                item.abstract?.trim() ||
+                `${title}.${sourceJournal} Indexed in MEDLINE/PubMed under PMID: ${uid}.`;
 
             // Citation count heuristic (PubMed Central reference count if present)
             const citations = typeof item.pmcrefcount === 'number' ? item.pmcrefcount : 0;
@@ -232,7 +232,7 @@ export async function searchPubMed(
                 year,
                 abstract,
                 doi,
-                citations
+                citations,
             });
         }
 
@@ -241,7 +241,10 @@ export async function searchPubMed(
         if (err.name === 'AbortError') {
             console.warn('[PubMed Search] Request timed out gracefully.');
         } else {
-            console.warn('[PubMed Search] Unexpected error querying NCBI E-Utilities:', err.message || err);
+            console.warn(
+                '[PubMed Search] Unexpected error querying NCBI E-Utilities:',
+                err.message || err,
+            );
         }
         return [];
     }

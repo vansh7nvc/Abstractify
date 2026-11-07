@@ -119,8 +119,8 @@ export default async (req: Request, context: Context) => {
         try {
             const pubmedPapers = await searchPubMed(query, 15);
             if (pubmedPapers.length > 0) {
-                const seenDois = new Set(papers.map(p => p.doi?.toLowerCase()).filter(Boolean));
-                const seenTitles = new Set(papers.map(p => p.title.toLowerCase().trim()));
+                const seenDois = new Set(papers.map((p) => p.doi?.toLowerCase()).filter(Boolean));
+                const seenTitles = new Set(papers.map((p) => p.title.toLowerCase().trim()));
 
                 for (const pmPaper of pubmedPapers) {
                     const doiMatch = pmPaper.doi && seenDois.has(pmPaper.doi.toLowerCase());

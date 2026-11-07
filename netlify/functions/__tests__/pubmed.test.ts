@@ -4,7 +4,7 @@ import {
     sanitizeTitle,
     extractYearFromPubDate,
     ESearchResponse,
-    ESummaryResponse
+    ESummaryResponse,
 } from '../search/sources/pubmed.js';
 
 describe('PubMed & MEDLINE Biomedical Search Integration (Issue #25)', () => {
@@ -19,8 +19,11 @@ describe('PubMed & MEDLINE Biomedical Search Integration (Issue #25)', () => {
         });
 
         it('decodes HTML and XML character entities', () => {
-            const raw = 'Safety &amp; efficacy of &lt;monoclonal antibodies&gt; in Alzheimer&#39;s disease &quot;trials&quot;.';
-            expect(sanitizeTitle(raw)).toBe('Safety & efficacy of <monoclonal antibodies> in Alzheimer\'s disease "trials"');
+            const raw =
+                'Safety &amp; efficacy of &lt;monoclonal antibodies&gt; in Alzheimer&#39;s disease &quot;trials&quot;.';
+            expect(sanitizeTitle(raw)).toBe(
+                'Safety & efficacy of <monoclonal antibodies> in Alzheimer\'s disease "trials"',
+            );
         });
 
         it('normalizes internal whitespace and trims ends', () => {
@@ -59,13 +62,13 @@ describe('PubMed & MEDLINE Biomedical Search Integration (Issue #25)', () => {
             const mockESearch: ESearchResponse = {
                 esearchresult: {
                     count: '0',
-                    idlist: []
-                }
+                    idlist: [],
+                },
             };
 
             const fetchMock = vi.fn().mockResolvedValue({
                 ok: true,
-                json: async () => mockESearch
+                json: async () => mockESearch,
             });
             vi.stubGlobal('fetch', fetchMock);
 
@@ -78,8 +81,8 @@ describe('PubMed & MEDLINE Biomedical Search Integration (Issue #25)', () => {
             const mockESearch: ESearchResponse = {
                 esearchresult: {
                     count: '2',
-                    idlist: ['35113657', '31234568']
-                }
+                    idlist: ['35113657', '31234568'],
+                },
             };
 
             const mockESummary: ESummaryResponse = {
@@ -88,46 +91,40 @@ describe('PubMed & MEDLINE Biomedical Search Integration (Issue #25)', () => {
                     '35113657': {
                         uid: '35113657',
                         title: 'Efficacy of <i>Dapagliflozin</i> in Chronic Kidney Disease.',
-                        authors: [
-                            { name: 'Heerspink HJL' },
-                            { name: 'Stefánsson BV' }
-                        ],
+                        authors: [{ name: 'Heerspink HJL' }, { name: 'Stefánsson BV' }],
                         source: 'N Engl J Med',
                         pubdate: '2020 Oct 8',
                         articleids: [
                             { idtype: 'pubmed', value: '35113657' },
-                            { idtype: 'doi', value: '10.1056/NEJMoa2024816' }
+                            { idtype: 'doi', value: '10.1056/NEJMoa2024816' },
                         ],
                         pmcrefcount: 245,
-                        abstract: 'Among patients with chronic kidney disease, the risk of a composite of sustained decline in estimated GFR was significantly lower.'
+                        abstract:
+                            'Among patients with chronic kidney disease, the risk of a composite of sustained decline in estimated GFR was significantly lower.',
                     },
                     '31234568': {
                         uid: '31234568',
                         title: 'Amyloid-beta clearing therapies in early Alzheimer&#39;s.',
-                        authors: [
-                            { name: 'van Dyck CH' }
-                        ],
+                        authors: [{ name: 'van Dyck CH' }],
                         source: 'Lancet Neurol',
                         pubdate: '2022',
-                        articleids: [
-                            { idtype: 'doi', value: '10.1016/S1474-4422(22)00412-9' }
-                        ],
-                        pmcrefcount: 88
-                    }
-                }
+                        articleids: [{ idtype: 'doi', value: '10.1016/S1474-4422(22)00412-9' }],
+                        pmcrefcount: 88,
+                    },
+                },
             };
 
             const fetchMock = vi.fn().mockImplementation(async (url: string) => {
                 if (url.includes('esearch.fcgi')) {
                     return {
                         ok: true,
-                        json: async () => mockESearch
+                        json: async () => mockESearch,
                     };
                 }
                 if (url.includes('esummary.fcgi')) {
                     return {
                         ok: true,
-                        json: async () => mockESummary
+                        json: async () => mockESummary,
                     };
                 }
                 return { ok: false, status: 404 };
@@ -158,7 +155,7 @@ describe('PubMed & MEDLINE Biomedical Search Integration (Issue #25)', () => {
         it('handles ESearch HTTP errors gracefully without throwing', async () => {
             const fetchMock = vi.fn().mockResolvedValue({
                 ok: false,
-                status: 500
+                status: 500,
             });
             vi.stubGlobal('fetch', fetchMock);
 
@@ -173,7 +170,7 @@ describe('PubMed & MEDLINE Biomedical Search Integration (Issue #25)', () => {
                 if (url.includes('esearch.fcgi')) {
                     return {
                         ok: true,
-                        json: async () => ({ esearchresult: { idlist: ['12345'] } })
+                        json: async () => ({ esearchresult: { idlist: ['12345'] } }),
                     };
                 }
                 return { ok: false, status: 503 };
