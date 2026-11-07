@@ -2,8 +2,10 @@
 // Fully handles: Search, Consensus, Matrix, Network Graph, PDF Ingestion, Chat Agent, Equation Explainer, and Transitions
 import { initTheme } from './js/theme.js';
 import { renderLatex, renderMathInContainer } from './js/katex-helper.js';
+import { initShortcuts, openModal, closeModal } from './js/shortcuts.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const $ = id => document.getElementById(id);
     // ─── Theme System Initialization ───
     initTheme();
 
@@ -34,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ─── DOM References ───
-    const $ = id => document.getElementById(id);
 
     const landingView       = $('landing-view');
     const appView           = $('app-view');
@@ -248,8 +249,49 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsCloseBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
     }
     window.addEventListener('click', (e) => {
-        if (e.target === settingsModal) settingsModal.classList.add('hidden');
+        if (e.target === settingsModal) closeModal(settingsModal);
+        if (commandPaletteModal && e.target === commandPaletteModal) closeModal(commandPaletteModal);
+        if (shortcutsModal && e.target === shortcutsModal) closeModal(shortcutsModal);
     });
+
+    // ─── Keyboard Shortcuts & Accessibility (Issue #13) ───
+    const commandPaletteModal = $('command-palette-modal');
+    const paletteSearchInput  = $('palette-search-input');
+    const paletteSearchForm   = $('palette-search-form');
+    const paletteCloseBtn     = $('palette-close-btn');
+    const shortcutsModal      = $('shortcuts-modal');
+    const shortcutsBtn        = $('shortcuts-btn');
+    const landingShortcutsBtn = $('landing-shortcuts-btn');
+    const shortcutsCloseBtn   = $('shortcuts-close-btn');
+
+    initShortcuts({
+        onSwitchTab: (tabId) => switchWorkspaceTab(tabId)
+    });
+
+    if (paletteCloseBtn && commandPaletteModal) {
+        paletteCloseBtn.addEventListener('click', () => closeModal(commandPaletteModal));
+    }
+    if (shortcutsCloseBtn && shortcutsModal) {
+        shortcutsCloseBtn.addEventListener('click', () => closeModal(shortcutsModal));
+    }
+    if (shortcutsBtn && shortcutsModal) {
+        shortcutsBtn.addEventListener('click', () => openModal(shortcutsModal));
+    }
+    if (landingShortcutsBtn && shortcutsModal) {
+        landingShortcutsBtn.addEventListener('click', () => openModal(shortcutsModal));
+    }
+    if (paletteSearchForm && paletteSearchInput) {
+        paletteSearchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const q = paletteSearchInput.value.trim();
+            if (q) {
+                closeModal(commandPaletteModal);
+                switchToWorkspace();
+                if (searchInput) searchInput.value = q;
+                performSearch(q);
+            }
+        });
+    }
 
     // Save Settings
     if (saveSettingsBtn) {
