@@ -6,7 +6,6 @@ import {
     normalizeCoreDoi,
     extractCoreDownloadUrl,
     sanitizeAbstract,
-    CoreApiItem,
 } from '../search/sources/core-api.js';
 
 describe('CORE API v3 Search Integration (Issue #26)', () => {

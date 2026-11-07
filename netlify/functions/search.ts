@@ -8,7 +8,6 @@ import {
     checkPasscode,
 } from './_utils.js';
 import { cacheGet, cacheSet } from './shared/redis.js';
-import { upsertVectors } from './shared/vector.js';
 import { searchPubMed } from './search/sources/pubmed.js';
 import { searchCoreApi } from './search/sources/core-api.js';
 import { searchArxiv } from './search/sources/arxiv.js';
