@@ -106,15 +106,25 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
 
     describe('createCitationVisualizer', () => {
         let container;
+        let statsBadge;
         let mockVisNetwork;
+        let eventHandlers;
 
         beforeEach(() => {
             container = document.createElement('div');
             container.id = 'network-container';
             document.body.appendChild(container);
 
+            statsBadge = document.createElement('span');
+            statsBadge.id = 'network-stats-badge';
+            document.body.appendChild(statsBadge);
+
+            eventHandlers = {};
+
             mockVisNetwork = {
-                on: vi.fn(),
+                on: vi.fn((event, handler) => {
+                    eventHandlers[event] = handler;
+                }),
                 setOptions: vi.fn(),
                 fit: vi.fn(),
                 focus: vi.fn(),
@@ -123,6 +133,7 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
                 getPositions: vi.fn(() => ({
                     'paper-1': { x: 0, y: 0 },
                     'paper-2': { x: 100, y: 100 },
+                    'paper-3': { x: 50, y: 50 },
                 })),
                 getConnectedNodes: vi.fn(() => ['paper-2']),
                 getConnectedEdges: vi.fn(() => ['paper-1->paper-2']),
@@ -153,6 +164,9 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
             if (container && container.parentNode) {
                 container.parentNode.removeChild(container);
             }
+            if (statsBadge && statsBadge.parentNode) {
+                statsBadge.parentNode.removeChild(statsBadge);
+            }
             vi.clearAllMocks();
         });
 
@@ -160,7 +174,17 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
             expect(createCitationVisualizer(null)).toBeNull();
         });
 
-        it('initializes overlay UI controls and inspector HUD inside container', () => {
+        it('renders empty notice when graphData has no nodes', () => {
+            const visualizer = createCitationVisualizer(container);
+            visualizer.setData(null);
+            expect(container.textContent).toContain('No citation lineage data available');
+
+            visualizer.setData({ nodes: [] });
+            expect(container.textContent).toContain('No citation lineage data available');
+            visualizer.destroy();
+        });
+
+        it('initializes overlay UI controls, inspector HUD, and stats badge', () => {
             const visualizer = createCitationVisualizer(container);
             expect(visualizer).toBeDefined();
 
@@ -169,15 +193,18 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
                     {
                         id: 'paper-1',
                         title: 'Foundational RLHF',
-                        authors: ['Paul C.'],
+                        authors: ['Paul Christiano', 'Jan Leike', 'Dario Amodei', 'Tom Brown'],
                         year: 2017,
                         citations: 2500,
                         nodeType: 'landmark',
+                        venue: 'NeurIPS',
+                        abstract: 'We explore training neural networks using human feedback.',
+                        doi: '10.48550/arXiv.1706.03741',
                     },
                     {
                         id: 'paper-2',
                         title: 'Modern Direct Preference Optimization',
-                        authors: ['Rafael R.'],
+                        authors: ['Rafael Rafailov'],
                         year: 2023,
                         citations: 800,
                         nodeType: 'recent',
@@ -192,11 +219,12 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
             expect(container.querySelector('.network-inspector-hud')).not.toBeNull();
             expect(container.querySelector('#network-search-input')).not.toBeNull();
             expect(container.querySelector('#net-ctrl-physics')).not.toBeNull();
+            expect(statsBadge.textContent).toContain('2 Papers • 1 Citation Links');
 
             visualizer.destroy();
         });
 
-        it('switches layout modes between organic, timeline, and radial', () => {
+        it('switches layout modes between organic, timeline, and radial via buttons and API', () => {
             const visualizer = createCitationVisualizer(container);
             const graphData = {
                 nodes: [
@@ -207,7 +235,9 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
             };
             visualizer.setData(graphData);
 
-            visualizer.applyLayoutMode('timeline');
+            // Test layout buttons in overlay
+            const timelineBtn = container.querySelector('button[data-layout="timeline"]');
+            timelineBtn.click();
             expect(mockVisNetwork.setOptions).toHaveBeenCalledWith(
                 expect.objectContaining({
                     layout: expect.objectContaining({
@@ -216,7 +246,8 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
                 })
             );
 
-            visualizer.applyLayoutMode('radial');
+            const radialBtn = container.querySelector('button[data-layout="radial"]');
+            radialBtn.click();
             expect(mockVisNetwork.setOptions).toHaveBeenCalledWith(
                 expect.objectContaining({
                     physics: expect.objectContaining({
@@ -225,7 +256,8 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
                 })
             );
 
-            visualizer.applyLayoutMode('organic');
+            const organicBtn = container.querySelector('button[data-layout="organic"]');
+            organicBtn.click();
             expect(mockVisNetwork.setOptions).toHaveBeenCalledWith(
                 expect.objectContaining({
                     physics: expect.objectContaining({
@@ -237,28 +269,136 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
             visualizer.destroy();
         });
 
-        it('spotlights node subgraph and dims unrelated nodes on focus', () => {
+        it('triggers overlay zoom, fit, and physics buttons', () => {
+            const visualizer = createCitationVisualizer(container);
+            const graphData = {
+                nodes: [{ id: 'p1', title: 'Paper 1', year: 2020, citations: 50, nodeType: 'landmark' }],
+                edges: [],
+            };
+            visualizer.setData(graphData);
+
+            // Physics pause and resume
+            const physicsBtn = container.querySelector('#net-ctrl-physics');
+            physicsBtn.click(); // pause
+            expect(mockVisNetwork.setOptions).toHaveBeenCalledWith({ physics: { enabled: false } });
+            physicsBtn.click(); // resume
+            expect(mockVisNetwork.setOptions).toHaveBeenCalledWith({ physics: { enabled: true } });
+
+            // Zoom in
+            const zoomInBtn = container.querySelector('#net-ctrl-zoom-in');
+            zoomInBtn.click();
+            expect(mockVisNetwork.moveTo).toHaveBeenCalledWith(expect.objectContaining({ scale: 1.3 }));
+
+            // Zoom out
+            const zoomOutBtn = container.querySelector('#net-ctrl-zoom-out');
+            zoomOutBtn.click();
+            expect(mockVisNetwork.moveTo).toHaveBeenCalledWith(expect.objectContaining({ scale: 0.75 }));
+
+            // Fit screen
+            const fitBtn = container.querySelector('#net-ctrl-fit');
+            fitBtn.click();
+            expect(mockVisNetwork.fit).toHaveBeenCalled();
+
+            visualizer.destroy();
+        });
+
+        it('filters nodes dynamically through the search input', () => {
             const visualizer = createCitationVisualizer(container);
             const graphData = {
                 nodes: [
-                    { id: 'p1', title: 'Paper 1', year: 2018, citations: 100, nodeType: 'landmark' },
-                    { id: 'p2', title: 'Paper 2', year: 2024, citations: 20, nodeType: 'recent' },
-                    { id: 'p3', title: 'Paper 3', year: 2021, citations: 5, nodeType: 'standard' },
+                    { id: 'p1', title: 'Deep Reinforcement Learning', authors: ['Paul'], year: 2020, citations: 50, nodeType: 'standard' },
+                    { id: 'p2', title: 'Convolutional Networks', authors: ['Yann'], year: 2019, citations: 200, nodeType: 'landmark' },
+                ],
+                edges: [],
+            };
+            visualizer.setData(graphData);
+
+            const searchInput = container.querySelector('#network-search-input');
+            searchInput.value = 'convolutional';
+            searchInput.dispatchEvent(new Event('input'));
+
+            expect(mockVisNetwork.focus).toHaveBeenCalledWith('p2', expect.any(Object));
+
+            // Empty search clears spotlight
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+
+            visualizer.destroy();
+        });
+
+        it('handles hover, blur, and click network events and HUD interactions', () => {
+            const onNodeClick = vi.fn();
+            const visualizer = createCitationVisualizer(container, { onNodeClick });
+            const graphData = {
+                nodes: [
+                    { id: 'p1', title: 'Paper 1', year: 2020, citations: 100, nodeType: 'landmark', doi: '10.1000/182' },
+                    { id: 'p2', title: 'Paper 2', year: 2021, citations: 10, nodeType: 'standard' },
                 ],
                 edges: [{ source: 'p1', target: 'p2' }],
             };
             visualizer.setData(graphData);
 
-            visualizer.spotlightNodeSubgraph('p1');
-            expect(mockVisNetwork.getConnectedNodes).toHaveBeenCalledWith('p1');
+            // Hover node
+            eventHandlers.hoverNode({ node: 'p1' });
+            const hud = container.querySelector('.network-inspector-hud');
+            expect(hud.textContent).toContain('Paper 1');
 
-            // Reset spotlight
-            visualizer.spotlightNodeSubgraph(null);
+            // Blur node
+            eventHandlers.blurNode();
+
+            // Click node
+            eventHandlers.click({ nodes: ['p1'] });
+            expect(onNodeClick).toHaveBeenCalled();
+
+            // HUD Focus button click
+            const hudFocusBtn = hud.querySelector('#hud-focus-btn');
+            hudFocusBtn.click();
+            expect(mockVisNetwork.focus).toHaveBeenCalledWith('p1', expect.any(Object));
+
+            // HUD Close button click
+            const hudCloseBtn = hud.querySelector('#hud-close-btn');
+            hudCloseBtn.click();
+
+            // Click canvas empty space
+            eventHandlers.click({ nodes: [] });
 
             visualizer.destroy();
         });
 
-        it('filters nodes by role pill', () => {
+        it('renders kinetic animation frames including pulsing halos and particle flow', () => {
+            const visualizer = createCitationVisualizer(container);
+            const graphData = {
+                nodes: [
+                    { id: 'p1', title: 'Paper 1', year: 2020, citations: 100, nodeType: 'landmark' },
+                    { id: 'p2', title: 'Paper 2', year: 2022, citations: 10, nodeType: 'focus' },
+                ],
+                edges: [{ source: 'p1', target: 'p2', weight: 0.9, type: 'citation' }],
+            };
+            visualizer.setData(graphData);
+
+            const mockGradient = { addColorStop: vi.fn() };
+            const mockCtx = {
+                save: vi.fn(),
+                restore: vi.fn(),
+                beginPath: vi.fn(),
+                arc: vi.fn(),
+                fill: vi.fn(),
+                stroke: vi.fn(),
+                createRadialGradient: vi.fn(() => mockGradient),
+                setLineDash: vi.fn(),
+            };
+
+            // Call afterDrawing hook
+            expect(eventHandlers.afterDrawing).toBeDefined();
+            eventHandlers.afterDrawing(mockCtx);
+
+            expect(mockCtx.save).toHaveBeenCalled();
+            expect(mockCtx.restore).toHaveBeenCalled();
+
+            visualizer.destroy();
+        });
+
+        it('filters nodes by role pill and toggles selection', () => {
             const visualizer = createCitationVisualizer(container);
             const graphData = {
                 nodes: [
@@ -269,24 +409,10 @@ describe('public/js/network-visualizer.js (Interactive Citation Visualizer Suite
             };
             visualizer.setData(graphData);
 
+            // Select landmark
             visualizer.filterByRole('landmark');
-
-            visualizer.destroy();
-        });
-
-        it('centers on landmark paper with animation', () => {
-            const visualizer = createCitationVisualizer(container);
-            const graphData = {
-                nodes: [
-                    { id: 'p1', title: 'Paper 1', year: 2018, citations: 10, nodeType: 'standard' },
-                    { id: 'p2', title: 'Paper 2 Landmark', year: 2020, citations: 500, nodeType: 'landmark' },
-                ],
-                edges: [],
-            };
-            visualizer.setData(graphData);
-
-            visualizer.focusLandmarkNode();
-            expect(mockVisNetwork.focus).toHaveBeenCalledWith('p2', expect.any(Object));
+            // Toggle off
+            visualizer.filterByRole('landmark');
 
             visualizer.destroy();
         });

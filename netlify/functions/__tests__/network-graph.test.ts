@@ -6,6 +6,12 @@ describe('network-graph.ts comprehensive test suite', () => {
         vi.clearAllMocks();
     });
 
+    it('handles OPTIONS preflight CORS request', async () => {
+        const req = new Request('http://localhost/api/network-graph', { method: 'OPTIONS' });
+        const res = await networkGraphHandler(req, {} as any);
+        expect(res.status).toBe(200);
+    });
+
     it('returns 400 when papers is missing or empty', async () => {
         const req = new Request('http://localhost/api/network-graph', {
             method: 'POST',
@@ -19,8 +25,64 @@ describe('network-graph.ts comprehensive test suite', () => {
         expect(data.edges).toEqual([]);
     });
 
+    it('queries Semantic Scholar by DOI and paperId, extracting direct and co-citation edges', async () => {
+        const mockS2Response = {
+            references: [
+                {
+                    paperId: 'paper-target',
+                    title: 'Target Paper Title',
+                    citationCount: 400,
+                    year: 2021,
+                },
+                {
+                    paperId: 'external-shared-ref',
+                    title: 'Shared Foundation Paper',
+                    citationCount: 2000,
+                    year: 2016,
+                },
+            ],
+            citations: [{ paperId: 'paper-target' }],
+        };
+
+        const fetchMock = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => mockS2Response,
+        });
+        vi.stubGlobal('fetch', fetchMock);
+
+        const papers = [
+            {
+                id: 'paper-source-with-doi',
+                title: 'Source Paper With Valid DOI',
+                authors: ['Alice Researcher'],
+                year: 2023,
+                citations: 120,
+                doi: '10.1000/182',
+            },
+            {
+                id: 'paper-target',
+                title: 'Target Paper in Cohort',
+                authors: [{ name: 'Bob Scientist' }],
+                year: 2021,
+                citations: 400,
+            },
+        ];
+
+        const req = new Request('http://localhost/api/network-graph', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query: 'Quantum Computing', papers }),
+        });
+
+        const res = await networkGraphHandler(req, {} as any);
+        expect(res.status).toBe(200);
+        const data = await res.json();
+
+        expect(data.nodes.length).toBeGreaterThanOrEqual(2);
+        expect(data.edges.length).toBeGreaterThan(0);
+    });
+
     it('synthesizes realistic citation lineage DAG when external API returns no edges', async () => {
-        // Mock fetch returning 404 or empty references for all external lookups
         const fetchMock = vi.fn().mockResolvedValue({
             ok: false,
             status: 404,
@@ -77,7 +139,6 @@ describe('network-graph.ts comprehensive test suite', () => {
         expect(data.nodes.length).toBe(4);
         expect(data.edges.length).toBeGreaterThanOrEqual(3);
 
-        // Verify node classifications
         const ppoNode = data.nodes.find((n: any) => n.id === 'paper-ppo');
         expect(ppoNode).toBeDefined();
         expect(ppoNode.nodeType).toBe('landmark');
@@ -90,11 +151,23 @@ describe('network-graph.ts comprehensive test suite', () => {
         expect(focusNode).toBeDefined();
         expect(focusNode.nodeType).toBe('focus');
 
-        // Check that degrees are computed
         data.nodes.forEach((n: any) => {
             expect(typeof n.inDegree).toBe('number');
             expect(typeof n.outDegree).toBe('number');
             expect(n.inDegree + n.outDegree).toBeGreaterThan(0);
         });
+    });
+
+    it('catches and handles server error gracefully with 500 status', async () => {
+        const req = new Request('http://localhost/api/network-graph', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: 'malformed-json{{{',
+        });
+        const res = await networkGraphHandler(req, {} as any);
+        expect(res.status).toBe(500);
+        const data = await res.json();
+        expect(data.nodes).toEqual([]);
+        expect(data.edges).toEqual([]);
     });
 });

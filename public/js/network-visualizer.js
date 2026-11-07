@@ -136,6 +136,7 @@ export function createCitationVisualizer(container, options = {}) {
     let hoveredNodeId = null;
     let particles = [];
     let isDestroyed = false;
+    let layoutTimeoutId = null;
 
     // HUD Elements
     let controlsOverlay = null;
@@ -498,9 +499,14 @@ export function createCitationVisualizer(container, options = {}) {
             });
         }
 
-        setTimeout(() => {
-            network.fit({ animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
-        }, 300);
+        if (layoutTimeoutId) {
+            clearTimeout(layoutTimeoutId);
+        }
+        layoutTimeoutId = setTimeout(() => {
+            if (!isDestroyed && network) {
+                network.fit({ animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
+            }
+        }, 50);
     }
 
     /**
@@ -786,7 +792,7 @@ export function createCitationVisualizer(container, options = {}) {
         nodesDataSet = new vis.DataSet(nodesList);
         edgesDataSet = new vis.DataSet(edgesList);
 
-        const options = {
+        const networkOptions = {
             nodes: {
                 scaling: { min: 14, max: 36 },
             },
@@ -810,7 +816,7 @@ export function createCitationVisualizer(container, options = {}) {
         };
 
         // Create vis.Network instance
-        network = new vis.Network(container, { nodes: nodesDataSet, edges: edgesDataSet }, options);
+        network = new vis.Network(container, { nodes: nodesDataSet, edges: edgesDataSet }, networkOptions);
 
         // Kinetic Canvas Hooks
         network.on('afterDrawing', (ctx) => {
@@ -912,6 +918,10 @@ export function createCitationVisualizer(container, options = {}) {
 
     function destroy() {
         isDestroyed = true;
+        if (layoutTimeoutId) {
+            clearTimeout(layoutTimeoutId);
+            layoutTimeoutId = null;
+        }
         stopAnimationLoop();
         if (network) {
             network.destroy();
