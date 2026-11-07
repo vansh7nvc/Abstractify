@@ -1,7 +1,11 @@
 // AbstractiFy Frontend JavaScript Logic
 // Fully handles: Search, Consensus, Matrix, Network Graph, PDF Ingestion, Chat Agent, Equation Explainer, and Transitions
+import { initTheme } from './js/theme.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ─── Theme System Initialization ───
+    initTheme();
+
     // ─── State Management ───
     let storedGeminiKey = localStorage.getItem('gemini_key') || '';
     if (storedGeminiKey.startsWith('AQ.' + 'Ab8RN6JNoL')) {
@@ -635,6 +639,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            const isDark = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark';
+
             // Node visual options styled like an academic blueprint
             const nodes = new vis.DataSet(data.nodes.map(n => ({
                 id: n.id,
@@ -642,21 +648,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: `${n.title} (${n.year || 'N/A'}, Citations: ${n.citations || 0})`,
                 value: n.citations || 4,
                 color: {
-                    background: '#FDFAF6',
-                    border: '#002147',
-                    hover: { background: '#E8F0F2', border: '#002147' },
-                    highlight: { background: '#E8F0F2', border: '#002147' }
+                    background: isDark ? '#1E293B' : '#FDFAF6',
+                    border: isDark ? '#38BDF8' : '#002147',
+                    hover: { background: isDark ? '#334155' : '#E8F0F2', border: isDark ? '#38BDF8' : '#002147' },
+                    highlight: { background: isDark ? '#334155' : '#E8F0F2', border: isDark ? '#38BDF8' : '#002147' }
                 },
                 shape: 'dot',
                 borderWidth: 1.5,
-                font: { color: '#1A1A1A', face: 'Times New Roman', size: 10 }
+                font: { color: isDark ? '#F8FAFC' : '#1A1A1A', face: 'Times New Roman', size: 10 }
             })));
 
             const edges = new vis.DataSet(data.edges.map(e => ({
                 from: e.source,
                 to: e.target,
                 arrows: 'to',
-                color: { color: '#D1CDC7', highlight: '#002147' }
+                color: { color: isDark ? '#334155' : '#D1CDC7', highlight: isDark ? '#38BDF8' : '#002147' }
             })));
 
             const options = {
@@ -688,6 +694,13 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
     }
+
+    // Dynamic theme update for citation graph
+    window.addEventListener('themechange', () => {
+        if (state.networkInstance && state.currentQuery && state.searchResults && state.searchResults.length > 0) {
+            runNetworkGraph(state.currentQuery);
+        }
+    });
 
     // ══════════════════════════════════════════════════════
     //  CITATION CONTEXT (Scite-style intents)

@@ -4,8 +4,16 @@
 
 /* Fonts loaded via <link> tags in index.html */
 :root {
+    /* Issue #16 Theme Specification Tokens */
+    --bg-primary: #FDFAF6;
+    --bg-surface: #FFFFFF;
+    --text-primary: #1A1A1A;
+    --text-secondary: #555555;
+    --border-color: #D1CDC7;
+    --accent-color: #002147;
+
     /* Brand Colors */
-    --primary: #002147;          /* Oxford Navy */
+    --primary: var(--accent-color);          /* Oxford Navy */
     --primary-hover: #00152e;
     --primary-light: #eef4fb;
     --primary-rgb: 0, 33, 71;
@@ -16,16 +24,16 @@
     --accent-rose: #e11d48;
     
     /* Paper & Background Neutrals */
-    --background: #FDFAF6;       /* Warm Scholarly Ivory */
-    --surface: #FFFFFF;
+    --background: var(--bg-primary);       /* Warm Scholarly Ivory */
+    --surface: var(--bg-surface);
     --surface-muted: #F8F5EF;
     --surface-elevated: #FFFFFF;
-    --outline: #E2DDD5;          /* Crisp Rule Color */
+    --outline: var(--border-color);          /* Crisp Rule Color */
     --outline-subtle: #ECE8E1;
     
     /* Text Hierarchy */
-    --on-surface: #14171A;       /* High-contrast Ink */
-    --secondary: #4B5563;        /* Refined Charcoal */
+    --on-surface: var(--text-primary);       /* High-contrast Ink */
+    --secondary: var(--text-secondary);        /* Refined Charcoal */
     --secondary-muted: #6B7280;  /* Subtle Supporting */
     --tertiary: #9CA3AF;
     
@@ -604,3 +612,290 @@ input[type="text"]:focus, input[type="password"]:focus, select:focus {
     color: #94a3b8;
     border-radius: 6px;
 }
+
+/* ==========================================================================
+   Dark Mode Theme System (Issue #16 Specification)
+   ========================================================================== */
+
+[data-theme="dark"] {
+    /* Issue #16 Core Color Tokens */
+    --bg-primary: #0F172A;
+    --bg-surface: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --border-color: #334155;
+    --accent-color: #38BDF8;
+
+    /* Theme Tokens Mapped to AbstractiFy Design System */
+    --primary: var(--accent-color);
+    --primary-hover: #7DD3FC;
+    --primary-light: #16243B;
+    --primary-rgb: 56, 189, 248;
+
+    --accent-cyan: #38BDF8;
+    --accent-emerald: #34D399;
+    --accent-amber: #FBBF24;
+    --accent-rose: #FB7185;
+
+    /* Paper & Background Neutrals */
+    --background: var(--bg-primary);
+    --surface: var(--bg-surface);
+    --surface-muted: #152238;
+    --surface-elevated: #24344D;
+    --outline: var(--border-color);
+    --outline-subtle: #243247;
+
+    /* Text Hierarchy */
+    --on-surface: var(--text-primary);
+    --secondary: var(--text-secondary);
+    --secondary-muted: #64748B;
+    --tertiary: #475569;
+
+    /* Stance Badges */
+    --stance-supports-bg: rgba(6, 95, 70, 0.35);
+    --stance-supports-text: #6EE7B7;
+    --stance-supports-border: #065F46;
+
+    --stance-neutral-bg: rgba(91, 33, 182, 0.35);
+    --stance-neutral-text: #C4B5FD;
+    --stance-neutral-border: #5B21B6;
+
+    --stance-opposes-bg: rgba(153, 27, 27, 0.35);
+    --stance-opposes-text: #FCA5A5;
+    --stance-opposes-border: #991B1B;
+
+    /* Shadows in dark mode */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.45), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.35);
+}
+
+/* Dark Mode Surface Overrides & Text Contrast */
+[data-theme="dark"] body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] header {
+    background-color: rgba(15, 23, 42, 0.94) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .bg-background,
+[data-theme="dark"] .bg-background\/90 {
+    background-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] .bg-surface,
+[data-theme="dark"] .bg-surface\/95,
+[data-theme="dark"] .bg-surface\/90,
+[data-theme="dark"] .bg-surface\/50 {
+    background-color: var(--bg-surface) !important;
+}
+
+[data-theme="dark"] .bg-surface-muted,
+[data-theme="dark"] .hover\:bg-surface-muted:hover {
+    background-color: var(--surface-muted) !important;
+}
+
+[data-theme="dark"] .text-primary {
+    color: var(--accent-color) !important;
+}
+
+[data-theme="dark"] .text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-on-surface {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .border-outline,
+[data-theme="dark"] .editorial-rule {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] select {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] input[type="text"]:focus,
+[data-theme="dark"] input[type="password"]:focus,
+[data-theme="dark"] select:focus {
+    border-bottom-color: var(--accent-color) !important;
+}
+
+[data-theme="dark"] #search-input,
+[data-theme="dark"] #landing-search-input {
+    background-color: var(--surface);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] #search-input::placeholder,
+[data-theme="dark"] #landing-search-input::placeholder {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-header h3 {
+    color: var(--accent-color);
+}
+
+[data-theme="dark"] .workspace-tab-btn {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .workspace-tab-btn:hover {
+    color: var(--accent-color);
+    background-color: var(--surface-muted);
+}
+
+[data-theme="dark"] .workspace-tab-btn.active {
+    color: var(--accent-color);
+    background-color: var(--primary-light);
+    border-color: rgba(56, 189, 248, 0.3);
+}
+
+[data-theme="dark"] .workspace-tab-btn.active .tab-badge {
+    background-color: var(--accent-color);
+    color: #0F172A;
+}
+
+[data-theme="dark"] .oxford-btn {
+    background-color: var(--accent-color);
+    color: #0F172A;
+    border-color: var(--accent-color);
+    font-weight: 600;
+}
+
+[data-theme="dark"] .oxford-btn:hover {
+    background-color: #7DD3FC;
+    border-color: #7DD3FC;
+}
+
+[data-theme="dark"] .secondary-btn {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .secondary-btn:hover {
+    border-color: var(--accent-color);
+    background-color: var(--surface-muted);
+    color: var(--accent-color);
+}
+
+[data-theme="dark"] .paper-card {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .paper-card:hover {
+    border-color: var(--accent-color);
+}
+
+[data-theme="dark"] .paper-card.selected {
+    border-color: var(--accent-color);
+    background-color: var(--primary-light);
+}
+
+[data-theme="dark"] .matrix-table-wrapper {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .matrix-table th {
+    background-color: var(--surface-muted);
+    color: var(--accent-color);
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .matrix-table td {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .matrix-table tr:hover td {
+    background-color: var(--primary-light);
+}
+
+[data-theme="dark"] .graph-viewport {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .graph-legend-bar {
+    background-color: var(--surface-muted);
+    border-top-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] #welcome-message,
+[data-theme="dark"] #consensus-summary-text,
+[data-theme="dark"] #formula-explanation {
+    background-color: var(--surface-muted);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   Theme Toggle Component Styling
+   ========================================================================== */
+
+#theme-toggle, .theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 8px;
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--outline);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    user-select: none;
+    font-size: 16px;
+    line-height: 1;
+}
+
+#theme-toggle:hover, .theme-toggle-btn:hover {
+    border-color: var(--primary);
+    background-color: var(--surface-muted);
+    transform: translateY(-1px);
+}
+
+#theme-toggle:focus-visible, .theme-toggle-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.theme-toggle-icon {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    font-size: 16px;
+}
+
+#theme-toggle:hover .theme-toggle-icon,
+.theme-toggle-btn:hover .theme-toggle-icon {
+    transform: rotate(20deg) scale(1.15);
+}
+

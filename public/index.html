@@ -41,6 +41,18 @@
             }
         } catch(_e){}
     </script>
+    <script>
+        (function() {
+            try {
+                var stored = localStorage.getItem('theme');
+                var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var theme = (stored === 'dark' || stored === 'light') ? stored : (systemDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.classList.remove('light', 'dark');
+                document.documentElement.classList.add(theme);
+            } catch (_e) {}
+        })();
+    </script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="font-sans antialiased paper-texture min-h-screen show-landing">
@@ -60,7 +72,10 @@
                 <a class="hover:text-primary transition-colors" href="#methodology">Methodology</a>
                 <a class="hover:text-primary transition-colors" href="#features">Features</a>
             </nav>
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4">
+                <button id="landing-theme-toggle" class="secondary-btn text-xs py-2 px-3 theme-toggle-btn" title="Switch to Dark Mode" aria-label="Toggle theme">
+                    <span class="theme-toggle-icon text-sm">🌙</span>
+                </button>
                 <button class="access-workspace-btn oxford-btn">
                     <span>Access Workspace</span>
                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
@@ -186,6 +201,10 @@
                 </button>
                 <input type="file" id="pdf-file-input" accept="application/pdf" class="hidden">
                 
+                <button id="theme-toggle" class="secondary-btn text-xs py-2 px-3 theme-toggle-btn" title="Switch to Dark Mode" aria-label="Toggle theme">
+                    <span id="theme-toggle-icon" class="theme-toggle-icon text-sm">🌙</span>
+                </button>
+
                 <button id="settings-btn" class="secondary-btn text-xs py-2 px-3" title="API Keys & Model Settings">
                     <span class="material-symbols-outlined text-base">tune</span>
                 </button>
@@ -587,6 +606,6 @@
     </div>
 
     <!-- Script Entrypoint -->
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
