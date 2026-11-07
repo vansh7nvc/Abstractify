@@ -5,6 +5,7 @@ import { renderLatex, renderMathInContainer } from './js/katex-helper.js';
 import { initShortcuts, openModal, closeModal } from './js/shortcuts.js';
 import { calculateReadingMetrics, formatReadingTimeBadge } from './js/reading-time.js';
 import { exportBibliography } from './js/export.js';
+import { exportPanelAsImage } from './js/screenshot.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const $ = id => document.getElementById(id);
@@ -1169,6 +1170,67 @@ document.addEventListener('DOMContentLoaded', () => {
             downloadFile(`AbstractiFy_${safeQuery}_${style}.${ext}`, content, mime);
         });
     }
+
+    // ══════════════════════════════════════════════════════
+    //  PANEL SCREENSHOT EXPORT (Issue #03)
+    // ══════════════════════════════════════════════════════
+    const screenshotToast = $('screenshot-toast');
+    let screenshotToastTimer = null;
+
+    function showScreenshotToast(message = '✨ Screenshot exported as PNG!') {
+        if (!screenshotToast) return;
+        const msgEl = $('screenshot-toast-msg');
+        if (msgEl) msgEl.textContent = message;
+        screenshotToast.classList.remove('opacity-0', 'pointer-events-none');
+        screenshotToast.classList.add('opacity-100');
+        if (screenshotToastTimer) clearTimeout(screenshotToastTimer);
+        screenshotToastTimer = setTimeout(() => {
+            screenshotToast.classList.remove('opacity-100');
+            screenshotToast.classList.add('opacity-0', 'pointer-events-none');
+        }, 3200);
+    }
+
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-export-screenshot');
+        if (!btn) return;
+        e.stopPropagation();
+
+        // Close any open export dropdown menus
+        dropdowns.forEach(({ menu }) => {
+            const menuEl = $(menu);
+            if (menuEl) menuEl.classList.add('hidden');
+        });
+
+        const targetId = btn.getAttribute('data-target');
+        const filename = btn.getAttribute('data-filename') || 'AbstractiFy_Panel';
+        if (!targetId) return;
+
+        const targetEl = $(targetId);
+        if (!targetEl) {
+            alert(`Target panel "${targetId}" could not be located.`);
+            return;
+        }
+
+        const origContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.classList.add('opacity-75');
+
+        try {
+            await exportPanelAsImage(targetEl, filename, {
+                onComplete: () => {
+                    showScreenshotToast(`✨ ${filename.replace(/_/g, ' ')} exported as PNG!`);
+                },
+                onError: (err) => {
+                    console.error('Screenshot export error:', err);
+                    alert('Failed to generate panel screenshot. Ensure all external assets are loaded.');
+                }
+            });
+        } finally {
+            btn.disabled = false;
+            btn.classList.remove('opacity-75');
+            btn.innerHTML = origContent;
+        }
+    });
 
     // ══════════════════════════════════════════════════════
     //  PDF UPLOAD & INGESTION
