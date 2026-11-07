@@ -9,6 +9,7 @@ import {
 } from './_utils.js';
 import { cacheGet, cacheSet } from './shared/redis.js';
 import { upsertVectors } from './shared/vector.js';
+import { searchPubMed } from './search/sources/pubmed.js';
 
 export default async (req: Request, context: Context) => {
     // Enable CORS for localhost testing if needed (though Netlify takes care of routing)
@@ -112,6 +113,27 @@ export default async (req: Request, context: Context) => {
                     })
                     .filter((p: Paper) => p.abstract.length > 30);
             }
+        }
+
+        // 2. Query PubMed & MEDLINE Biomedical Repository (Issue #25)
+        try {
+            const pubmedPapers = await searchPubMed(query, 15);
+            if (pubmedPapers.length > 0) {
+                const seenDois = new Set(papers.map(p => p.doi?.toLowerCase()).filter(Boolean));
+                const seenTitles = new Set(papers.map(p => p.title.toLowerCase().trim()));
+
+                for (const pmPaper of pubmedPapers) {
+                    const doiMatch = pmPaper.doi && seenDois.has(pmPaper.doi.toLowerCase());
+                    const titleMatch = seenTitles.has(pmPaper.title.toLowerCase().trim());
+                    if (!doiMatch && !titleMatch) {
+                        papers.push(pmPaper);
+                        if (pmPaper.doi) seenDois.add(pmPaper.doi.toLowerCase());
+                        seenTitles.add(pmPaper.title.toLowerCase().trim());
+                    }
+                }
+            }
+        } catch (pubmedErr) {
+            console.warn('[Search] PubMed integration error:', pubmedErr);
         }
 
         if (papers.length === 0) {
