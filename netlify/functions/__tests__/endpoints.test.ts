@@ -264,19 +264,20 @@ describe('Netlify Endpoint Handlers', () => {
 </feed>`;
 
             const fetchMock = vi.fn().mockImplementation(async (url: string) => {
-                if (url.includes('semanticscholar')) {
+                const parsedUrl = new URL(url);
+                if (parsedUrl.hostname.includes('semanticscholar')) {
                     return { ok: true, json: async () => ({ data: mockSemanticScholar }) };
                 }
-                if (url.includes('esearch.fcgi')) {
+                if (parsedUrl.pathname.endsWith('esearch.fcgi')) {
                     return { ok: true, json: async () => mockPubMedSearch };
                 }
-                if (url.includes('esummary.fcgi')) {
+                if (parsedUrl.pathname.endsWith('esummary.fcgi')) {
                     return { ok: true, json: async () => mockPubMedSummary };
                 }
-                if (url.includes('api.core.ac.uk')) {
+                if (parsedUrl.hostname === 'api.core.ac.uk') {
                     return { ok: true, json: async () => mockCoreWorks };
                 }
-                if (url.includes('export.arxiv.org')) {
+                if (parsedUrl.hostname === 'export.arxiv.org') {
                     return { ok: true, text: async () => mockArxivXml };
                 }
                 return { ok: false };
@@ -322,7 +323,11 @@ describe('Netlify Endpoint Handlers', () => {
             const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
             const fetchMock = vi.fn().mockImplementation(async (url: string) => {
-                if (url.includes('semanticscholar') || url.includes('openalex')) {
+                const parsedUrl = new URL(url);
+                if (
+                    parsedUrl.hostname.includes('semanticscholar') ||
+                    parsedUrl.hostname.includes('openalex')
+                ) {
                     return { ok: false, status: 500, statusText: 'Server Error' };
                 }
                 throw new Error('Network failure in source integration');
