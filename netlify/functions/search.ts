@@ -10,6 +10,7 @@ import {
 import { cacheGet, cacheSet } from './shared/redis.js';
 import { upsertVectors } from './shared/vector.js';
 import { searchPubMed } from './search/sources/pubmed.js';
+import { searchCoreApi } from './search/sources/core-api.js';
 
 export default async (req: Request, context: Context) => {
     // Enable CORS for localhost testing if needed (though Netlify takes care of routing)
@@ -134,6 +135,38 @@ export default async (req: Request, context: Context) => {
             }
         } catch (pubmedErr) {
             console.warn('[Search] PubMed integration error:', pubmedErr);
+        }
+
+        // 3. Query CORE API v3 Open-Access Repository (Issue #26)
+        try {
+            const corePapers = await searchCoreApi(query, 15);
+            if (corePapers.length > 0) {
+                const seenDois = new Map(
+                    papers.filter((p) => p.doi).map((p) => [p.doi!.toLowerCase(), p]),
+                );
+                const seenTitles = new Map(papers.map((p) => [p.title.toLowerCase().trim(), p]));
+
+                for (const corePaper of corePapers) {
+                    const existingByDoi = corePaper.doi
+                        ? seenDois.get(corePaper.doi.toLowerCase())
+                        : undefined;
+                    const existingByTitle = seenTitles.get(corePaper.title.toLowerCase().trim());
+                    const existing = existingByDoi || existingByTitle;
+
+                    if (existing) {
+                        // Enrich existing paper with downloadUrl if missing
+                        if (!existing.downloadUrl && corePaper.downloadUrl) {
+                            existing.downloadUrl = corePaper.downloadUrl;
+                        }
+                    } else {
+                        papers.push(corePaper);
+                        if (corePaper.doi) seenDois.set(corePaper.doi.toLowerCase(), corePaper);
+                        seenTitles.set(corePaper.title.toLowerCase().trim(), corePaper);
+                    }
+                }
+            }
+        } catch (coreErr) {
+            console.warn('[Search] CORE API integration error:', coreErr);
         }
 
         if (papers.length === 0) {

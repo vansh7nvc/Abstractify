@@ -10,6 +10,7 @@ export interface Paper {
     doi?: string;
     citations: number;
     consensusStance?: string;
+    downloadUrl?: string;
 }
 
 // Retrieve API keys from headers or environment
