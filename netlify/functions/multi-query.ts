@@ -33,7 +33,7 @@ function validateRequest(body: Partial<OrchestrationRequest>): string | null {
     if (body.sessionId !== undefined && typeof body.sessionId !== 'string') {
         return 'Session id must be a string.';
     }
-    if (body.mode && body.mode !== 'parallel' && body.mode !== 'sequential') {
+    if (body.mode !== undefined && body.mode !== 'parallel' && body.mode !== 'sequential') {
         return 'Mode must be either parallel or sequential.';
     }
     if (body.agents !== undefined) {
@@ -52,9 +52,22 @@ function validateRequest(body: Partial<OrchestrationRequest>): string | null {
 
 function sseResponse(request: OrchestrationRequest, apiKey: string): Response {
     const encoder = new TextEncoder();
+    let cancelCleanup: (() => void) | undefined;
     const stream = new ReadableStream<Uint8Array>({
         start(controller) {
+            let closed = false;
+            const cleanup = () => {
+                if (closed) return;
+                closed = true;
+                try {
+                    controller.close();
+                } catch {
+                    // The client may have cancelled or closed the stream already.
+                }
+            };
+            cancelCleanup = cleanup;
             const send = (event: string, payload: unknown) => {
+                if (closed) return;
                 controller.enqueue(
                     encoder.encode(`event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`),
                 );
@@ -64,14 +77,17 @@ function sseResponse(request: OrchestrationRequest, apiKey: string): Response {
             void orchestrate(request, apiKey, { onEvent })
                 .then((result) => {
                     send('orchestration:done', result);
-                    controller.close();
                 })
                 .catch((error) => {
                     send('orchestration:error', {
                         message: error instanceof Error ? error.message : 'Orchestration failed',
                     });
-                    controller.close();
-                });
+                })
+                .catch(() => undefined)
+                .finally(cleanup);
+        },
+        cancel() {
+            cancelCleanup?.();
         },
     });
 
@@ -93,7 +109,15 @@ export default async (req: Request, _context: Context) => {
     if (unauthorized) return unauthorized;
 
     try {
-        const body = (await req.json()) as Partial<OrchestrationRequest> & { stream?: boolean };
+        let body: Partial<OrchestrationRequest> & { stream?: boolean };
+        try {
+            body = (await req.json()) as Partial<OrchestrationRequest> & { stream?: boolean };
+        } catch {
+            return jsonResponse({ message: 'Request body must be valid JSON.' }, 400);
+        }
+        if (!body || typeof body !== 'object' || Array.isArray(body)) {
+            return jsonResponse({ message: 'Request body must be a JSON object.' }, 400);
+        }
         const validationError = validateRequest(body);
         if (validationError) return jsonResponse({ message: validationError }, 400);
 

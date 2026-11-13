@@ -144,7 +144,13 @@ export async function orchestrate(
         }
     } else {
         for (const phase of PARALLEL_PHASES) {
-            await Promise.all(phase.filter((name) => selected.has(name)).map(runAgent));
+            const outcomes = await Promise.allSettled(
+                phase.filter((name) => selected.has(name)).map(runAgent),
+            );
+            const failure = outcomes.find(
+                (outcome): outcome is PromiseRejectedResult => outcome.status === 'rejected',
+            );
+            if (failure) throw failure.reason;
         }
     }
 

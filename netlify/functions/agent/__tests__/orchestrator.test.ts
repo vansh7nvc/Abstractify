@@ -71,4 +71,22 @@ describe('multi-agent orchestrator', () => {
 
         expect(observed).toEqual(['agent:start', 'agent:error']);
     });
+
+    it('waits for every agent in a phase before rejecting', async () => {
+        const observed: string[] = [];
+
+        await expect(
+            orchestrate({ query: 'test', agents: ['memory', 'search'] }, 'test-key', {
+                invokeAgent: async (agent) => {
+                    if (agent.name === 'memory') throw new Error('memory unavailable');
+                    await new Promise((resolve) => setTimeout(resolve, 10));
+                    observed.push('search settled');
+                    return 'search report';
+                },
+                invokeSupervisor: async () => 'unused',
+            }),
+        ).rejects.toThrow('memory unavailable');
+
+        expect(observed).toEqual(['search settled']);
+    });
 });

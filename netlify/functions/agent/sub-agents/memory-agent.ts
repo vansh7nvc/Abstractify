@@ -7,21 +7,33 @@ async function loadMemoryContext(input: AgentRunInput, apiKey: string): Promise<
     const memory: Record<string, unknown> = {};
 
     if (input.sessionId) {
-        const session = await getSession(input.sessionId);
-        if (session) {
-            memory.session = {
-                query: session.query,
-                notes: session.notes,
-                recentPaperTitles: session.papers.slice(0, 10).map((paper) => paper.title),
-            };
+        try {
+            const session = await getSession(input.sessionId);
+            if (session) {
+                const papers = Array.isArray(session.papers) ? session.papers : [];
+                memory.session = {
+                    query: session.query,
+                    notes: session.notes,
+                    recentPaperTitles: papers.slice(0, 10).map((paper) => paper?.title),
+                };
+            }
+        } catch (error) {
+            console.warn('[Memory Agent] Session recall failed; continuing without it:', error);
         }
     }
 
-    if (getVectorIndex()) {
+    try {
+        if (!getVectorIndex()) return serializeMemory(memory);
         const embedding = await callGeminiEmbedding(input.query, apiKey);
         memory.reasoningTraces = await queryNearest(embedding, 5, 'reasoning-traces');
+    } catch (error) {
+        console.warn('[Memory Agent] Vector recall failed; continuing without it:', error);
     }
 
+    return serializeMemory(memory);
+}
+
+function serializeMemory(memory: Record<string, unknown>): string {
     return Object.keys(memory).length > 0
         ? JSON.stringify(memory)
         : 'No persisted session or reasoning traces were available.';
